@@ -1,6 +1,7 @@
 package builders.requestbuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import enums.IdentityEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class Identity {
 
     private String country;
-    private String entity_type;
+    private IdentityEntity entity_type;
     private Business_Details business_details;
 
 }

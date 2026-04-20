@@ -1,6 +1,7 @@
 package datafactory;
 
 import builders.requestbuilder.*;
+import enums.*;
 
 
 import java.util.HashMap;
@@ -9,19 +10,19 @@ import java.util.Map;
 
 public class CreateAccountDataFactory {
 
-    public static CreateAccountRequestPayload createAccountRequestPayload(){
+    public static CreateAccountRequestPayload createAccountRequestPayload(String email, String name, String country, IdentityEntity entity, Boolean CustomerRequested, Boolean merchantRequested, DefaultsResponsibilitiesFeesCollector fees_collector, DefaultsResponsibilitiesLossesCollector losses_collector, Dashboard dashboard,List<String> include ){
 
         CreateAccountRequestPayload request =
                 CreateAccountRequestPayload.builder()
-                        .contact_email("furever@example.com")
-                        .display_name("Furever")
+                        .contact_email(email)
+                        .display_name(name)
                         .identity(
                                 Identity.builder()
-                                        .country("us")
-                                        .entity_type("company")
+                                        .country(country)
+                                        .entity_type(entity)
                                         .business_details(
                                                 Business_Details.builder()
-                                                        .registered_name("Furever")
+                                                        .registered_name(name)
                                                         .build()
                                         )
                                         .build()
@@ -34,7 +35,7 @@ public class CreateAccountDataFactory {
                                                                 CustomerCapabilities.builder()
                                                                         .automatic_indirect_tax(
                                                                                 Automatic_indirect_tax.builder()
-                                                                                        .requested(true)
+                                                                                        .requested(CustomerRequested)
                                                                                         .build()
                                                                         )
                                                                         .build()
@@ -47,7 +48,7 @@ public class CreateAccountDataFactory {
                                                                 MerchantCapabilities.builder()
                                                                         .card_payments(
                                                                                 Card_Payments.builder()
-                                                                                        .requested(true)
+                                                                                        .requested(merchantRequested)
                                                                                         .build()
                                                                         )
                                                                         .build()
@@ -60,19 +61,14 @@ public class CreateAccountDataFactory {
                                 Defaults.builder()
                                         .responsibilities(
                                                 Responsibilities.builder()
-                                                        .fees_collector("stripe")
-                                                        .losses_collector("stripe")
+                                                        .fees_collector(fees_collector)
+                                                        .losses_collector(losses_collector)
                                                         .build()
                                         )
                                         .build()
                         )
-                        .dashboard("full")
-                        .include(List.of(
-                                "configuration.merchant",
-                                "configuration.customer",
-                                "identity",
-                                "defaults"
-                        ))
+                        .dashboard(dashboard)
+                        .include(include)
                         .build();
 
         return request;

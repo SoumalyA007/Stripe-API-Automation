@@ -1,6 +1,8 @@
 package builders.requestbuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import enums.DefaultsResponsibilitiesFeesCollector;
+import enums.DefaultsResponsibilitiesLossesCollector;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Responsibilities {
 
-    private String fees_collector;
-    private String losses_collector;
+    private DefaultsResponsibilitiesFeesCollector fees_collector;
+    private DefaultsResponsibilitiesLossesCollector losses_collector;
 
 }

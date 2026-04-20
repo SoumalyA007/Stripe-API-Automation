@@ -1,6 +1,8 @@
 package builders.requestbuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import enums.Dashboard;
+import enums.Include;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +24,7 @@ public class CreateAccountRequestPayload {
     private Identity identity;
     private Configuration configuration;
     private Defaults defaults;
-    private String dashboard;
+    private Dashboard dashboard;
     private List<String> include;
 
 }

@@ -1,14 +1,15 @@
 package tests;
 
+import builders.requestbuilder.CreateAccountRequestPayload;
 import com.github.javafaker.Faker;
-import datafactory.CreateAccountDataFactory;
 import endpoints.accounts;
-import enums.*;
+import helpers.Accounts;
 import io.restassured.response.Response;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
-import java.util.List;
 
 public class AccountTests extends ResponseSpec {
 
@@ -20,26 +21,24 @@ public class AccountTests extends ResponseSpec {
     public void createValidAccount(){
 
 
-
-        String email = faker.internet().emailAddress();
-        String name = faker.name().firstName();
-        String country = "us";
-        IdentityEntity entity = IdentityEntity.company;
-        Boolean CustomerRequested = true;
-        Boolean merchantRequested = true;
-        DefaultsResponsibilitiesFeesCollector fees_collector = DefaultsResponsibilitiesFeesCollector.stripe;
-        DefaultsResponsibilitiesLossesCollector losses_collector = DefaultsResponsibilitiesLossesCollector.stripe;
-        Dashboard dashboard = Dashboard.full;
-        List< String > include = List.of(
-                Include.CONFIGURATION_CUSTOMER.getValue(),
-                Include.CONFIGURATION_MERCHANT.getValue(),
-                Include.IDENTITY.getValue(),
-                Include.DEFAULTS.getValue()
-        );
-
-        Response resp = accounts.createAccount(CreateAccountDataFactory.createAccountRequestPayload(email,name,country,entity,CustomerRequested,merchantRequested,fees_collector,losses_collector,dashboard,include));
+        Response resp = accounts.createAccount(Accounts.validAccountCreationHelper());
         createAcountResponseThread.set(resp);
         resp.then().spec(OK());
+
+    }
+
+    //Create Invalid Cart by Sending Invalid Country Code
+    @Test
+    public void InvalidCreateCart(){
+
+
+        CreateAccountRequestPayload requestPayload = Accounts.validAccountCreationHelper();
+        requestPayload.getIdentity().setCountry("KW");
+
+        Response resp = accounts.createAccount(requestPayload);
+
+        resp.then().spec(bad_request())
+                .body("error.message",containsString("Error: The full service agreement is not supported for accounts in KW") );
 
     }
 

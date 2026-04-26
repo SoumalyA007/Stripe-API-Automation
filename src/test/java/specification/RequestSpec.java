@@ -10,7 +10,7 @@ import testbase.BaseClass;
 
 public class RequestSpec extends BaseClass {
 
-    public static RequestSpecification setup(){
+    public static RequestSpecification setupv2(){
 
         System.out.println(p.getProperty("authKey"));
         RequestSpecification spec = new RequestSpecBuilder()
@@ -18,6 +18,20 @@ public class RequestSpec extends BaseClass {
                 .addHeader("Authorization", "Bearer " + p.getProperty("authKey"))
                 .addHeader("Stripe-Version","2026-04-08.preview")
                 .setContentType("application/json")
+                .addFilter(new RequestLoggingFilter())
+                .addFilter(new ResponseLoggingFilter())
+                .build();
+
+        return spec;
+    }
+
+    public static RequestSpecification setupv1(){
+
+        System.out.println(p.getProperty("authKey"));
+        RequestSpecification spec = new RequestSpecBuilder()
+                .setBaseUri(p.getProperty("baseURI"))
+                .addHeader("Authorization", "Bearer " + p.getProperty("authKey"))
+                .setContentType("application/x-www-form-urlencoded")
                 .addFilter(new RequestLoggingFilter())
                 .addFilter(new ResponseLoggingFilter())
                 .build();

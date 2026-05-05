@@ -6,11 +6,9 @@ import endpoints.Customer;
 import helpers.Customers;
 import helpers.TestContext;
 import io.restassured.response.Response;
-import org.testng.Assert;
+import org.apache.commons.collections4.Get;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import specification.RequestSpec;
 import specification.ResponseSpec;
 import testbase.BaseClass;
 
@@ -32,8 +30,8 @@ public class CustomerTests extends BaseClass {
     //***************CREATE CUSTOMER*******************\\
 
     //Create a Valid Customer
-    @Test
-    public void createCustomerTC_01(){
+    @Test(groups = {"customer.create", "positive", "smoke", "regression"})
+    public void TC_01_CreateCustomer_ValidData(){
 
 
         String name = Customers.getName();
@@ -53,8 +51,8 @@ public class CustomerTests extends BaseClass {
     }
 
     //Creating a customer with no name
-    @Test
-    public void createCustomerWithOnlyEmailTC_02(){
+    @Test(groups = {"customer.create", "positive", "regression"})
+    public void TC_02_CreateCustomer_OnlyEmail(){
 
         String email = faker.internet().safeEmailAddress();
         Response resp = Customer.createCustomer(null,email,null);
@@ -70,8 +68,8 @@ public class CustomerTests extends BaseClass {
 
     }
 
-
-    @Test
+    //Create Customer with MetaaData
+    @Test(groups = {"customer.create", "positive", "regression"})
     public void createCustomerUsingMetadata(){
 
         String email = faker.internet().emailAddress();
@@ -95,8 +93,8 @@ public class CustomerTests extends BaseClass {
     }
 
     //Create Customer with invalid token
-    @Test
-    public void createCustomerWithInvalidKey(){
+    @Test(groups = {"customer.create", "negative", "auth", "regression"})
+    public void TC_04_CreateCustomer_InvalidApiKey(){
 
         Response response = Customer.createCustomerWithCustomAuth("invalid", "ABC" , "ABC");
         response.then()
@@ -104,19 +102,9 @@ public class CustomerTests extends BaseClass {
                 .body("error.message",containsString("Invalid API Key provided"));
     }
 
-    //Create Customer with no token
-    @Test
-    public void createCustomerWithNoToken(){
-
-        Response response = Customer.createCustomerWithCustomAuth(null, "ABC" , "ABC");
-        response.then()
-                .spec(ResponseSpec.Unauthorized())
-                .body("error.message",containsString("You did not provide an API key"));
-    }
-
     //create customer with invalid email format
-    @Test
-    public void createCustomerWithInvalidEmail(){
+    @Test(groups = {"customer.create", "negative", "validation", "edge", "regression"})
+    public void TC_05_CreateCustomer_InvalidEmailFormat(){
 
         String name = "test";
         String email = "abc-def";
@@ -130,9 +118,19 @@ public class CustomerTests extends BaseClass {
 
     }
 
-    //
-    @Test
-    public void createCustomerwithDuplicateEmails(){
+    //Create Customer with no token
+    @Test(groups = {"customer.create", "negative", "auth", "regression"})
+    public void TC_06_CreateCustomer_MissingAuth(){
+
+        Response response = Customer.createCustomerWithCustomAuth(null, "ABC" , "ABC");
+        response.then()
+                .spec(ResponseSpec.Unauthorized())
+                .body("error.message",containsString("You did not provide an API key"));
+    }
+
+    //Cretae Customer with duplicate mail
+    @Test(groups = {"customer.create", "edge", "regression"})
+    public void TC_07_CreateCustomer_DuplicateEmail(){
 
         String name = Customers.getName();
         String email = faker.internet().safeEmailAddress();
@@ -174,8 +172,8 @@ public class CustomerTests extends BaseClass {
     }
 
     //create a customer with very large name
-    @Test
-    public void createCustomerWithVeryLongName(){
+    @Test(groups = {"customer.create", "edge", "validation", "regression"})
+    public void TC_08_CreateCustomer_LongName(){
 
         String name = "a".repeat(550);
         String email = faker.internet().safeEmailAddress();
@@ -185,8 +183,8 @@ public class CustomerTests extends BaseClass {
     }
 
     //create a customer name with special characters
-    @Test
-    public void createCustomerWithSpecialCharacters(){
+    @Test(groups = {"customer.create", "edge", "validation", "regression"})
+    public void TC_09_CreateCustomer_SpecialCharacters(){
 
         String name = "*/*/*/*#$!#!AA!!!";
         String email = faker.internet().safeEmailAddress();
@@ -203,8 +201,9 @@ public class CustomerTests extends BaseClass {
         response.then().spec(ResponseSpec.bad_request());
     }
 
-    @Test
-    public void createCustomerWithNullValues(){
+    //create a customer with values set as null
+    @Test(groups = {"customer.create", "edge", "validation", "regression"})
+    public void TC_10_CreateCustomer_EmptyValues(){
 
         String name = null;
         String email = null;
@@ -225,8 +224,8 @@ public class CustomerTests extends BaseClass {
 //***************UPDATE CUSTOMER*******************\\
 
     //Update customer with name , email and metadata
-    @Test(dataProvider ="updateDataProvider",dataProviderClass = UpdateCustomerDataProvider.class)
-    public void updateCustomerWithValidData(String fieldName , String fieldValue,Map<String, String> metadata){
+    @Test(groups = {"customer.update", "positive", "smoke", "regression", "requiresCustomer"},dataProvider ="updateDataProvider",dataProviderClass = UpdateCustomerDataProvider.class)
+    public void TC_01_UpdateCustomer_Name(String fieldName , String fieldValue,Map<String, String> metadata){
 
         Response resp =  null;
         String customerId = TestContext.getCustomerId();
@@ -243,8 +242,8 @@ public class CustomerTests extends BaseClass {
     }
 
     //Update customer with invalid customer id
-    @Test
-    public void updateName(){
+    @Test(groups = {"customer.update", "negative", "validation", "regression"})
+    public void TC_02_UpdateCustomer_InvalidId(){
 
         Response resp =  null;
         String invalidId = "inavlid_customer_id";
@@ -263,8 +262,8 @@ public class CustomerTests extends BaseClass {
     }
 
     //Update customer with invalid auth
-    @Test
-    public void updateFieldWithWrongToken(){
+    @Test(groups = {"customer.update", "negative", "auth", "regression"})
+    public void TC_03_UpdateCustomer_InvalidAuth(){
 
         Response resp =  null;
         String customerId = TestContext.getCustomerId();
@@ -281,6 +280,85 @@ public class CustomerTests extends BaseClass {
 
 
     }
+
+    //Update customer with missing auth
+    @Test(groups = {"customer.update", "negative", "auth", "regression"})
+    public void TC_04_UpdateCustomer_MissingAuth(){
+
+        Response resp =  null;
+        String customerId = TestContext.getCustomerId();
+
+        resp = Customer.updateCustomerWithCustomAuth(null,customerId,"name","Soumalya",null);
+
+        int statusCode = resp.getStatusCode();
+        if(statusCode==200){
+            String id = resp.jsonPath().getString("id");
+            customerIds.add(id);
+        }
+
+        resp.then().spec(ResponseSpec.Unauthorized());
+
+    }
+
+    //Update deleted Customer
+    @Test(groups = {"customer.update", "edge", "destructive", "regression", "requiresCustomer"})
+    public void TC_06_UpdateCustomer_DeletedCustomer(){
+
+        Response resp;
+        String customerId = TestContext.getCustomerId();
+        Customers.deleteCustomer(customerId);
+        resp = Customer.updateCustomer(customerId,"name","Invalid Test",null);
+
+        int statusCode = resp.getStatusCode();
+        if(statusCode==200){
+            String id = resp.jsonPath().getString("id");
+            customerIds.add(id);
+        }
+
+        resp.then().spec(ResponseSpec.not_found());
+
+    }
+
+    //****************RETRIEVE DATA TEST*****************\\
+
+    //Get data with valid customer Id
+    @Test(groups = {"customer.update", "edge", "destructive", "regression", "requiresCustomer"})
+    public void TC_01_RetrieveCustomer_ValidId(){
+
+        String customerId = TestContext.getCustomerId();
+        Response resp = Customer.getCustomer(customerId);
+
+        resp.then().spec(ResponseSpec.OK())
+                .body("id",equalTo(customerId));
+
+    }
+
+    //Get customer with valid Id
+    @Test(groups = {"customer.retrieve", "negative", "validation", "regression"})
+    public void TC_02_RetrieveCustomer_InvalidId(){
+
+        Response resp = Customer.getCustomer("invalid_id");
+        resp.then().spec(ResponseSpec.not_found());
+
+    }
+
+    //Get Customer data with invalidId
+    @Test
+    public void TC_03_RetrieveCustomer_MissingAuth(){
+        String customerId = TestContext.getCustomerId();
+        Response resp = Customer.getCustomerWithCustomAuth(null,customerId);
+        resp.then().spec(ResponseSpec.Unauthorized());
+
+    }
+
+    //Get customer with deleted customer's id
+    @Test(groups = {"customer.retrieve", "edge", "regression","requiresCustomer"})
+    public void TC_04_RetrieveCustomer_DeletedCustomer(){
+        String customerId = TestContext.getCustomerId();
+        Response resp = Customer.getCustomer(customerId);
+        resp.then().spec(ResponseSpec.not_found());
+    }
+
 
 //****************CLEANUP AFTER TEST*****************\\
     @AfterMethod

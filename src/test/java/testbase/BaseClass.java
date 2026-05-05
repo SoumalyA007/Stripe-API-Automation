@@ -9,6 +9,7 @@ import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 public class BaseClass {
@@ -30,6 +31,11 @@ public class BaseClass {
         logger.info("Suite Start Now :) ");
         logger.info("Base URI: " + p.getProperty("baseURI"));
 
+
+    }
+
+    @BeforeMethod(onlyForGroups = "requiresCustomer")
+    public void createCustomer(){
         // ✅ Create customer ONCE for the entire regression suite
         String email = "regression+" + System.currentTimeMillis() + "@test.com";
         Response resp = Customer.createCustomer("Regression User", email, null);

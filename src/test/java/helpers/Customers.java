@@ -16,6 +16,10 @@ public class Customers {
         return name;
     }
 
+    public static void deleteCustomer(String id){
+        Customer.deleteCustomer(id);
+    }
+
 
 
 }

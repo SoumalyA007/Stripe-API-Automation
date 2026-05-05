@@ -100,6 +100,36 @@ public class Customer {
 
     }
 
+    public static Response getCustomer(String id) {
+        return given()
+                .spec(RequestSpec.setupv1())
+                .basePath("/v1/customers/{id}")
+                .pathParam("id",id)
+                .filter(new RequestLoggingFilter())
+                .filter(new ResponseLoggingFilter())
+                .when()
+                .get();
+
+    }
+
+
+    public static Response getCustomerWithCustomAuth(String token, String id) {
+        var request = given()
+                .baseUri(p.getProperty("baseURI"))
+                .basePath("/v1/customers/{id}")
+                .pathParam("id",id);
+        if (token != null) {
+            request.header("Authorization","Bearer "+ token);
+        }
+
+        return request
+                .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
+                .when()
+                .get();
+
+    }
+
+
 
 
 

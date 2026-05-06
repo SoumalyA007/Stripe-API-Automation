@@ -130,17 +130,44 @@ public class Customer {
     }
 
 
-
-
-
-
     public static Response deleteCustomer(String id){
         return given()
                 .spec(RequestSpec.setupv1())
                 .basePath("/v1/customers/{id}")
                 .pathParam("id",id)
+                .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
                 .when()
                 .delete();
+    }
+
+    public static Response deleteCustomerWithCustomAuth(String token , String id){
+        var request= given()
+                .baseUri(p.getProperty("baseURI"))
+                .basePath("/v1/customers/{id}")
+                .pathParam("id",id);
+        if(token!=null){
+            request.header("Authorization", "Bearer "+token);
+        }
+        return request
+                .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
+                .when()
+                .delete();
+    }
+
+
+    public static Response listCustomers(int limit){
+
+        var request = given()
+                .spec(RequestSpec.setupv1())
+                .basePath("/v1/customers");
+        if(limit != 0){
+            request.queryParam("limit",limit);
+        }
+        return request
+                .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
+                .when()
+                .get();
+
     }
 
 

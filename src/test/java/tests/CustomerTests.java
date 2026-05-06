@@ -319,7 +319,7 @@ public class CustomerTests extends BaseClass {
 
     }
 
-    //****************RETRIEVE DATA TEST*****************\\
+//****************RETRIEVE DATA TEST*****************\\
 
     //Get data with valid customer Id
     @Test(groups = {"customer.update", "edge", "destructive", "regression", "requiresCustomer"})
@@ -343,7 +343,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Get Customer data with invalidId
-    @Test
+    @Test(groups = {"customer.retrieve", "negative", "auth", "regression","requiresCustomer"})
     public void TC_03_RetrieveCustomer_MissingAuth(){
         String customerId = TestContext.getCustomerId();
         Response resp = Customer.getCustomerWithCustomAuth(null,customerId);
@@ -359,6 +359,63 @@ public class CustomerTests extends BaseClass {
         resp.then().spec(ResponseSpec.not_found());
     }
 
+
+//****************DELETE CUSTOMER TEST*****************\\
+
+    //Delete valid customer
+    @Test(groups = {"customer.delete", "positive", "destructive", "regression", "requiresCustomer"})
+    public void TC_01_DeleteCustomer_Valid(){
+
+        String customerId = TestContext.getCustomerId();
+        Customer.deleteCustomer(customerId)
+                .then()
+                .spec(ResponseSpec.OK());
+
+    }
+
+    //Delete invalid customer
+    @Test(groups = {"customer.delete", "negative", "validation", "regression"})
+    public void TC_02_DeleteCustomer_InvalidId(){
+
+        String customerId = "invalid";
+        Customer.deleteCustomer(customerId)
+                .then()
+                .spec(ResponseSpec.not_found());
+
+    }
+
+    //Delete already deleted customer
+    @Test(groups = {"customer.delete", "negative", "validation", "regression","requiresCustomer"})
+    public void  TC_03_DeleteCustomer_AlreadyDeleted(){
+
+        String customerId = TestContext.getCustomerId();
+        Customer.deleteCustomer(customerId);
+        Customer.deleteCustomer(customerId)
+                .then()
+                .spec(ResponseSpec.not_found())
+                .body("error.code",equalTo("resource_missing"));
+
+    }
+
+    @Test(groups = {"customer.retrieve", "negative", "auth", "regression","requiresCustomer"})
+    public void TC_04_DeleteCustomer_MissingAuth(){
+        String customerId = TestContext.getCustomerId();
+
+        Customer.deleteCustomerWithCustomAuth(null,customerId)
+                .then()
+                .spec(ResponseSpec.Unauthorized());
+    }
+
+//****************LIST CUSTOMER TEST*****************\\
+
+    //default customer list
+    @Test
+    public void TC_01_ListCustomers_Default(){
+
+        Customer.listCustomers(0)
+                .then()
+                .spec(ResponseSpec.OK());
+    }
 
 //****************CLEANUP AFTER TEST*****************\\
     @AfterMethod

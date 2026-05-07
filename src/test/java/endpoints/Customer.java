@@ -155,16 +155,49 @@ public class Customer {
     }
 
 
-    public static Response listCustomers(int limit){
+    public static Response listCustomers(Map<String,Object> queryParams){
+
+
 
         var request = given()
                 .spec(RequestSpec.setupv1())
                 .basePath("/v1/customers");
-        if(limit != 0){
-            request.queryParam("limit",limit);
+        if(queryParams != null && !queryParams.isEmpty()){
+            request.queryParams(queryParams);
         }
         return request
                 .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
+                .when()
+                .get();
+
+    }
+
+    public static Response listCustomersWithCustomToken(String token,Map<String,Object> queryParams){
+
+
+
+        var request = given()
+                .spec(RequestSpec.setupv1())
+                .basePath("/v1/customers");
+        if(token != null){
+            request.header("Authorization", "Bearer "+token);
+        }
+        if(queryParams != null && !queryParams.isEmpty()){
+            request.queryParams(queryParams);
+        }
+        return request
+                .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
+                .when()
+                .get();
+
+    }
+
+    public static Response searchCustomer(String query){
+
+        return given()
+                .spec(RequestSpec.setupv1())
+                .basePath("/v1/customers/search")
+                .queryParam("query",query)
                 .when()
                 .get();
 

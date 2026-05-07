@@ -302,7 +302,7 @@ public class CustomerTests extends BaseClass {
 
     //Update deleted Customer
     @Test(groups = {"customer.update", "edge", "destructive", "regression", "requiresCustomer"})
-    public void TC_06_UpdateCustomer_DeletedCustomer(){
+    public void TC_05_UpdateCustomer_DeletedCustomer(){
 
         Response resp;
         String customerId = TestContext.getCustomerId();
@@ -318,6 +318,18 @@ public class CustomerTests extends BaseClass {
         resp.then().spec(ResponseSpec.not_found());
 
     }
+
+//****************SEARCH CUSTOMER TEST*****************\\
+    @Test
+    public void TC_01_SearchCustomer_ByEmail(){
+
+        Customer.searchCustomer("email:'furever@example.com'")
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("data.email",everyItem(equalTo("furever@example.com")));
+
+    }
+
 
 //****************RETRIEVE DATA TEST*****************\\
 
@@ -412,9 +424,46 @@ public class CustomerTests extends BaseClass {
     @Test
     public void TC_01_ListCustomers_Default(){
 
-        Customer.listCustomers(0)
+        Map<String,Object> queryParams = new HashMap<>();
+
+        Customer.listCustomers(queryParams)
                 .then()
                 .spec(ResponseSpec.OK());
+    }
+
+    //Get the list of only 2 customer
+    @Test
+    public void TC_02_ListCustomers_WithFilter(){
+
+        Map<String,Object> queryParams = new HashMap<>();
+        queryParams.put("limit",2);
+        Customer.listCustomers(queryParams)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("data.size()",equalTo(2));
+    }
+
+    //Get the result based on pagination
+    @Test
+    public void TC_03_ListCustomers_WithPagination(){
+        Map<String,Object> queryParams = new HashMap<>();
+        queryParams.put("starting_after","cus_UNt0BtOK1xydSU");
+        Customer.listCustomers(queryParams)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("data.id",not(hasItem("cus_UOqwXnBZ7zW9BX")));
+
+    }
+
+    //Get customerlist with invalid token
+    @Test
+    public void TC_04_ListCustomers_WithInvalidToken(){
+
+        Map<String,Object> queryParams = new HashMap<>();
+
+        Customer.listCustomersWithCustomToken("invalid_token",queryParams)
+                .then()
+                .spec(ResponseSpec.Unauthorized());
     }
 
 //****************CLEANUP AFTER TEST*****************\\

@@ -6,7 +6,6 @@ import endpoints.Customer;
 import helpers.Customers;
 import helpers.TestContext;
 import io.restassured.response.Response;
-import org.apache.commons.collections4.Get;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
@@ -17,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -231,9 +229,9 @@ public class CustomerTests extends BaseClass {
         String customerId = TestContext.getCustomerId();
         if(metadata!=null){
 
-             resp = Customer.updateCustomer(customerId,fieldName,null,metadata);
+            resp = Customer.updateCustomer(customerId,fieldName,null,metadata);
         }else{
-             resp = Customer.updateCustomer(customerId,fieldName,fieldValue,null);
+            resp = Customer.updateCustomer(customerId,fieldName,fieldValue,null);
         }
 
         resp.then().spec(ResponseSpec.OK());
@@ -319,16 +317,7 @@ public class CustomerTests extends BaseClass {
 
     }
 
-//****************SEARCH CUSTOMER TEST*****************\\
-    @Test
-    public void TC_01_SearchCustomer_ByEmail(){
 
-        Customer.searchCustomer("email:'furever@example.com'")
-                .then()
-                .spec(ResponseSpec.OK())
-                .body("data.email",everyItem(equalTo("furever@example.com")));
-
-    }
 
 
 //****************RETRIEVE DATA TEST*****************\\
@@ -466,7 +455,52 @@ public class CustomerTests extends BaseClass {
                 .spec(ResponseSpec.Unauthorized());
     }
 
-//****************CLEANUP AFTER TEST*****************\\
+//****************SEARCH CUSTOMER TEST*****************\\
+
+    //Search a customer by Email
+    @Test
+    public void TC_01_SearchCustomer_ByEmail(){
+
+        Customer.searchCustomer("email:'furever@example.com'")
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("data.email",everyItem(equalTo("furever@example.com")));
+
+    }
+
+    //Search a customer by nonexisting email
+    @Test
+    public void TC_02_SearchCustomer_ByInvalidEmail(){
+
+        Customer.searchCustomer("email:'nullll'")
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("data.size()",equalTo(0));
+
+    }
+
+    //Search a customer by valid email with Invalid Query Syntax
+    @Test
+    public void TC_03_SearchCustomer_ByInvalidQuerySyntax(){
+
+        Customer.searchCustomer("email->'furever@example.com'")
+                .then()
+                .spec(ResponseSpec.bad_request());
+
+    }
+
+    //Search a customer by valid email with Invalid Token
+    @Test
+    public void TC_04_SearchCustomer_ByInvalidToken(){
+
+        Customer.searchCustomer("email:'furever@example.com'")
+                .then()
+                .spec(ResponseSpec.Unauthorized());
+
+    }
+
+
+    //****************CLEANUP AFTER TEST*****************\\
     @AfterMethod
     public void cleanup() {
 
@@ -483,12 +517,4 @@ public class CustomerTests extends BaseClass {
     }
 
 
-
-
-
-
-
-
-
 }
-

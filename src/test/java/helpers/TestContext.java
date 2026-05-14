@@ -28,8 +28,27 @@ public class TestContext {
         TestContext.paymentIntentId = paymentIntentId;
     }
 
+    public static String getBillingName() {
+        return billingName;
+    }
+
+    public static void setBillingName(String billingName) {
+        TestContext.billingName = billingName;
+    }
+
+    public static String getBillingEmail() {
+        return billingEmail;
+    }
+
+    public static void setBillingEmail(String billingEmail) {
+        TestContext.billingEmail = billingEmail;
+    }
+
+
     private static String customerId;
     private static  String paymentMethodId;
     private static  String paymentIntentId;
+    private static String billingName;
+    private static String billingEmail;
 
 }

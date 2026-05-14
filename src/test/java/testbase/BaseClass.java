@@ -3,6 +3,7 @@ package testbase;
 import java.io.FileReader;
 import java.util.Properties;
 
+import com.github.javafaker.Faker;
 import endpoints.Customer;
 import helpers.TestContext;
 import io.restassured.response.Response;
@@ -16,6 +17,7 @@ public class BaseClass {
 
     public static Properties p = new Properties();
     public Logger logger = LogManager.getLogger(this.getClass());
+    public static Faker faker = new Faker();
 
     static{
         try{
@@ -34,14 +36,29 @@ public class BaseClass {
 
     }
 
+//    @BeforeMethod(onlyForGroups = "requiresCustomer")
+//    public void createCustomer(){
+//        // ✅ Create customer ONCE for the entire regression suite
+//        String email = "regression+" + System.currentTimeMillis() + "@test.com";
+//        Response resp = Customer.createCustomer("Regression User", email, null);
+//
+//        String customerId = resp.jsonPath().getString("id");
+//        TestContext.setCustomerId(customerId);
+//
+//        System.out.println("✅ Suite customer created: " + customerId);
+//    }
+
     @BeforeMethod(onlyForGroups = "requiresCustomer")
     public void createCustomer(){
         // ✅ Create customer ONCE for the entire regression suite
-        String email = "regression+" + System.currentTimeMillis() + "@test.com";
+        String name = faker.name().fullName();
+        String email = name.replaceAll(" ","")+ "@test.com";
         Response resp = Customer.createCustomer("Regression User", email, null);
 
         String customerId = resp.jsonPath().getString("id");
         TestContext.setCustomerId(customerId);
+        TestContext.setBillingEmail(email);
+        TestContext.setBillingName(name);
 
         System.out.println("✅ Suite customer created: " + customerId);
     }

@@ -22,5 +22,15 @@ public class paymentMethods {
 
     }
 
+    public static Response attachPaymentMethod(String id,){
+        return given()
+                .spec(RequestSpec.setupv1())
+                .basePath("/v1/payment_methods/{id}/attach")
+                .pathParam("id",id)
+                .formParams(body)
+                .when()
+                .post();
+    }
+
 
 }

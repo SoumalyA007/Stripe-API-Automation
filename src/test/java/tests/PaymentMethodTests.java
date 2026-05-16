@@ -3,7 +3,6 @@ package tests;
 import dataprovider.PaymentMethodsDataProvider;
 import endpoints.paymentMethods;
 import helpers.TestContext;
-import io.restassured.response.Response;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,11 +26,17 @@ public class PaymentMethodTests {
     }
 
     @Test(dataProvider = "createInvalidPaymentMethod",dataProviderClass = PaymentMethodsDataProvider.class)
-    public void TC_02_Invalid_Card_Number(String type, Map<String,Object> method){
+    public void TC_02_Negative_PaymentMethod(String type, Map<String,Object> method){
 
         paymentMethods.createPaymentMethod(method)
                 .then()
-                .spec(ResponseSpec.bad_request());
+                .spec(ResponseSpec.bad_request())
+                .body("error.type", equalTo("invalid_request_error"));
+
+    }
+
+    @Test
+    public void TC_03_Attach_Payment_Method(){
 
     }
 

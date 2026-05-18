@@ -4,6 +4,7 @@ import dataprovider.PaymentMethodsDataProvider;
 import endpoints.paymentMethods;
 import helpers.PaymentMethodsHelper;
 import helpers.TestContext;
+import io.restassured.specification.ResponseSpecification;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -50,36 +51,25 @@ public class PaymentMethodTests {
 
     }
 
-    @Test(groups = "requiresCustomer")
-    public void TC_04_Attach_Invalid_Payment_Method(){
+    @Test(dataProvider = "attachPaymentMethodNegative",dataProviderClass = PaymentMethodsDataProvider.class, groups = "requiresCustomer")
+    public void TC_04_Attach_Invalid_Payment_Method(String customerId, String paymentMethodId, ResponseSpecification spec, String messsage){
 
-        String customerId = TestContext.getCustomerId();
+        if(customerId == null){
+             customerId = TestContext.getCustomerId();
+        }
+        if(paymentMethodId == null){
+            paymentMethodId = PaymentMethodsHelper.createInvalidPaymentMethod();
+        }
         Map<String,Object> body = new HashMap<>();
         body.put("customer",customerId);
-        paymentMethods.attachPaymentMethod(PaymentMethodsHelper.createInvalidPaymentMethod(),body)
+        paymentMethods.attachPaymentMethod(paymentMethodId,body)
                 .then()
-                .spec(ResponseSpec.OK())
+                .spec(spec)
                 .body("customer",equalTo(customerId));
 
     }
 
-    @Test
-    public void TC_05_Attach_Invalid_Customer_ID(String customerId, ){
 
-        String customerId = "test";
-        Map<String,Object> body = new HashMap<>();
-        body.put("customer",customerId);
-        paymentMethods.attachPaymentMethod(PaymentMethodsHelper.createInvalidPaymentMethod(),body)
-                .then()
-                .spec(ResponseSpec.OK())
-                .body("customer",equalTo(customerId));
-
-    }
-
-    @Test
-    public void TC_05_Attach_Invalid_Customer_ID(){
-
-    }
 
 
 

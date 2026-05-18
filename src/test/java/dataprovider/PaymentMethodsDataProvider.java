@@ -1,6 +1,7 @@
 package dataprovider;
 
 import org.testng.annotations.DataProvider;
+import specification.ResponseSpec;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -95,12 +96,44 @@ public class PaymentMethodsDataProvider {
         };
     }
 
-    @DataProvider(name = "attachInvalidPaymentMethod")
-    public Object[][] attachInvalidPaymentMethod(){
+    @DataProvider(name = "attachPaymentMethodNegative")
+    public Object[][] attachPaymentMethodNegative() {
+
+        return new Object[][]{
 
 
+                // invalid customer id + valid payment method
+                {
+                        "cus_invalid123",
+                        null,
+                        ResponseSpec.not_found(),
+                        "No such customer"
+                },
 
+                // valid customer id + invalid payment method
+                {
+                        null, // use valid customer from TestContext
+                        "pm_invalid123",
+                        ResponseSpec.not_found(),
+                        "No such PaymentMethod"
+                },
 
+                // both invalid
+                {
+                        null,
+                        "pm_invalid123",
+                        ResponseSpec.not_found(),
+                        "No such"
+                },
+
+                // null customer
+                {
+                        "",
+                        "pm_valid123",
+                        ResponseSpec.bad_request(),
+                        "customer"
+                }
+        };
     }
 
 

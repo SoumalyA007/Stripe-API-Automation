@@ -3,7 +3,7 @@ package tests;
 import com.github.javafaker.Faker;
 import dataprovider.UpdateCustomerDataProvider;
 import endpoints.Customer;
-import helpers.Customers;
+import helpers.CustomersHelper;
 import helpers.TestContext;
 import io.restassured.response.Response;
 import org.testng.annotations.AfterMethod;
@@ -32,7 +32,7 @@ public class CustomerTests extends BaseClass {
     public void TC_01_CreateCustomer_ValidData(){
 
 
-        String name = Customers.getName();
+        String name = CustomersHelper.getName();
         String email = faker.internet().safeEmailAddress();
 
         Response resp = Customer.createCustomer(name,email,null);
@@ -71,7 +71,7 @@ public class CustomerTests extends BaseClass {
     public void createCustomerUsingMetadata(){
 
         String email = faker.internet().emailAddress();
-        String name = Customers.getName();
+        String name = CustomersHelper.getName();
         Map<String,String> metadata = new HashMap<>();
         metadata.put("name",name);
         metadata.put("source","automation");
@@ -130,7 +130,7 @@ public class CustomerTests extends BaseClass {
     @Test(groups = {"customer.create", "edge", "regression"})
     public void TC_07_CreateCustomer_DuplicateEmail(){
 
-        String name = Customers.getName();
+        String name = CustomersHelper.getName();
         String email = faker.internet().safeEmailAddress();
 
         Response firstResponse = Customer.createCustomer(name,email,null);
@@ -304,7 +304,7 @@ public class CustomerTests extends BaseClass {
 
         Response resp;
         String customerId = TestContext.getCustomerId();
-        Customers.deleteCustomer(customerId);
+        CustomersHelper.deleteCustomer(customerId);
         resp = Customer.updateCustomer(customerId,"name","Invalid Test",null);
 
         int statusCode = resp.getStatusCode();

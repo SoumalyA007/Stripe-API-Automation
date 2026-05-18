@@ -4,7 +4,7 @@ package helpers;
 import com.github.javafaker.Faker;
 import endpoints.Customer;
 
-public class Customers {
+public class CustomersHelper {
 
     public static Faker faker = new Faker();
 

@@ -3,7 +3,7 @@ package tests;
 import builders.requestbuilder.CreateAccountRequestPayload;
 import com.github.javafaker.Faker;
 import endpoints.accounts;
-import helpers.Accounts;
+import helpers.AccountsHelper;
 import io.restassured.response.Response;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
@@ -21,7 +21,7 @@ public class AccountTests extends ResponseSpec {
     public void createValidAccount(){
 
 
-        Response resp = accounts.createAccount(Accounts.validAccountCreationHelper());
+        Response resp = accounts.createAccount(AccountsHelper.validAccountCreationHelper());
         createAcountResponseThread.set(resp);
         resp.then().spec(OK());
 
@@ -32,7 +32,7 @@ public class AccountTests extends ResponseSpec {
     public void InvalidCreateCart(){
 
 
-        CreateAccountRequestPayload requestPayload = Accounts.validAccountCreationHelper();
+        CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
         requestPayload.getIdentity().setCountry("KW");
 
         Response resp = accounts.createAccount(requestPayload);

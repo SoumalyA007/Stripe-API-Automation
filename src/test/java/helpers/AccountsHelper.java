@@ -7,7 +7,7 @@ import enums.*;
 
 import java.util.List;
 
-public class Accounts {
+public class AccountsHelper {
 
     private static final Faker faker = new Faker();
     public static CreateAccountRequestPayload validAccountCreationHelper(){

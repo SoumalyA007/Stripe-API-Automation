@@ -95,5 +95,13 @@ public class PaymentMethodsDataProvider {
         };
     }
 
+    @DataProvider(name = "attachInvalidPaymentMethod")
+    public Object[][] attachInvalidPaymentMethod(){
+
+
+
+
+    }
+
 
 }

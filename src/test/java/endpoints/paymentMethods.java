@@ -22,11 +22,11 @@ public class paymentMethods {
 
     }
 
-    public static Response attachPaymentMethod(String id,){
+    public static Response attachPaymentMethod(String paymentMethodId,Map<String, Object> body){
         return given()
                 .spec(RequestSpec.setupv1())
                 .basePath("/v1/payment_methods/{id}/attach")
-                .pathParam("id",id)
+                .pathParam("id",paymentMethodId)
                 .formParams(body)
                 .when()
                 .post();

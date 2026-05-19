@@ -48,7 +48,7 @@ public class BaseClass {
 //        System.out.println("✅ Suite customer created: " + customerId);
 //    }
 
-    @BeforeMethod(onlyForGroups = "requiresCustomer")
+    @BeforeMethod(onlyForGroups = {"requiresCustomer","flow_check"})
     public void createCustomer(){
         // ✅ Create customer ONCE for the entire regression suite
         String name = faker.name().fullName();
@@ -64,7 +64,7 @@ public class BaseClass {
     }
 
 
-    @AfterSuite
+    @AfterSuite()
     public void afterSuiteSetup(){
         logger.info("Suite End Now :) ");
         // 🧹 Cleanup after ALL tests are done

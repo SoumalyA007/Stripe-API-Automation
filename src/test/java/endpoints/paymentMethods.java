@@ -32,5 +32,25 @@ public class paymentMethods {
                 .post();
     }
 
+    public static Response retrievePaymentMethod(String paymentMethodId){
+        return given()
+                .spec(RequestSpec.setupv1())
+                .basePath("/v1/payment_methods/{id}")
+                .pathParam("id",paymentMethodId)
+                .when()
+                .get();
+    }
+
+
+    public static Response retrievePaymentMethodByCustomer(String customerId,String paymentMethodId){
+        return given()
+                .spec(RequestSpec.setupv1())
+                .basePath("/v1/customers/{customerId}/payment_methods/{paymentMethodId}")
+                .pathParam("customerId",customerId)
+                .pathParam("paymentMethodId",paymentMethodId)
+                .when()
+                .get();
+    }
+
 
 }

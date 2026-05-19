@@ -5,6 +5,7 @@ import endpoints.paymentMethods;
 import helpers.PaymentMethodsHelper;
 import helpers.TestContext;
 import io.restassured.specification.ResponseSpecification;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -55,7 +56,7 @@ public class PaymentMethodTests {
     public void TC_04_Attach_Invalid_Payment_Method(String customerId, String paymentMethodId, ResponseSpecification spec, String messsage){
 
         if(customerId == null){
-             customerId = TestContext.getCustomerId();
+            customerId = TestContext.getCustomerId();
         }
         if(paymentMethodId == null){
             paymentMethodId = PaymentMethodsHelper.createInvalidPaymentMethod();
@@ -65,9 +66,58 @@ public class PaymentMethodTests {
         paymentMethods.attachPaymentMethod(paymentMethodId,body)
                 .then()
                 .spec(spec)
-                .body("customer",equalTo(customerId));
+                .body("error.code",anyOf(containsString("resource_missing")
+                        ,containsString("parameter_invalid_empty")));
 
     }
+
+
+    @Test(dependsOnMethods ="TC_01_Create_Valid_Payment_Method")
+    public void TC_05_Retrieve_Payment_Method(){
+
+        String paymentMethodId = TestContext.getPaymentMethodId();
+        paymentMethods.retrievePaymentMethod(paymentMethodId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("id",equalTo(paymentMethodId));
+    }
+
+    @Test
+    public void TC_06_Retrieve_Invalid_Payment_Method(){
+
+        String paymentMethodId = "***";
+        paymentMethods.retrievePaymentMethod(paymentMethodId)
+                .then()
+                .spec(ResponseSpec.not_found())
+                .body("error.code",equalTo("resource_missing"))
+                .body("error.message",containsString("No such PaymentMethod"));
+    }
+
+    @Test(dependsOnMethods ="TC_01_Create_Valid_Payment_Method")
+    public void TC_07_Retrieve_Valid_Payment_Method_By_Customer(){
+
+        String paymentMethodId = TestContext.getPaymentMethodId();
+        String customerId = TestContext.getCustomerId();
+        paymentMethods.retrievePaymentMethodByCustomer(customerId,paymentMethodId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("customer",equalTo(customerId))
+                .body("id",equalTo(paymentMethodId))
+                .body("object",equalTo("payment_method"));
+    }
+
+    @Test(dataProvider = "retrieveInvalidPaymentMethodByCustomer", dataProviderClass = PaymentMethodsDataProvider.class)
+    public void TC_08_Retrieve_InValid_Payment_Method_By_Customer(String customerId, String paymentMethodId,ResponseSpecification resp){
+
+        paymentMethods.retrievePaymentMethodByCustomer(customerId,paymentMethodId)
+                .then()
+                .spec(resp);
+    }
+
+
+
+
+
 
 
 

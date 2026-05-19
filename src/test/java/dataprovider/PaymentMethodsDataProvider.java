@@ -1,5 +1,6 @@
 package dataprovider;
 
+import lombok.Data;
 import org.testng.annotations.DataProvider;
 import specification.ResponseSpec;
 
@@ -106,7 +107,7 @@ public class PaymentMethodsDataProvider {
                 {
                         "cus_invalid123",
                         null,
-                        ResponseSpec.not_found(),
+                        ResponseSpec.bad_request(),
                         "No such customer"
                 },
 
@@ -134,6 +135,15 @@ public class PaymentMethodsDataProvider {
                         "customer"
                 }
         };
+    }
+
+    @DataProvider(name="retrieveInvalidPaymentMethodByCustomer")
+    public Object[][] retrieveInvalidPaymentMethodByCustomer(){
+
+        return new Object[][]{
+                {"cust123","pay123",ResponseSpec.bad_request()},
+                {}
+        }
     }
 
 

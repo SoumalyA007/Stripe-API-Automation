@@ -20,6 +20,7 @@ public class PaymentMethodsHelper {
                 .jsonPath()
                 .getString("id");
 
+        TestContext.setPaymentMethodId(paymentId);
         return paymentId;
     }
 

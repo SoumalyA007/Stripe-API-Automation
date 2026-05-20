@@ -141,9 +141,16 @@ public class PaymentMethodsDataProvider {
     public Object[][] retrieveInvalidPaymentMethodByCustomer(){
 
         return new Object[][]{
-                {"cust123","pay123",ResponseSpec.bad_request()},
-                {}
-        }
+                //both invalid id
+                {"cust123","pay123",ResponseSpec.not_found()},
+                //invalid customer Id
+                {"cust123",null,ResponseSpec.not_found()},
+                //invalid payment id
+                {null,"cust123",ResponseSpec.not_found()},
+                //blank ids
+                {"","",ResponseSpec.not_found()},
+
+        };
     }
 
 

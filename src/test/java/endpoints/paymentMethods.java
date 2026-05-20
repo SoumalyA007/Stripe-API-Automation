@@ -52,5 +52,14 @@ public class paymentMethods {
                 .get();
     }
 
+    public static Response detachPaymentMethod(String paymentMethodId){
+        return given()
+                .spec(RequestSpec.setupv1())
+                .basePath("/v1/payment_methods/{id}/detach")
+                .pathParam("id",paymentMethodId)
+                .when()
+                .post();
+    }
+
 
 }

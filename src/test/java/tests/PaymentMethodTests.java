@@ -2,12 +2,13 @@ package tests;
 
 import dataprovider.PaymentMethodsDataProvider;
 import endpoints.paymentMethods;
+import helpers.NegativeTestHelper;
 import helpers.PaymentMethodsHelper;
 import helpers.TestContext;
 import io.restassured.specification.ResponseSpecification;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -45,17 +46,20 @@ public class PaymentMethodTests {
         String customerId = TestContext.getCustomerId();
         Map<String,Object> body = new HashMap<>();
         body.put("customer",customerId);
-        paymentMethods.attachPaymentMethod(PaymentMethodsHelper.createValidPaymentMethod(),body)
+        String paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod();
+        TestContext.setPaymentMethodId(paymentMethodId);
+        paymentMethods.attachPaymentMethod(paymentMethodId,body)
                 .then()
                 .spec(ResponseSpec.OK())
                 .body("customer",equalTo(customerId));
 
     }
 
-    @Test(dataProvider = "attachPaymentMethodNegative",dataProviderClass = PaymentMethodsDataProvider.class, groups = "requiresCustomer")
+    @Test(dataProvider = "attachPaymentMethodNegative",dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_04_Attach_Invalid_Payment_Method(String customerId, String paymentMethodId, ResponseSpecification spec, String messsage){
 
         if(customerId == null){
+            NegativeTestHelper.createCustomerNegativeTestCase();
             customerId = TestContext.getCustomerId();
         }
         if(paymentMethodId == null){
@@ -109,16 +113,30 @@ public class PaymentMethodTests {
     @Test(dataProvider = "retrieveInvalidPaymentMethodByCustomer", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_08_Retrieve_InValid_Payment_Method_By_Customer(String customerId, String paymentMethodId,ResponseSpecification resp){
 
+        if(customerId ==  null){
+            NegativeTestHelper.createCustomerNegativeTestCase();
+            customerId = TestContext.getCustomerId();
+        }
+
+        if(paymentMethodId == null){
+            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod();
+        }
+
         paymentMethods.retrievePaymentMethodByCustomer(customerId,paymentMethodId)
                 .then()
                 .spec(resp);
     }
 
+    @Test(groups = "requiresCustomer", dependsOnMethods = "TC_03_Attach_Payment_Method")
+    public void TC_09_Detach_Payment_Method(){
 
-
-
-
-
+        String paymentMethodId = TestContext.getPaymentMethodId();
+        paymentMethods.detachPaymentMethod(paymentMethodId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("id",equalTo(paymentMethodId))
+                .body("customer",nullValue());
+    }
 
 
 

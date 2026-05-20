@@ -45,10 +45,10 @@ public class TestContext {
     }
 
 
-    private static String customerId;
-    private static  String paymentMethodId;
-    private static  String paymentIntentId;
-    private static String billingName;
-    private static String billingEmail;
+    private static final ThreadLocal<String> customerId = new ThreadLocal<>();
+    private static final ThreadLocal<String> paymentMethodId = new ThreadLocal<>();
+    private static final ThreadLocal<String> paymentIntentId = new ThreadLocal<>();
+    private static final ThreadLocal<String> billingName = new ThreadLocal<>();
+    private static final ThreadLocal<String> billingEmail = new ThreadLocal<>();
 
 }

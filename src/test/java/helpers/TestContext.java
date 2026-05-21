@@ -1,49 +1,46 @@
 package helpers;
 
-
-
 public class TestContext {
 
     public static String getPaymentMethodId() {
-        return paymentMethodId;
+        return paymentMethodId.get();
     }
 
     public static void setPaymentMethodId(String paymentMethodId) {
-        TestContext.paymentMethodId = paymentMethodId;
+        TestContext.paymentMethodId.set(paymentMethodId);
     }
 
     public static String getCustomerId() {
-        return customerId;
+        return customerId.get();
     }
 
     public static void setCustomerId(String customerId) {
-        TestContext.customerId = customerId;
+        TestContext.customerId.set(customerId);
     }
 
     public static String getPaymentIntentId() {
-        return paymentIntentId;
+        return paymentIntentId.get();
     }
 
     public static void setPaymentIntentId(String paymentIntentId) {
-        TestContext.paymentIntentId = paymentIntentId;
+        TestContext.paymentIntentId.set(paymentIntentId);
     }
 
     public static String getBillingName() {
-        return billingName;
+        return billingName.get();
     }
 
     public static void setBillingName(String billingName) {
-        TestContext.billingName = billingName;
+        TestContext.billingName.set(billingName);
     }
 
     public static String getBillingEmail() {
-        return billingEmail;
+        return billingEmail.get();
     }
 
     public static void setBillingEmail(String billingEmail) {
-        TestContext.billingEmail = billingEmail;
+        TestContext.billingEmail.set(billingEmail);
     }
-
 
     private static final ThreadLocal<String> customerId = new ThreadLocal<>();
     private static final ThreadLocal<String> paymentMethodId = new ThreadLocal<>();

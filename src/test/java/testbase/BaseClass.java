@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import com.github.javafaker.Faker;
 import endpoints.Customer;
+import endpoints.paymentMethods;
 import helpers.TestContext;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
@@ -19,40 +20,39 @@ public class BaseClass {
     public Logger logger = LogManager.getLogger(this.getClass());
     public static Faker faker = new Faker();
 
-    static{
-        try{
+    static {
+        try {
             FileReader fr = new FileReader("src/test/resources/config.properties");
             p.load(fr);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("❌ Failed to load config.properties", e);
         }
     }
 
     @BeforeSuite
-    public void beforeSuiteSetup(){
+    public void beforeSuiteSetup() {
         logger.info("Suite Start Now :) ");
         logger.info("Base URI: " + p.getProperty("baseURI"));
 
-
     }
 
-//    @BeforeMethod(onlyForGroups = "requiresCustomer")
-//    public void createCustomer(){
-//        // ✅ Create customer ONCE for the entire regression suite
-//        String email = "regression+" + System.currentTimeMillis() + "@test.com";
-//        Response resp = Customer.createCustomer("Regression User", email, null);
-//
-//        String customerId = resp.jsonPath().getString("id");
-//        TestContext.setCustomerId(customerId);
-//
-//        System.out.println("✅ Suite customer created: " + customerId);
-//    }
+    // @BeforeMethod(onlyForGroups = "requiresCustomer")
+    // public void createCustomer(){
+    // // ✅ Create customer ONCE for the entire regression suite
+    // String email = "regression+" + System.currentTimeMillis() + "@test.com";
+    // Response resp = Customer.createCustomer("Regression User", email, null);
+    //
+    // String customerId = resp.jsonPath().getString("id");
+    // TestContext.setCustomerId(customerId);
+    //
+    // System.out.println("✅ Suite customer created: " + customerId);
+    // }
 
-    @BeforeMethod(onlyForGroups = {"requiresCustomer","flow_check"})
-    public void createCustomer(){
+    @BeforeMethod(onlyForGroups = { "requiresCustomer", "flow_check" })
+    public void createCustomer() {
         // ✅ Create customer ONCE for the entire regression suite
         String name = faker.name().fullName();
-        String email = name.replaceAll(" ","")+ "@test.com";
+        String email = name.replaceAll(" ", "") + "@test.com";
         Response resp = Customer.createCustomer("Regression User", email, null);
 
         String customerId = resp.jsonPath().getString("id");
@@ -63,19 +63,21 @@ public class BaseClass {
         System.out.println("✅ Suite customer created: " + customerId);
     }
 
-
     @AfterSuite()
-    public void afterSuiteSetup(){
+    public void afterSuiteSetup() {
         logger.info("Suite End Now :) ");
         // 🧹 Cleanup after ALL tests are done
         String customerId = TestContext.getCustomerId();
+        String paymentMethodId = TestContext.getPaymentMethodId();
+        if (paymentMethodId != null) {
+            paymentMethods.detachPaymentMethod(paymentMethodId);
+            System.out.println("🧹 Suite payment method deleted: " + paymentMethodId);
+        }
         if (customerId != null) {
             Customer.deleteCustomer(customerId);
             System.out.println("🧹 Suite customer deleted: " + customerId);
         }
 
-
     }
-
 
 }

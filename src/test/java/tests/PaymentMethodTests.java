@@ -17,21 +17,20 @@ import java.util.Map;
 
 public class PaymentMethodTests {
 
-
-    @Test(dataProvider = "createPaymentMethod",dataProviderClass = PaymentMethodsDataProvider.class)
-    public void TC_01_Create_Valid_Payment_Method(String type, Map<String,Object> method){
+    @Test(dataProvider = "createPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
+    public void TC_01_Create_Valid_Payment_Method(String type, Map<String, Object> method) {
 
         method.put("billing_details[email]", TestContext.getBillingEmail());
-        method.put("billing_details[name]",TestContext.getBillingName());
+        method.put("billing_details[name]", TestContext.getBillingName());
         paymentMethods.createPaymentMethod(method)
                 .then()
                 .spec(ResponseSpec.OK())
-                .body("type",equalTo(type));
+                .body("type", equalTo(type));
 
     }
 
-    @Test(dataProvider = "createInvalidPaymentMethod",dataProviderClass = PaymentMethodsDataProvider.class)
-    public void TC_02_Negative_PaymentMethod(String type, Map<String,Object> method){
+    @Test(dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
+    public void TC_02_Negative_PaymentMethod(String type, Map<String, Object> method) {
 
         paymentMethods.createPaymentMethod(method)
                 .then()
@@ -41,105 +40,131 @@ public class PaymentMethodTests {
     }
 
     @Test(groups = "requiresCustomer")
-    public void TC_03_Attach_Payment_Method(){
+    public void TC_03_Attach_Payment_Method() {
 
         String customerId = TestContext.getCustomerId();
-        Map<String,Object> body = new HashMap<>();
-        body.put("customer",customerId);
+        Map<String, Object> body = new HashMap<>();
+        body.put("customer", customerId);
         String paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod();
         TestContext.setPaymentMethodId(paymentMethodId);
-        paymentMethods.attachPaymentMethod(paymentMethodId,body)
+        paymentMethods.attachPaymentMethod(paymentMethodId, body)
                 .then()
                 .spec(ResponseSpec.OK())
-                .body("customer",equalTo(customerId));
+                .body("customer", equalTo(customerId));
 
     }
 
-    @Test(dataProvider = "attachPaymentMethodNegative",dataProviderClass = PaymentMethodsDataProvider.class)
-    public void TC_04_Attach_Invalid_Payment_Method(String customerId, String paymentMethodId, ResponseSpecification spec, String messsage){
+    @Test(dataProvider = "attachPaymentMethodNegative", dataProviderClass = PaymentMethodsDataProvider.class)
+    public void TC_04_Attach_Invalid_Payment_Method(String customerId, String paymentMethodId,
+            ResponseSpecification spec, String messsage) {
 
-        if(customerId == null){
+        if (customerId == null) {
             NegativeTestHelper.createCustomerNegativeTestCase();
             customerId = TestContext.getCustomerId();
         }
-        if(paymentMethodId == null){
+        if (paymentMethodId == null) {
             paymentMethodId = PaymentMethodsHelper.createInvalidPaymentMethod();
         }
-        Map<String,Object> body = new HashMap<>();
-        body.put("customer",customerId);
-        paymentMethods.attachPaymentMethod(paymentMethodId,body)
+        Map<String, Object> body = new HashMap<>();
+        body.put("customer", customerId);
+        paymentMethods.attachPaymentMethod(paymentMethodId, body)
                 .then()
                 .spec(spec)
-                .body("error.code",anyOf(containsString("resource_missing")
-                        ,containsString("parameter_invalid_empty")));
+                .body("error.code",
+                        anyOf(containsString("resource_missing"), containsString("parameter_invalid_empty")));
 
     }
 
-
-    @Test(dependsOnMethods ="TC_01_Create_Valid_Payment_Method")
-    public void TC_05_Retrieve_Payment_Method(){
+    @Test(dependsOnMethods = "TC_01_Create_Valid_Payment_Method")
+    public void TC_05_Retrieve_Payment_Method() {
 
         String paymentMethodId = TestContext.getPaymentMethodId();
         paymentMethods.retrievePaymentMethod(paymentMethodId)
                 .then()
                 .spec(ResponseSpec.OK())
-                .body("id",equalTo(paymentMethodId));
+                .body("id", equalTo(paymentMethodId));
     }
 
     @Test
-    public void TC_06_Retrieve_Invalid_Payment_Method(){
+    public void TC_06_Retrieve_Invalid_Payment_Method() {
 
         String paymentMethodId = "***";
         paymentMethods.retrievePaymentMethod(paymentMethodId)
                 .then()
                 .spec(ResponseSpec.not_found())
-                .body("error.code",equalTo("resource_missing"))
-                .body("error.message",containsString("No such PaymentMethod"));
+                .body("error.code", equalTo("resource_missing"))
+                .body("error.message", containsString("No such PaymentMethod"));
     }
 
-    @Test(dependsOnMethods ="TC_01_Create_Valid_Payment_Method")
-    public void TC_07_Retrieve_Valid_Payment_Method_By_Customer(){
+    @Test(dependsOnMethods = "TC_01_Create_Valid_Payment_Method")
+    public void TC_07_Retrieve_Valid_Payment_Method_By_Customer() {
 
         String paymentMethodId = TestContext.getPaymentMethodId();
         String customerId = TestContext.getCustomerId();
-        paymentMethods.retrievePaymentMethodByCustomer(customerId,paymentMethodId)
+        paymentMethods.retrievePaymentMethodByCustomer(customerId, paymentMethodId)
                 .then()
                 .spec(ResponseSpec.OK())
-                .body("customer",equalTo(customerId))
-                .body("id",equalTo(paymentMethodId))
-                .body("object",equalTo("payment_method"));
+                .body("customer", equalTo(customerId))
+                .body("id", equalTo(paymentMethodId))
+                .body("object", equalTo("payment_method"));
     }
 
     @Test(dataProvider = "retrieveInvalidPaymentMethodByCustomer", dataProviderClass = PaymentMethodsDataProvider.class)
-    public void TC_08_Retrieve_InValid_Payment_Method_By_Customer(String customerId, String paymentMethodId,ResponseSpecification resp){
+    public void TC_08_Retrieve_InValid_Payment_Method_By_Customer(String customerId, String paymentMethodId,
+            ResponseSpecification resp) {
 
-        if(customerId ==  null){
+        if (customerId == null) {
             NegativeTestHelper.createCustomerNegativeTestCase();
             customerId = TestContext.getCustomerId();
         }
 
-        if(paymentMethodId == null){
+        if (paymentMethodId == null) {
             paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod();
         }
 
-        paymentMethods.retrievePaymentMethodByCustomer(customerId,paymentMethodId)
+        paymentMethods.retrievePaymentMethodByCustomer(customerId, paymentMethodId)
                 .then()
                 .spec(resp);
     }
 
     @Test(groups = "requiresCustomer", dependsOnMethods = "TC_03_Attach_Payment_Method")
-    public void TC_09_Detach_Payment_Method(){
+    public void TC_09_Detach_Payment_Method() {
 
-        String paymentMethodId = TestContext.getPaymentMethodId();
-        paymentMethods.detachPaymentMethod(paymentMethodId)
+        // Create a temporary payment method to detach so that the primary one remains
+        // usable for full flow
+        String tempPaymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+
+        Map<String, Object> attachBody = new HashMap<>();
+        attachBody.put("customer", TestContext.getCustomerId());
+        paymentMethods.attachPaymentMethod(tempPaymentMethodId, attachBody);
+
+        // Detach the newly created payment method
+        paymentMethods.detachPaymentMethod(tempPaymentMethodId)
                 .then()
                 .spec(ResponseSpec.OK())
-                .body("id",equalTo(paymentMethodId))
-                .body("customer",nullValue());
+                .body("id", equalTo(tempPaymentMethodId))
+                .body("customer", nullValue());
     }
 
+    @Test(dataProvider = "detachPaymentMethodNegativeCases", dataProviderClass = PaymentMethodsDataProvider.class)
+    public void TC_10_negative_Detach_Payment_Method(String paymentMethodId, ResponseSpecification spec,
+            String errorMessage) {
 
+        // If the case requires a real payment method that was attached -> detached
+        if ("SETUP_ALREADY_DETACHED".equals(paymentMethodId)) {
+            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+            Map<String, Object> attachBody = new HashMap<>();
+            attachBody.put("customer", TestContext.getCustomerId());
+            paymentMethods.attachPaymentMethod(paymentMethodId, attachBody);
+            // Detach it once successfully
+            paymentMethods.detachPaymentMethod(paymentMethodId);
+        }
 
-
+        // Try detaching (will hit the negative scenario)
+        paymentMethods.detachPaymentMethod(paymentMethodId)
+                .then()
+                .spec(spec)
+                .body("error.message", containsString(errorMessage));
+    }
 
 }

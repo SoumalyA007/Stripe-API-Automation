@@ -4,7 +4,6 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.response.Response;
 import specification.RequestSpec;
-import testbase.BaseClass;
 
 import java.util.Map;
 
@@ -13,41 +12,37 @@ import static testbase.BaseClass.p;
 
 public class Customer {
 
-    public static Response createCustomer(Object name , Object email, Map<String, String> metadata){
+    public static Response createCustomer(Object name, Object email, Map<String, String> metadata) {
 
         var request = given()
                 .spec(RequestSpec.setupv1())
                 .basePath("/v1/customers");
 
-        if(name!=null){
-            request.formParam("name" , name);
+        if (name != null) {
+            request.formParam("name", name);
         }
-        if(email!=null){
-            request.formParam("email",email);
+        if (email != null) {
+            request.formParam("email", email);
         }
-        if(metadata!=null){
-            metadata.forEach((key, value) ->
-                    request.formParam("metadata[" + key + "]", value)
-            );
+        if (metadata != null) {
+            metadata.forEach((key, value) -> request.formParam("metadata[" + key + "]", value));
         }
         return request.when().post();
 
     }
 
-
     public static Response createCustomerWithCustomAuth(String token, String name, String email) {
         var request = given()
                 .baseUri(p.getProperty("baseURI"));
         if (token != null) {
-            request.header("Authorization","Bearer "+ token);
+            request.header("Authorization", "Bearer " + token);
         }
         if (name != null) {
-            request.formParams("name",name);
+            request.formParams("name", name);
         }
         if (email != null) {
-            request.formParams("email",email);
+            request.formParams("email", email);
         }
-
 
         return request
                 .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
@@ -56,42 +51,39 @@ public class Customer {
 
     }
 
-    public static Response updateCustomer(String id, String fieldName , String fieldValue, Map<String, String> metadata){
+    public static Response updateCustomer(String id, String fieldName, String fieldValue,
+            Map<String, String> metadata) {
 
         var request = given()
                 .spec(RequestSpec.setupv1())
                 .basePath("/v1/customers/{id}")
-                .pathParam("id",id);
+                .pathParam("id", id);
 
-        if(fieldName != null && !fieldName.equals("metadata") && fieldValue != null){
-            request.formParams(fieldName ,fieldValue);
+        if (fieldName != null && !fieldName.equals("metadata") && fieldValue != null) {
+            request.formParams(fieldName, fieldValue);
         }
-        if(fieldName.equals("metadata") && !metadata.isEmpty()){
-            metadata.forEach((key, value) ->
-                    request.formParam("metadata[" + key + "]", value)
-            );
+        if (fieldName.equals("metadata") && !metadata.isEmpty()) {
+            metadata.forEach((key, value) -> request.formParam("metadata[" + key + "]", value));
         }
         return request.when().post();
 
     }
 
-    public static Response updateCustomerWithCustomAuth(String token, String id,  String fieldName , String fieldValue, Map<String, String> metadata) {
+    public static Response updateCustomerWithCustomAuth(String token, String id, String fieldName, String fieldValue,
+            Map<String, String> metadata) {
         var request = given()
                 .baseUri(p.getProperty("baseURI"))
                 .basePath("/v1/customers/{id}")
-                .pathParam("id",id);
+                .pathParam("id", id);
         if (token != null) {
-            request.header("Authorization","Bearer "+ token);
+            request.header("Authorization", "Bearer " + token);
         }
-        if(fieldName != null && !fieldName.equals("metadata") && fieldValue != null){
-            request.formParams(fieldName ,fieldValue);
+        if (fieldName != null && !fieldName.equals("metadata") && fieldValue != null) {
+            request.formParams(fieldName, fieldValue);
         }
-        if(fieldName.equals("metadata") && !metadata.isEmpty()){
-            metadata.forEach((key, value) ->
-                    request.formParam("metadata[" + key + "]", value)
-            );
+        if (fieldName.equals("metadata") && !metadata.isEmpty()) {
+            metadata.forEach((key, value) -> request.formParam("metadata[" + key + "]", value));
         }
-
 
         return request
                 .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
@@ -104,7 +96,7 @@ public class Customer {
         return given()
                 .spec(RequestSpec.setupv1())
                 .basePath("/v1/customers/{id}")
-                .pathParam("id",id)
+                .pathParam("id", id)
                 .filter(new RequestLoggingFilter())
                 .filter(new ResponseLoggingFilter())
                 .when()
@@ -112,14 +104,13 @@ public class Customer {
 
     }
 
-
     public static Response getCustomerWithCustomAuth(String token, String id) {
         var request = given()
                 .baseUri(p.getProperty("baseURI"))
                 .basePath("/v1/customers/{id}")
-                .pathParam("id",id);
+                .pathParam("id", id);
         if (token != null) {
-            request.header("Authorization","Bearer "+ token);
+            request.header("Authorization", "Bearer " + token);
         }
 
         return request
@@ -129,24 +120,23 @@ public class Customer {
 
     }
 
-
-    public static Response deleteCustomer(String id){
+    public static Response deleteCustomer(String id) {
         return given()
                 .spec(RequestSpec.setupv1())
                 .basePath("/v1/customers/{id}")
-                .pathParam("id",id)
+                .pathParam("id", id)
                 .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
                 .when()
                 .delete();
     }
 
-    public static Response deleteCustomerWithCustomAuth(String token , String id){
-        var request= given()
+    public static Response deleteCustomerWithCustomAuth(String token, String id) {
+        var request = given()
                 .baseUri(p.getProperty("baseURI"))
                 .basePath("/v1/customers/{id}")
-                .pathParam("id",id);
-        if(token!=null){
-            request.header("Authorization", "Bearer "+token);
+                .pathParam("id", id);
+        if (token != null) {
+            request.header("Authorization", "Bearer " + token);
         }
         return request
                 .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
@@ -154,15 +144,12 @@ public class Customer {
                 .delete();
     }
 
-
-    public static Response listCustomers(Map<String,Object> queryParams){
-
-
+    public static Response listCustomers(Map<String, Object> queryParams) {
 
         var request = given()
                 .spec(RequestSpec.setupv1())
                 .basePath("/v1/customers");
-        if(queryParams != null && !queryParams.isEmpty()){
+        if (queryParams != null && !queryParams.isEmpty()) {
             request.queryParams(queryParams);
         }
         return request
@@ -172,17 +159,15 @@ public class Customer {
 
     }
 
-    public static Response listCustomersWithCustomToken(String token,Map<String,Object> queryParams){
-
-
+    public static Response listCustomersWithCustomToken(String token, Map<String, Object> queryParams) {
 
         var request = given()
                 .spec(RequestSpec.setupv1())
                 .basePath("/v1/customers");
-        if(token != null){
-            request.header("Authorization", "Bearer "+token);
+        if (token != null) {
+            request.header("Authorization", "Bearer " + token);
         }
-        if(queryParams != null && !queryParams.isEmpty()){
+        if (queryParams != null && !queryParams.isEmpty()) {
             request.queryParams(queryParams);
         }
         return request
@@ -192,17 +177,15 @@ public class Customer {
 
     }
 
-    public static Response searchCustomer(String query){
+    public static Response searchCustomer(String query) {
 
         return given()
                 .spec(RequestSpec.setupv1())
                 .basePath("/v1/customers/search")
-                .queryParam("query",query)
+                .queryParam("query", query)
                 .when()
                 .get();
 
     }
-
-
 
 }

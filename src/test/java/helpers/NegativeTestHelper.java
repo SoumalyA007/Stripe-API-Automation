@@ -6,15 +6,14 @@ import io.restassured.response.Response;
 
 public class NegativeTestHelper {
 
-
-    public static void createCustomerNegativeTestCase(){
+    public static void createCustomerNegativeTestCase() {
         Faker faker = new Faker();
         String name = faker.name().fullName();
-        String email = name.replaceAll(" ","")+ "@test.com";
+        String email = name.replaceAll(" ", "") + "@test.com";
         Response resp = Customer.createCustomer("Regression User", email, null);
 
         String customerId = resp.jsonPath().getString("id");
-        TestContext.setCustomerId(customerId);
+        TestContext.setCustomerIdList(customerId);
         TestContext.setBillingEmail(email);
         TestContext.setBillingName(name);
 

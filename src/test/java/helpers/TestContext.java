@@ -1,5 +1,8 @@
 package helpers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TestContext {
 
     public static String getPaymentMethodId() {
@@ -42,10 +45,23 @@ public class TestContext {
         TestContext.billingEmail.set(billingEmail);
     }
 
+    public static void setCustomerIdList(String id) {
+        customerIdList.get().add(id);
+    }
+
+    public static String getCustomerIdList() {
+        List<String> list = customerIdList.get();
+        if (list == null || list.isEmpty()) {
+            return null; // or throw new NoSuchElementException("Customer list is empty");
+        }
+        return list.get(list.size() - 1);
+    }
+
     private static final ThreadLocal<String> customerId = new ThreadLocal<>();
     private static final ThreadLocal<String> paymentMethodId = new ThreadLocal<>();
     private static final ThreadLocal<String> paymentIntentId = new ThreadLocal<>();
     private static final ThreadLocal<String> billingName = new ThreadLocal<>();
     private static final ThreadLocal<String> billingEmail = new ThreadLocal<>();
+    private static final ThreadLocal<List<String>> customerIdList = ThreadLocal.withInitial(ArrayList::new);
 
 }

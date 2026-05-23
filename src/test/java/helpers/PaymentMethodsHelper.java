@@ -45,4 +45,15 @@ public class PaymentMethodsHelper {
         return paymentId;
     }
 
+    public static String createPaymentMethod(Map<String, Object> method) {
+
+        String paymentId = paymentMethods.createPaymentMethod(method)
+                .then()
+                .extract()
+                .jsonPath()
+                .getString("id");
+
+        return paymentId;
+    }
+
 }

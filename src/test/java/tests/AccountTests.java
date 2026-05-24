@@ -23,7 +23,7 @@ public class AccountTests extends BaseClass {
         // ***************CREATE ACCOUNT – POSITIVE*******************\\
 
         // Create a valid account with all fields populated
-        @Test(groups = { "account.create", "positive", "smoke", "regression" })
+        @Test(groups = { "unit" })
         public void TC_01_CreateAccount_ValidData() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
@@ -40,8 +40,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create accounts with different entity types using DataProvider
-        @Test(groups = { "account.create", "positive",
-                        "regression" }, dataProvider = "validEntityTypes", dataProviderClass = AccountDataProvider.class)
+        @Test(groups = { "unit" }, dataProvider = "validEntityTypes", dataProviderClass = AccountDataProvider.class)
         public void TC_02_CreateAccount_DifferentEntityTypes(String testCaseName,
                         CreateAccountRequestPayload requestPayload) {
 
@@ -57,8 +56,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create accounts with different dashboard types using DataProvider
-        @Test(groups = { "account.create", "positive",
-                        "regression" }, dataProvider = "validDashboardTypes", dataProviderClass = AccountDataProvider.class)
+        @Test(groups = { "unit" }, dataProvider = "validDashboardTypes", dataProviderClass = AccountDataProvider.class)
         public void TC_03_CreateAccount_DifferentDashboards(String testCaseName,
                         CreateAccountRequestPayload requestPayload) {
 
@@ -74,7 +72,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create an account with only customer configuration (no merchant)
-        @Test(groups = { "account.create", "positive", "regression" })
+        @Test(groups = { "unit" })
         public void TC_04_CreateAccount_CustomerConfigOnly() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.accountWithCustomerConfigOnly();
@@ -91,7 +89,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create an account with only merchant configuration (no customer)
-        @Test(groups = { "account.create", "positive", "regression" })
+        @Test(groups = { "unit" })
         public void TC_05_CreateAccount_MerchantConfigOnly() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.accountWithMerchantConfigOnly();
@@ -108,7 +106,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create an account with minimal payload (only required fields)
-        @Test(groups = { "account.create", "positive", "edge", "regression" })
+        @Test(groups = { "unit" })
         public void TC_06_CreateAccount_MinimalPayload() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.minimalAccountPayload();
@@ -127,8 +125,7 @@ public class AccountTests extends BaseClass {
         // ***************CREATE ACCOUNT – NEGATIVE*******************\\
 
         // Create account with invalid/unsupported country codes using DataProvider
-        @Test(groups = { "account.create", "negative", "validation",
-                        "regression" }, dataProvider = "invalidCountryCodes", dataProviderClass = AccountDataProvider.class)
+        @Test(groups = { "unit" }, dataProvider = "invalidCountryCodes", dataProviderClass = AccountDataProvider.class)
         public void TC_07_CreateAccount_InvalidCountryCode(String testCaseName, String countryCode,
                         String expectedErrorFragment) {
 
@@ -148,7 +145,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create account with invalid email format
-        @Test(groups = { "account.create", "negative", "validation", "regression" })
+        @Test(groups = { "unit" })
         public void TC_08_CreateAccount_InvalidEmailFormat() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
@@ -166,7 +163,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create account with empty email
-        @Test(groups = { "account.create", "negative", "validation", "edge", "regression" })
+        @Test(groups = { "unit" })
         public void TC_09_CreateAccount_EmptyEmail() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
@@ -184,7 +181,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create account with invalid auth token
-        @Test(groups = { "account.create", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_10_CreateAccount_InvalidAuth() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
@@ -196,7 +193,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create account with missing auth token
-        @Test(groups = { "account.create", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_11_CreateAccount_MissingAuth() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
@@ -208,7 +205,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create account with empty display name
-        @Test(groups = { "account.create", "negative", "validation", "edge", "regression" })
+        @Test(groups = { "unit" })
         public void TC_12_CreateAccount_EmptyDisplayName() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
@@ -226,7 +223,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create account with very long display name
-        @Test(groups = { "account.create", "negative", "validation", "edge", "regression" })
+        @Test(groups = { "unit" })
         public void TC_13_CreateAccount_LongDisplayName() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
@@ -244,7 +241,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create account with special characters in display name
-        @Test(groups = { "account.create", "negative", "validation", "edge", "regression" })
+        @Test(groups = { "unit" })
         public void TC_14_CreateAccount_SpecialCharsDisplayName() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
@@ -262,7 +259,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create account without identity (missing required field)
-        @Test(groups = { "account.create", "negative", "validation", "regression" })
+        @Test(groups = { "unit" })
         public void TC_15_CreateAccount_MissingIdentity() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.accountWithoutIdentity();
@@ -273,7 +270,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Create account without country in identity
-        @Test(groups = { "account.create", "negative", "validation", "regression" })
+        @Test(groups = { "unit" })
         public void TC_16_CreateAccount_MissingCountry() {
 
                 CreateAccountRequestPayload requestPayload = AccountsHelper.accountWithoutCountry();
@@ -286,7 +283,7 @@ public class AccountTests extends BaseClass {
         // ***************RETRIEVE ACCOUNT – POSITIVE*******************\\
 
         // Retrieve a valid account by its ID
-        @Test(groups = { "account.retrieve", "positive", "smoke", "regression" })
+        @Test(groups = { "unit" })
         public void TC_17_RetrieveAccount_ValidId() {
 
                 // First, create an account to retrieve
@@ -308,7 +305,7 @@ public class AccountTests extends BaseClass {
         // ***************RETRIEVE ACCOUNT – NEGATIVE*******************\\
 
         // Retrieve account with an invalid ID
-        @Test(groups = { "account.retrieve", "negative", "validation", "regression" })
+        @Test(groups = { "unit" })
         public void TC_18_RetrieveAccount_InvalidId() {
 
                 Response resp = accounts.retrieveAccount("acct_invalid_id_12345");
@@ -317,7 +314,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Retrieve account with a completely garbage ID
-        @Test(groups = { "account.retrieve", "negative", "validation", "regression" })
+        @Test(groups = { "unit" })
         public void TC_19_RetrieveAccount_GarbageId() {
 
                 Response resp = accounts.retrieveAccount("garbage_not_an_account");
@@ -326,7 +323,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Retrieve account with missing auth
-        @Test(groups = { "account.retrieve", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_20_RetrieveAccount_MissingAuth() {
 
                 Response resp = accounts.retrieveAccountWithCustomAuth(null, "acct_any_id");
@@ -336,7 +333,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Retrieve account with invalid auth
-        @Test(groups = { "account.retrieve", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_21_RetrieveAccount_InvalidAuth() {
 
                 Response resp = accounts.retrieveAccountWithCustomAuth("sk_test_invalid_key_12345", "acct_any_id");
@@ -348,7 +345,7 @@ public class AccountTests extends BaseClass {
         // ***************CLOSE ACCOUNT – POSITIVE*******************\\
 
         // Close a valid account
-        @Test(groups = { "account.close", "positive", "regression" })
+        @Test(groups = { "unit" })
         public void TC_22_CloseAccount_ValidId() {
 
                 // First, create an account to close
@@ -368,7 +365,7 @@ public class AccountTests extends BaseClass {
         // ***************CLOSE ACCOUNT – NEGATIVE*******************\\
 
         // Close an account with invalid ID
-        @Test(groups = { "account.close", "negative", "validation", "regression" })
+        @Test(groups = { "unit" })
         public void TC_23_CloseAccount_InvalidId() {
 
                 Response resp = accounts.closeAccount("acct_invalid_id_12345");
@@ -377,7 +374,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Close an already closed account (double-close)
-        @Test(groups = { "account.close", "negative", "edge", "regression" })
+        @Test(groups = { "unit" })
         public void TC_24_CloseAccount_AlreadyClosed() {
 
                 // Create and then close an account
@@ -400,7 +397,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Retrieve an account after it has been closed
-        @Test(groups = { "account.close", "negative", "edge", "regression" })
+        @Test(groups = { "unit" })
         public void TC_25_RetrieveAccount_AfterClose() {
 
                 // Create and then close an account
@@ -427,7 +424,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Close account with missing auth
-        @Test(groups = { "account.close", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_26_CloseAccount_MissingAuth() {
 
                 Response resp = accounts.closeAccountWithCustomAuth(null, "acct_any_id");
@@ -437,7 +434,7 @@ public class AccountTests extends BaseClass {
         }
 
         // Close account with invalid auth
-        @Test(groups = { "account.close", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_27_CloseAccount_InvalidAuth() {
 
                 Response resp = accounts.closeAccountWithCustomAuth("sk_test_invalid_key_12345", "acct_any_id");

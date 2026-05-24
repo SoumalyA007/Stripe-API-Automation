@@ -73,6 +73,17 @@ public class TestContext {
         return refundId.get();
     }
 
+    public static void clear() {
+        customerId.remove();
+        paymentMethodId.remove();
+        paymentIntentId.remove();
+        billingName.remove();
+        billingEmail.remove();
+        customerIdList.get().clear();
+        chargeId.remove();
+        refundId.remove();
+    }
+
     private static final ThreadLocal<String> customerId = new ThreadLocal<>();
     private static final ThreadLocal<String> paymentMethodId = new ThreadLocal<>();
     private static final ThreadLocal<String> paymentIntentId = new ThreadLocal<>();

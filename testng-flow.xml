@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="User Flow Suite" verbose="2">
+    <test name="End-to-End User Flow" preserve-order="true" thread-count="1">
+        <groups>
+            <run>
+                <include name="flow"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="tests.CustomerTests"/>
+            <class name="tests.PaymentMethodTests"/>
+            <class name="tests.PaymentIntentTests"/>
+            <class name="tests.RefundTests"/>
+        </classes>
+    </test>
+</suite>

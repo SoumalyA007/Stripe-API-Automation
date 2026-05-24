@@ -48,19 +48,10 @@ public class BaseClass {
     // System.out.println("✅ Suite customer created: " + customerId);
     // }
 
-    @BeforeMethod(onlyForGroups = { "requiresCustomer", "flow_check" })
-    public void createCustomer() {
-        // ✅ Create customer ONCE for the entire regression suite
-        String name = faker.name().fullName();
-        String email = name.replaceAll(" ", "") + "@test.com";
-        Response resp = Customer.createCustomer("Regression User", email, null);
-
-        String customerId = resp.jsonPath().getString("id");
-        TestContext.setCustomerId(customerId);
-        TestContext.setBillingEmail(email);
-        TestContext.setBillingName(name);
-
-        System.out.println("✅ Suite customer created: " + customerId);
+    @BeforeMethod(onlyForGroups = "unit")
+    public void clearContextForUnitTest() {
+        TestContext.clear();
+        logger.info("🧹 Cleared TestContext for isolated unit test.");
     }
 
     @AfterSuite()

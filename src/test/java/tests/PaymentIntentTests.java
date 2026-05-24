@@ -19,9 +19,11 @@ import helpers.PaymentMethodsHelper;
 import helpers.TestContext;
 import io.restassured.response.Response;
 
-public class PaymentIntentTests {
+import testbase.BaseClass;
 
-    @Test
+public class PaymentIntentTests extends BaseClass {
+
+    @Test(groups = {"flow", "unit"}, dependsOnMethods = "tests.PaymentMethodTests.TC_03_Attach_Payment_Method")
     public void TC_01_positive_Create_Payment_Intent() {
 
         String paymentMethodId = TestContext.getPaymentMethodId();
@@ -66,7 +68,7 @@ public class PaymentIntentTests {
 
     }
 
-    @Test(dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
+    @Test(groups = {"unit"}, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
     public void TC_02_negative_Create_Payment_Intent(String testCaseName, Map<String, Object> body,
             String expectedErrorCode) {
 
@@ -89,7 +91,7 @@ public class PaymentIntentTests {
 
     }
 
-    @Test
+    @Test(groups = {"unit"})
     public void TC_03_positive_Cancel_Payment_Intent() {
         // Create an unconfirmed payment intent for cancellation testing
         String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
@@ -104,7 +106,7 @@ public class PaymentIntentTests {
                 .body("cancellation_reason", equalTo("requested_by_customer"));
     }
 
-    @Test
+    @Test(groups = {"unit"})
     public void TC_04_negative_Cancel_Succeeded_Payment_Intent() {
         // This tests the negative scenario as you requested:
         // Trying to cancel an already succeeded payment intent.
@@ -124,7 +126,7 @@ public class PaymentIntentTests {
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
     }
 
-    @Test
+    @Test(groups = {"unit"})
     public void TC_05_negative_Cancel_Already_Canceled_Payment_Intent() {
         // Unconfirmed so it's originally valid for cancellation
         String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
@@ -145,7 +147,7 @@ public class PaymentIntentTests {
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
     }
 
-    @Test
+    @Test(groups = {"flow", "unit"}, dependsOnMethods = "tests.PaymentIntentTests.TC_01_positive_Create_Payment_Intent")
     public void TC_06_positive_Confirm_Payment_Intent() {
         String paymentIntentId = TestContext.getPaymentIntentId();
 
@@ -164,7 +166,7 @@ public class PaymentIntentTests {
                 .body("object", equalTo("payment_intent"));
     }
 
-    @Test
+    @Test(groups = {"unit"})
     public void TC_07_positive_Idempotent_Confirm_Payment_Intent() {
         // Create an unconfirmed intent
         String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
@@ -201,7 +203,7 @@ public class PaymentIntentTests {
 
     }
 
-    @Test
+    @Test(groups = {"unit"})
     public void TC_08_negative_Confirm_Canceled_Payment_Intent() {
         // Create a canceled intent
         String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
@@ -222,7 +224,7 @@ public class PaymentIntentTests {
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
     }
 
-    @Test(dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
+    @Test(groups = {"unit"}, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
     public void TC_09_negative_Confirm_Invalid_Payment_Method(String testCaseName, Map<String, Object> body,
             String expectedErrorCode) {
 
@@ -251,7 +253,7 @@ public class PaymentIntentTests {
                 .body("error.code", containsString(expectedErrorCode));
     }
 
-    @Test
+    @Test(groups = {"unit"})
     public void TC_10_negative_Confirm_Succeeded_Payment_Intent() {
         // Create an already succeeded intent
         String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(true);
@@ -267,7 +269,7 @@ public class PaymentIntentTests {
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
     }
 
-    @Test
+    @Test(groups = {"unit"})
     public void TC_11_negative_Confirm_Without_Payment_Method() {
         // Create an intent without any payment method attached
         Map<String, Object> intentBody = new HashMap<>();

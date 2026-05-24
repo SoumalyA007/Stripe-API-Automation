@@ -1,10 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="All Test Suite">
-    <test  name="Stripe Automation Test">
+<suite name="Full Regression Suite" verbose="2">
+    <!-- Flow first, then unit tests -->
+    <test name="User Flow" preserve-order="true">
+        <groups>
+            <run>
+                <include name="flow"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="tests.CustomerTests"/>
+            <class name="tests.PaymentMethodTests"/>
+            <class name="tests.PaymentIntentTests"/>
+            <class name="tests.RefundTests"/>
+        </classes>
+    </test>
+    <test name="Unit Tests">
+        <groups>
+            <run>
+                <include name="unit"/>
+            </run>
+        </groups>
         <classes>
             <class name="tests.CustomerTests"/>
             <class name="tests.AccountTests"/>
+            <class name="tests.PaymentMethodTests"/>
+            <class name="tests.PaymentIntentTests"/>
+            <class name="tests.RefundTests"/>
         </classes>
     </test>
 </suite>

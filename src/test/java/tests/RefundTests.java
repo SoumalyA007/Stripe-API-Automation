@@ -19,7 +19,7 @@ public class RefundTests extends BaseClass {
 
         // ***************CREATE REFUND – POSITIVE*******************\\
 
-        @Test(groups = { "refund.create", "positive", "smoke", "regression" })
+        @Test(groups = { "flow", "unit" }, dependsOnMethods = "tests.PaymentIntentTests.TC_06_positive_Confirm_Payment_Intent")
         public void TC_01_Create_Valid_Refund() {
 
                 Map<String, Object> body = new HashMap<>();
@@ -49,7 +49,7 @@ public class RefundTests extends BaseClass {
 
         }
 
-        @Test(groups = { "refund.retrieve", "positive", "smoke", "regression" })
+        @Test(groups = { "unit" })
         public void TC_02_Retrieve_Refund() {
 
                 String refundId = TestContext.getRefundId();
@@ -65,7 +65,7 @@ public class RefundTests extends BaseClass {
 
         }
 
-        @Test(groups = { "refund.cancel", "positive", "regression" })
+        @Test(groups = { "unit" })
         public void TC_03_Cancel_Refund() {
 
                 String refundId = TestContext.getRefundId();
@@ -91,7 +91,7 @@ public class RefundTests extends BaseClass {
         // ***************CREATE REFUND – NEGATIVE*******************\\
 
         // Create refund with an invalid payment_intent ID
-        @Test(groups = { "refund.create", "negative", "validation", "regression" })
+        @Test(groups = { "unit" })
         public void TC_04_CreateRefund_InvalidPaymentIntentId() {
 
                 Map<String, Object> body = new HashMap<>();
@@ -105,7 +105,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Create refund with the payment_intent field missing entirely
-        @Test(groups = { "refund.create", "negative", "validation", "regression" })
+        @Test(groups = { "unit" })
         public void TC_05_CreateRefund_MissingPaymentIntent() {
 
                 Map<String, Object> body = new HashMap<>();
@@ -119,7 +119,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Create refund whose amount exceeds the original payment charge
-        @Test(groups = { "refund.create", "negative", "validation", "edge", "regression" })
+        @Test(groups = { "unit" })
         public void TC_06_CreateRefund_AmountExceedsCharged() {
 
                 // Always create a fresh PI (amount = 2000) for this scenario
@@ -137,7 +137,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Create refund with zero amount
-        @Test(groups = { "refund.create", "negative", "validation", "edge", "regression" })
+        @Test(groups = { "unit" })
         public void TC_07_CreateRefund_ZeroAmount() {
 
                 String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
@@ -153,8 +153,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Create refund with an invalid reason value – driven by DataProvider
-        @Test(groups = { "refund.create", "negative", "validation",
-                        "regression" }, dataProvider = "invalidRefundReasons", dataProviderClass = RefundDataProvider.class)
+        @Test(groups = { "unit" }, dataProvider = "invalidRefundReasons", dataProviderClass = RefundDataProvider.class)
         public void TC_08_CreateRefund_InvalidReason(String testCaseName, String reason, String expectedErrorFragment) {
 
                 // Fresh PI per iteration so the reason field is the only failure point
@@ -173,7 +172,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Create refund with an invalid auth token
-        @Test(groups = { "refund.create", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_09_CreateRefund_InvalidAuth() {
 
                 Map<String, Object> body = new HashMap<>();
@@ -188,7 +187,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Create refund with a missing auth token
-        @Test(groups = { "refund.create", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_10_CreateRefund_MissingAuth() {
 
                 Map<String, Object> body = new HashMap<>();
@@ -205,8 +204,7 @@ public class RefundTests extends BaseClass {
         // ***************RETRIEVE REFUND – NEGATIVE*******************\\
 
         // Retrieve refund using invalid / garbage IDs – driven by DataProvider
-        @Test(groups = { "refund.retrieve", "negative", "validation",
-                        "regression" }, dataProvider = "invalidRefundIds", dataProviderClass = RefundDataProvider.class)
+        @Test(groups = { "unit" }, dataProvider = "invalidRefundIds", dataProviderClass = RefundDataProvider.class)
         public void TC_11_RetrieveRefund_InvalidId(String testCaseName, String refundId,
                         String expectedErrorFragment) {
 
@@ -218,7 +216,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Retrieve refund with an invalid auth token
-        @Test(groups = { "refund.retrieve", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_12_RetrieveRefund_InvalidAuth() {
 
                 Refunds.retrieveRefundWithCustomAuth("sk_test_invalid_key_12345", "re_any_id")
@@ -229,7 +227,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Retrieve refund with a missing auth token
-        @Test(groups = { "refund.retrieve", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_13_RetrieveRefund_MissingAuth() {
 
                 Refunds.retrieveRefundWithCustomAuth(null, "re_any_id")
@@ -242,7 +240,7 @@ public class RefundTests extends BaseClass {
         // ***************CANCEL REFUND – NEGATIVE*******************\\
 
         // Cancel a refund with an invalid ID
-        @Test(groups = { "refund.cancel", "negative", "validation", "regression" })
+        @Test(groups = { "unit" })
         public void TC_14_CancelRefund_InvalidId() {
 
                 Refunds.cancelRefund("re_invalid_id_12345")
@@ -252,7 +250,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Cancel an already-cancelled refund (double-cancel edge case)
-        @Test(groups = { "refund.cancel", "negative", "edge", "regression" })
+        @Test(groups = { "unit" })
         public void TC_15_CancelRefund_AlreadyCancelled() {
 
                 // Create a fresh refund specifically for this test
@@ -272,7 +270,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Cancel refund with an invalid auth token
-        @Test(groups = { "refund.cancel", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_16_CancelRefund_InvalidAuth() {
 
                 Refunds.cancelRefundWithCustomAuth("sk_test_invalid_key_12345", "re_any_id")
@@ -283,7 +281,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Cancel refund with a missing auth token
-        @Test(groups = { "refund.cancel", "negative", "auth", "regression" })
+        @Test(groups = { "unit" })
         public void TC_17_CancelRefund_MissingAuth() {
 
                 Refunds.cancelRefundWithCustomAuth(null, "re_any_id")

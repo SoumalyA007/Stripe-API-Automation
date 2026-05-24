@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Unit Test Suite" verbose="2">
+    <test name="All Unit Tests">
+        <groups>
+            <run>
+                <include name="unit"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="tests.CustomerTests"/>
+            <class name="tests.PaymentMethodTests"/>
+            <class name="tests.PaymentIntentTests"/>
+            <class name="tests.RefundTests"/>
+            <class name="tests.AccountTests"/>
+        </classes>
+    </test>
+</suite>

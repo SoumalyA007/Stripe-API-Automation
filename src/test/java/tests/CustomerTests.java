@@ -24,11 +24,26 @@ public class CustomerTests extends BaseClass {
     Faker faker = new Faker();
     List<String> customerIds = new ArrayList<>();
 
+    private String getOrSetupCustomer() {
+        String customerId = TestContext.getCustomerId();
+        if (customerId == null) {
+            String name = CustomersHelper.getName();
+            String email = faker.internet().safeEmailAddress();
+            Response resp = Customer.createCustomer(name, email, null);
+            customerId = resp.jsonPath().getString("id");
+            TestContext.setCustomerId(customerId);
+            TestContext.setBillingEmail(email);
+            TestContext.setBillingName(name);
+            customerIds.add(customerId);
+        }
+        return customerId;
+    }
+
 
     //***************CREATE CUSTOMER*******************\\
 
     //Create a Valid Customer
-    @Test(groups = {"customer.create", "positive", "smoke", "regression"})
+    @Test(groups = {"flow", "unit"})
     public void TC_01_CreateCustomer_ValidData(){
 
 
@@ -44,12 +59,15 @@ public class CustomerTests extends BaseClass {
                 .jsonPath()
                 .get("id");
 
+        TestContext.setCustomerId(id);
+        TestContext.setBillingName(name);
+        TestContext.setBillingEmail(email);
         customerIds.add(id);
 
     }
 
     //Creating a customer with no name
-    @Test(groups = {"customer.create", "positive", "regression"})
+    @Test(groups = {"unit"})
     public void TC_02_CreateCustomer_OnlyEmail(){
 
         String email = faker.internet().safeEmailAddress();
@@ -67,7 +85,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Create Customer with MetaaData
-    @Test(groups = {"customer.create", "positive", "regression"})
+    @Test(groups = {"unit"})
     public void createCustomerUsingMetadata(){
 
         String email = faker.internet().emailAddress();
@@ -91,7 +109,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Create Customer with invalid token
-    @Test(groups = {"customer.create", "negative", "auth", "regression"})
+    @Test(groups = {"unit"})
     public void TC_04_CreateCustomer_InvalidApiKey(){
 
         Response response = Customer.createCustomerWithCustomAuth("invalid", "ABC" , "ABC");
@@ -101,7 +119,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //create customer with invalid email format
-    @Test(groups = {"customer.create", "negative", "validation", "edge", "regression"})
+    @Test(groups = {"unit"})
     public void TC_05_CreateCustomer_InvalidEmailFormat(){
 
         String name = "test";
@@ -117,7 +135,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Create Customer with no token
-    @Test(groups = {"customer.create", "negative", "auth", "regression"})
+    @Test(groups = {"unit"})
     public void TC_06_CreateCustomer_MissingAuth(){
 
         Response response = Customer.createCustomerWithCustomAuth(null, "ABC" , "ABC");
@@ -127,7 +145,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Cretae Customer with duplicate mail
-    @Test(groups = {"customer.create", "edge", "regression"})
+    @Test(groups = {"unit"})
     public void TC_07_CreateCustomer_DuplicateEmail(){
 
         String name = CustomersHelper.getName();
@@ -170,7 +188,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //create a customer with very large name
-    @Test(groups = {"customer.create", "edge", "validation", "regression"})
+    @Test(groups = {"unit"})
     public void TC_08_CreateCustomer_LongName(){
 
         String name = "a".repeat(550);
@@ -181,7 +199,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //create a customer name with special characters
-    @Test(groups = {"customer.create", "edge", "validation", "regression"})
+    @Test(groups = {"unit"})
     public void TC_09_CreateCustomer_SpecialCharacters(){
 
         String name = "*/*/*/*#$!#!AA!!!";
@@ -200,7 +218,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //create a customer with values set as null
-    @Test(groups = {"customer.create", "edge", "validation", "regression"})
+    @Test(groups = {"unit"})
     public void TC_10_CreateCustomer_EmptyValues(){
 
         String name = null;
@@ -219,14 +237,12 @@ public class CustomerTests extends BaseClass {
     }
 
 
-//***************UPDATE CUSTOMER*******************\\
-
     //Update customer with name , email and metadata
-    @Test(groups = {"customer.update", "positive", "smoke", "regression", "requiresCustomer"},dataProvider ="updateDataProvider",dataProviderClass = UpdateCustomerDataProvider.class)
+    @Test(groups = {"unit"},dataProvider ="updateDataProvider",dataProviderClass = UpdateCustomerDataProvider.class)
     public void TC_01_UpdateCustomer_Name(String fieldName , String fieldValue,Map<String, String> metadata){
 
         Response resp =  null;
-        String customerId = TestContext.getCustomerId();
+        String customerId = getOrSetupCustomer();
         if(metadata!=null){
 
             resp = Customer.updateCustomer(customerId,fieldName,null,metadata);
@@ -240,7 +256,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Update customer with invalid customer id
-    @Test(groups = {"customer.update", "negative", "validation", "regression"})
+    @Test(groups = {"unit"})
     public void TC_02_UpdateCustomer_InvalidId(){
 
         Response resp =  null;
@@ -260,11 +276,11 @@ public class CustomerTests extends BaseClass {
     }
 
     //Update customer with invalid auth
-    @Test(groups = {"customer.update", "negative", "auth", "regression"})
+    @Test(groups = {"unit"})
     public void TC_03_UpdateCustomer_InvalidAuth(){
 
         Response resp =  null;
-        String customerId = TestContext.getCustomerId();
+        String customerId = getOrSetupCustomer();
 
         resp = Customer.updateCustomerWithCustomAuth("invlid_token",customerId,"name","Soumalya",null);
 
@@ -280,11 +296,11 @@ public class CustomerTests extends BaseClass {
     }
 
     //Update customer with missing auth
-    @Test(groups = {"customer.update", "negative", "auth", "regression"})
+    @Test(groups = {"unit"})
     public void TC_04_UpdateCustomer_MissingAuth(){
 
         Response resp =  null;
-        String customerId = TestContext.getCustomerId();
+        String customerId = getOrSetupCustomer();
 
         resp = Customer.updateCustomerWithCustomAuth(null,customerId,"name","Soumalya",null);
 
@@ -299,11 +315,11 @@ public class CustomerTests extends BaseClass {
     }
 
     //Update deleted Customer
-    @Test(groups = {"customer.update", "edge", "destructive", "regression", "requiresCustomer"})
+    @Test(groups = {"unit"})
     public void TC_05_UpdateCustomer_DeletedCustomer(){
 
         Response resp;
-        String customerId = TestContext.getCustomerId();
+        String customerId = getOrSetupCustomer();
         CustomersHelper.deleteCustomer(customerId);
         resp = Customer.updateCustomer(customerId,"name","Invalid Test",null);
 
@@ -323,10 +339,10 @@ public class CustomerTests extends BaseClass {
 //****************RETRIEVE DATA TEST*****************\\
 
     //Get data with valid customer Id
-    @Test(groups = {"customer.update", "edge", "destructive", "regression", "requiresCustomer"})
+    @Test(groups = {"unit"})
     public void TC_01_RetrieveCustomer_ValidId(){
 
-        String customerId = TestContext.getCustomerId();
+        String customerId = getOrSetupCustomer();
         Response resp = Customer.getCustomer(customerId);
 
         resp.then().spec(ResponseSpec.OK())
@@ -335,7 +351,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Get customer with valid Id
-    @Test(groups = {"customer.retrieve", "negative", "validation", "regression"})
+    @Test(groups = {"unit"})
     public void TC_02_RetrieveCustomer_InvalidId(){
 
         Response resp = Customer.getCustomer("invalid_id");
@@ -344,18 +360,19 @@ public class CustomerTests extends BaseClass {
     }
 
     //Get Customer data with invalidId
-    @Test(groups = {"customer.retrieve", "negative", "auth", "regression","requiresCustomer"})
+    @Test(groups = {"unit"})
     public void TC_03_RetrieveCustomer_MissingAuth(){
-        String customerId = TestContext.getCustomerId();
+        String customerId = getOrSetupCustomer();
         Response resp = Customer.getCustomerWithCustomAuth(null,customerId);
         resp.then().spec(ResponseSpec.Unauthorized());
 
     }
 
     //Get customer with deleted customer's id
-    @Test(groups = {"customer.retrieve", "edge", "regression","requiresCustomer"})
+    @Test(groups = {"unit"})
     public void TC_04_RetrieveCustomer_DeletedCustomer(){
-        String customerId = TestContext.getCustomerId();
+        String customerId = getOrSetupCustomer();
+        Customer.deleteCustomer(customerId);
         Response resp = Customer.getCustomer(customerId);
         resp.then().spec(ResponseSpec.not_found());
     }
@@ -364,10 +381,10 @@ public class CustomerTests extends BaseClass {
 //****************DELETE CUSTOMER TEST*****************\\
 
     //Delete valid customer
-    @Test(groups = {"customer.delete", "positive", "destructive", "regression", "requiresCustomer"})
+    @Test(groups = {"unit"})
     public void TC_01_DeleteCustomer_Valid(){
 
-        String customerId = TestContext.getCustomerId();
+        String customerId = getOrSetupCustomer();
         Customer.deleteCustomer(customerId)
                 .then()
                 .spec(ResponseSpec.OK());
@@ -375,7 +392,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Delete invalid customer
-    @Test(groups = {"customer.delete", "negative", "validation", "regression"})
+    @Test(groups = {"unit"})
     public void TC_02_DeleteCustomer_InvalidId(){
 
         String customerId = "invalid";
@@ -386,10 +403,10 @@ public class CustomerTests extends BaseClass {
     }
 
     //Delete already deleted customer
-    @Test(groups = {"customer.delete", "negative", "validation", "regression","requiresCustomer"})
+    @Test(groups = {"unit"})
     public void  TC_03_DeleteCustomer_AlreadyDeleted(){
 
-        String customerId = TestContext.getCustomerId();
+        String customerId = getOrSetupCustomer();
         Customer.deleteCustomer(customerId);
         Customer.deleteCustomer(customerId)
                 .then()
@@ -398,9 +415,9 @@ public class CustomerTests extends BaseClass {
 
     }
 
-    @Test(groups = {"customer.retrieve", "negative", "auth", "regression","requiresCustomer"})
+    @Test(groups = {"unit"})
     public void TC_04_DeleteCustomer_MissingAuth(){
-        String customerId = TestContext.getCustomerId();
+        String customerId = getOrSetupCustomer();
 
         Customer.deleteCustomerWithCustomAuth(null,customerId)
                 .then()
@@ -410,7 +427,7 @@ public class CustomerTests extends BaseClass {
 //****************LIST CUSTOMER TEST*****************\\
 
     //default customer list
-    @Test
+    @Test(groups = {"unit"})
     public void TC_01_ListCustomers_Default(){
 
         Map<String,Object> queryParams = new HashMap<>();
@@ -421,7 +438,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Get the list of only 2 customer
-    @Test
+    @Test(groups = {"unit"})
     public void TC_02_ListCustomers_WithFilter(){
 
         Map<String,Object> queryParams = new HashMap<>();
@@ -433,7 +450,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Get the result based on pagination
-    @Test
+    @Test(groups = {"unit"})
     public void TC_03_ListCustomers_WithPagination(){
         Map<String,Object> queryParams = new HashMap<>();
         queryParams.put("starting_after","cus_UNt0BtOK1xydSU");
@@ -445,7 +462,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Get customerlist with invalid token
-    @Test
+    @Test(groups = {"unit"})
     public void TC_04_ListCustomers_WithInvalidToken(){
 
         Map<String,Object> queryParams = new HashMap<>();
@@ -458,7 +475,7 @@ public class CustomerTests extends BaseClass {
 //****************SEARCH CUSTOMER TEST*****************\\
 
     //Search a customer by Email
-    @Test
+    @Test(groups = {"unit"})
     public void TC_01_SearchCustomer_ByEmail(){
 
         Customer.searchCustomer("email:'furever@example.com'")
@@ -469,7 +486,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Search a customer by nonexisting email
-    @Test
+    @Test(groups = {"unit"})
     public void TC_02_SearchCustomer_ByInvalidEmail(){
 
         Customer.searchCustomer("email:'nullll'")
@@ -480,7 +497,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Search a customer by valid email with Invalid Query Syntax
-    @Test
+    @Test(groups = {"unit"})
     public void TC_03_SearchCustomer_ByInvalidQuerySyntax(){
 
         Customer.searchCustomer("email->'furever@example.com'")
@@ -490,7 +507,7 @@ public class CustomerTests extends BaseClass {
     }
 
     //Search a customer by valid email with Invalid Token
-    @Test
+    @Test(groups = {"unit"})
     public void TC_04_SearchCustomer_ByInvalidToken(){
 
         Customer.searchCustomer("email:'furever@example.com'")
@@ -502,7 +519,19 @@ public class CustomerTests extends BaseClass {
 
     //****************CLEANUP AFTER TEST*****************\\
     @AfterMethod
-    public void cleanup() {
+    public void cleanup(org.testng.ITestContext testContext) {
+        boolean isFlow = false;
+        if (testContext.getIncludedGroups() != null) {
+            for (String group : testContext.getIncludedGroups()) {
+                if ("flow".equals(group)) {
+                    isFlow = true;
+                    break;
+                }
+            }
+        }
+        if (isFlow) {
+            return; // In flow mode, let @AfterSuite handle deletion
+        }
 
         for (String id : customerIds) {
             try {

@@ -3,6 +3,7 @@ package endpoints;
 import io.restassured.response.Response;
 import specification.RequestSpec;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -27,11 +28,13 @@ public class PaymentIntent {
                 .when()
                 .post();
     }
+
     public static Response confirmPaymentIntent(String paymentIntentId, Map<String, Object> body) {
         return confirmPaymentIntent(paymentIntentId, body, new HashMap<>());
     }
 
-    public static Response confirmPaymentIntent(String paymentIntentId, Map<String, Object> body, Map<String, String> headers) {
+    public static Response confirmPaymentIntent(String paymentIntentId, Map<String, Object> body,
+            Map<String, String> headers) {
         return given()
                 .spec(RequestSpec.setupv1())
                 .headers(headers)

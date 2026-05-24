@@ -57,11 +57,29 @@ public class TestContext {
         return list.get(list.size() - 1);
     }
 
+    public static void setChargeId(String chargeId) {
+        TestContext.chargeId.set(chargeId);
+    }
+
+    public static String getChargeId() {
+        return chargeId.get();
+    }
+
+    public static void setRefundId(String refundId) {
+        TestContext.refundId.set(refundId);
+    }
+
+    public static String getRefundId() {
+        return refundId.get();
+    }
+
     private static final ThreadLocal<String> customerId = new ThreadLocal<>();
     private static final ThreadLocal<String> paymentMethodId = new ThreadLocal<>();
     private static final ThreadLocal<String> paymentIntentId = new ThreadLocal<>();
     private static final ThreadLocal<String> billingName = new ThreadLocal<>();
     private static final ThreadLocal<String> billingEmail = new ThreadLocal<>();
     private static final ThreadLocal<List<String>> customerIdList = ThreadLocal.withInitial(ArrayList::new);
+    private static final ThreadLocal<String> chargeId = new ThreadLocal<>();
+    private static final ThreadLocal<String> refundId = new ThreadLocal<>();
 
 }

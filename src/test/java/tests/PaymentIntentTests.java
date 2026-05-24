@@ -26,13 +26,13 @@ public class PaymentIntentTests {
 
         String paymentMethodId = TestContext.getPaymentMethodId();
 
-        boolean doesPaymentMethodIdExist = false;
+        boolean doesPaymentMethodIdExist = true;
 
         // Fallback for standalone run: create a temporary valid payment method if none
         // exists
         if (paymentMethodId == null) {
             paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
-            doesPaymentMethodIdExist = true;
+            doesPaymentMethodIdExist = false;
         }
 
         Map<String, Object> body = new HashMap<>();
@@ -60,7 +60,7 @@ public class PaymentIntentTests {
                 .jsonPath()
                 .getString("id");
 
-        if (!doesPaymentMethodIdExist) {
+        if (doesPaymentMethodIdExist) {
             TestContext.setPaymentIntentId(paymentIntentId);
         }
 

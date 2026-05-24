@@ -4,6 +4,7 @@
     <test  name="Stripe Automation Test">
         <classes>
             <class name="tests.CustomerTests"/>
+            <class name="tests.AccountTests"/>
         </classes>
     </test>
 </suite>

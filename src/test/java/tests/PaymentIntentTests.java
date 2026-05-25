@@ -1,5 +1,6 @@
 package tests;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,10 +24,12 @@ import testbase.BaseClass;
 
 public class PaymentIntentTests extends BaseClass {
 
-    @Test(groups = {"flow", "unit"}, dependsOnMethods = "tests.PaymentMethodTests.TC_03_Attach_Payment_Method")
+    @Test(groups = { "flow", "unit" }, dependsOnMethods = "tests.PaymentMethodTests.TC_03_Attach_Payment_Method")
     public void TC_01_positive_Create_Payment_Intent() {
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
         String paymentMethodId = TestContext.getPaymentMethodId();
+        logger.info("Intial paymentMethodId fetch --> \t" + paymentMethodId);
 
         boolean doesPaymentMethodIdExist = true;
 
@@ -34,6 +37,7 @@ public class PaymentIntentTests extends BaseClass {
         // exists
         if (paymentMethodId == null) {
             paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+            logger.info("Inside IF block paymentMethodId fetch when it does not exist --> \t" + paymentMethodId);
             doesPaymentMethodIdExist = false;
         }
 
@@ -44,6 +48,8 @@ public class PaymentIntentTests extends BaseClass {
 
         // Standard user flows often require the payment intent linked to the customer
         String customerId = TestContext.getCustomerId();
+        logger.info("Fetched customerId from context --> \t" + customerId);
+
         if (customerId != null) {
             body.put("customer", customerId);
         }
@@ -62,13 +68,19 @@ public class PaymentIntentTests extends BaseClass {
                 .jsonPath()
                 .getString("id");
 
+        logger.info("Created paymentIntentId --> \t" + paymentIntentId);
+
         if (doesPaymentMethodIdExist) {
+            logger.info("doesPaymentMethodIdExist --> \t" + doesPaymentMethodIdExist);
             TestContext.setPaymentIntentId(paymentIntentId);
+            logger.info("paymentIntentId set in context ;");
+
         }
 
     }
 
-    @Test(groups = {"unit"}, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
+    @Test(groups = {
+            "unit" }, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
     public void TC_02_negative_Create_Payment_Intent(String testCaseName, Map<String, Object> body,
             String expectedErrorCode) {
 
@@ -91,7 +103,7 @@ public class PaymentIntentTests extends BaseClass {
 
     }
 
-    @Test(groups = {"unit"})
+    @Test(groups = { "unit" })
     public void TC_03_positive_Cancel_Payment_Intent() {
         // Create an unconfirmed payment intent for cancellation testing
         String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
@@ -106,7 +118,7 @@ public class PaymentIntentTests extends BaseClass {
                 .body("cancellation_reason", equalTo("requested_by_customer"));
     }
 
-    @Test(groups = {"unit"})
+    @Test(groups = { "unit" })
     public void TC_04_negative_Cancel_Succeeded_Payment_Intent() {
         // This tests the negative scenario as you requested:
         // Trying to cancel an already succeeded payment intent.
@@ -126,7 +138,7 @@ public class PaymentIntentTests extends BaseClass {
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
     }
 
-    @Test(groups = {"unit"})
+    @Test(groups = { "unit" })
     public void TC_05_negative_Cancel_Already_Canceled_Payment_Intent() {
         // Unconfirmed so it's originally valid for cancellation
         String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
@@ -147,13 +159,19 @@ public class PaymentIntentTests extends BaseClass {
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
     }
 
-    @Test(groups = {"flow", "unit"}, dependsOnMethods = "tests.PaymentIntentTests.TC_01_positive_Create_Payment_Intent")
+    @Test(groups = { "flow",
+            "unit" }, dependsOnMethods = "tests.PaymentIntentTests.TC_01_positive_Create_Payment_Intent")
     public void TC_06_positive_Confirm_Payment_Intent() {
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+
         String paymentIntentId = TestContext.getPaymentIntentId();
+        logger.info("Intial payemtnIntenId fetch --> \t" + paymentIntentId);
 
         // If it doesn't exist, execute the whole prerequisite flow
         if (paymentIntentId == null) {
             paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
+            logger.info("Inside IF block when intentId does not exist payemtnIntenId fetch --> \t" + paymentIntentId);
+
         }
 
         Map<String, Object> confirmBody = new HashMap<>();
@@ -166,7 +184,7 @@ public class PaymentIntentTests extends BaseClass {
                 .body("object", equalTo("payment_intent"));
     }
 
-    @Test(groups = {"unit"})
+    @Test(groups = { "unit" })
     public void TC_07_positive_Idempotent_Confirm_Payment_Intent() {
         // Create an unconfirmed intent
         String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
@@ -203,7 +221,7 @@ public class PaymentIntentTests extends BaseClass {
 
     }
 
-    @Test(groups = {"unit"})
+    @Test(groups = { "unit" })
     public void TC_08_negative_Confirm_Canceled_Payment_Intent() {
         // Create a canceled intent
         String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
@@ -224,7 +242,8 @@ public class PaymentIntentTests extends BaseClass {
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
     }
 
-    @Test(groups = {"unit"}, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
+    @Test(groups = {
+            "unit" }, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
     public void TC_09_negative_Confirm_Invalid_Payment_Method(String testCaseName, Map<String, Object> body,
             String expectedErrorCode) {
 
@@ -253,7 +272,7 @@ public class PaymentIntentTests extends BaseClass {
                 .body("error.code", containsString(expectedErrorCode));
     }
 
-    @Test(groups = {"unit"})
+    @Test(groups = { "unit" })
     public void TC_10_negative_Confirm_Succeeded_Payment_Intent() {
         // Create an already succeeded intent
         String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(true);
@@ -269,7 +288,7 @@ public class PaymentIntentTests extends BaseClass {
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
     }
 
-    @Test(groups = {"unit"})
+    @Test(groups = { "unit" })
     public void TC_11_negative_Confirm_Without_Payment_Method() {
         // Create an intent without any payment method attached
         Map<String, Object> intentBody = new HashMap<>();

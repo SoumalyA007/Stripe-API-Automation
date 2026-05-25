@@ -2,6 +2,7 @@ package tests;
 
 import static org.hamcrest.Matchers.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,19 +20,26 @@ public class RefundTests extends BaseClass {
 
         // ***************CREATE REFUND – POSITIVE*******************\\
 
-        @Test(groups = { "flow", "unit" }, dependsOnMethods = "tests.PaymentIntentTests.TC_06_positive_Confirm_Payment_Intent")
+        @Test(groups = { "flow",
+                        "unit" }, dependsOnMethods = "tests.PaymentIntentTests.TC_06_positive_Confirm_Payment_Intent")
         public void TC_01_Create_Valid_Refund() {
+                logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
                 Map<String, Object> body = new HashMap<>();
                 body.put("amount", 1000);
                 body.put("reason", "requested_by_customer");
                 String paymentIntentId = TestContext.getPaymentIntentId();
+                logger.info("Fetched PaymentIntentId from context -->\t" + paymentIntentId);
                 boolean isFlow = true;
 
                 if (paymentIntentId == null) {
                         paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                        logger.info("Created new paymentIntentId -->\t" + paymentIntentId);
+
                         isFlow = false;
                 }
+
+                body.put("payment_intent", paymentIntentId);
 
                 String refundId = Refunds.createRefund(paymentIntentId, body)
                                 .then()
@@ -43,7 +51,10 @@ public class RefundTests extends BaseClass {
                                 .jsonPath()
                                 .getString("id");
 
+                logger.info("Refund Id -->\t" + refundId);
+
                 if (isFlow) {
+                        logger.info("Setting  RefundId if inside flow -->\t" + refundId);
                         TestContext.setRefundId(refundId);
                 }
 

@@ -7,12 +7,14 @@ import com.github.javafaker.Faker;
 import endpoints.Customer;
 import endpoints.paymentMethods;
 import helpers.TestContext;
-import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import org.testng.annotations.Test;
 
 public class BaseClass {
 
@@ -47,6 +49,15 @@ public class BaseClass {
     //
     // System.out.println("✅ Suite customer created: " + customerId);
     // }
+
+    public String[] currentGroups = {};
+
+    @BeforeMethod(alwaysRun = true)
+    public void captureTestGroups(Method method) {
+        Test testAnnotation = method.getAnnotation(Test.class);
+        currentGroups = (testAnnotation != null) ? testAnnotation.groups() : new String[] {};
+        logger.info("▶ Running: [{}] | Groups: {}", method.getName(), Arrays.toString(currentGroups));
+    }
 
     @BeforeMethod(onlyForGroups = "unit")
     public void clearContextForUnitTest() {

@@ -12,6 +12,7 @@ import specification.ResponseSpec;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ import testbase.BaseClass;
 public class PaymentMethodTests extends BaseClass {
 
     @Test(groups = {
-            "unit" }, dataProvider = "createPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
+            "flow" }, dataProvider = "createPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_01_Create_Valid_Payment_Method(String type, Map<String, Object> method) {
 
         String email = TestContext.getBillingEmail();
@@ -54,16 +55,20 @@ public class PaymentMethodTests extends BaseClass {
 
     @Test(groups = { "flow", "unit" }, dependsOnMethods = "tests.CustomerTests.TC_01_CreateCustomer_ValidData")
     public void TC_03_Attach_Payment_Method() {
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
         String customerId = TestContext.getCustomerId();
+        logger.info("Customer ID fetched from context: \t" + customerId);
         if (customerId == null) {
             helpers.NegativeTestHelper.createCustomerNegativeTestCase();
+            logger.info("New customerId created --> \t" + customerId);
             customerId = TestContext.getCustomerId();
         }
         Map<String, Object> body = new HashMap<>();
         body.put("customer", customerId);
         String paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod();
         TestContext.setPaymentMethodId(paymentMethodId);
+        logger.info("PaymentMethodId set in Context \t" + paymentMethodId);
         paymentMethods.attachPaymentMethod(paymentMethodId, body)
                 .then()
                 .spec(ResponseSpec.OK())

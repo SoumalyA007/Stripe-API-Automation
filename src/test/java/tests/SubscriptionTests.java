@@ -1,0 +1,550 @@
+package tests;
+
+import com.github.javafaker.Faker;
+import dataprovider.SubscriptionDataProvider;
+import endpoints.Customer;
+import endpoints.Product;
+import endpoints.Price;
+import endpoints.Subscription;
+import endpoints.paymentMethods;
+import helpers.CustomersHelper;
+import helpers.PaymentMethodsHelper;
+import helpers.SubscriptionHelper;
+import helpers.TestContext;
+import io.restassured.response.Response;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.Test;
+import specification.ResponseSpec;
+import testbase.BaseClass;
+
+import java.util.*;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
+public class SubscriptionTests extends BaseClass {
+
+    private static final Faker faker = new Faker();
+    private List<String> productIdsToCleanup = new ArrayList<>();
+    private List<String> customerIdsToCleanup = new ArrayList<>();
+    private List<String> subscriptionIdsToCleanup = new ArrayList<>();
+
+    // ═══════════════════════════════════════════════════════════════
+    // ██ PRODUCT TESTS
+    // ═══════════════════════════════════════════════════════════════
+
+    @Test(groups = { "flow", "unit" })
+    public void TC_01_positive_Create_Product() {
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+
+        Map<String, Object> body = new HashMap<>();
+        String name = "Test Product - " + System.currentTimeMillis();
+        body.put("name", name);
+        body.put("type", "service");
+        body.put("description", "Product for automation testing");
+
+        Response resp = Product.createProduct(body);
+        String productId = resp.then()
+                .spec(ResponseSpec.OK())
+                .body("id", notNullValue())
+                .body("name", equalTo(name))
+                .body("type", equalTo("service"))
+                .extract()
+                .jsonPath()
+                .getString("id");
+
+        productIdsToCleanup.add(productId);
+        TestContext.setProductId(productId);
+        logger.info("✅ Product created successfully: {}", productId);
+    }
+
+    @Test(groups = { "unit" }, dependsOnMethods = "TC_01_positive_Create_Product")
+    public void TC_02_positive_Retrieve_Product() {
+        String productId = TestContext.getProductId();
+        if (productId == null) {
+            productId = SubscriptionHelper.createProduct(true);
+            productIdsToCleanup.add(productId);
+        }
+
+        Product.retrieveProduct(productId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("id", equalTo(productId))
+                .body("type", equalTo("service"));
+
+        logger.info("✅ Product retrieved successfully: {}", productId);
+    }
+
+    @Test(groups = { "unit" })
+    public void TC_03_positive_Delete_Product() {
+        String productId = SubscriptionHelper.createProduct(false);
+
+        Product.deleteProduct(productId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("id", equalTo(productId))
+                .body("deleted", equalTo(true));
+
+        logger.info("✅ Product deleted successfully: {}", productId);
+    }
+
+    @Test(groups = {
+            "unit" }, dataProvider = "invalidProductBodies", dataProviderClass = SubscriptionDataProvider.class)
+    public void TC_04_negative_Create_Product_Invalid(String testCaseName, Map<String, Object> body) {
+        logger.info("Running invalid product body case: {}", testCaseName);
+
+        Product.createProduct(body)
+                .then()
+                .spec(ResponseSpec.request_failed())
+                .body("error.type", equalTo("invalid_request_error"));
+
+        logger.info("✅ Correctly rejected invalid product body: {}", testCaseName);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ██ PRICE TESTS
+    // ═══════════════════════════════════════════════════════════════
+
+    @Test(groups = { "flow", "unit" }, dependsOnMethods = "TC_01_positive_Create_Product")
+    public void TC_05_positive_Create_Price() {
+        String productId = TestContext.getProductId();
+        if (productId == null) {
+            productId = SubscriptionHelper.createProduct(true);
+            productIdsToCleanup.add(productId);
+        }
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("product", productId);
+        body.put("unit_amount", 2000);
+        body.put("currency", "usd");
+        body.put("recurring[interval]", "month");
+
+        Response resp = Price.createPrice(body);
+        String priceId = resp.then()
+                .spec(ResponseSpec.OK())
+                .body("id", notNullValue())
+                .body("product", equalTo(productId))
+                .body("unit_amount", equalTo(2000))
+                .body("currency", equalTo("usd"))
+                .body("recurring.interval", equalTo("month"))
+                .extract()
+                .jsonPath()
+                .getString("id");
+
+        TestContext.setPriceId(priceId);
+        logger.info("✅ Price created successfully: {}", priceId);
+    }
+
+    @Test(groups = {
+            "unit" }, dataProvider = "subscriptionIntervals", dataProviderClass = SubscriptionDataProvider.class)
+    public void TC_06_positive_Create_Price_Intervals(String planName, int amount, String currency, String interval) {
+        logger.info("Creating price for: {}", planName);
+
+        String productId = TestContext.getProductId();
+        if (productId == null) {
+            productId = SubscriptionHelper.createProduct(true);
+            productIdsToCleanup.add(productId);
+        }
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("product", productId);
+        body.put("unit_amount", amount);
+        body.put("currency", currency);
+        body.put("recurring[interval]", interval);
+
+        Price.createPrice(body)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("unit_amount", equalTo(amount))
+                .body("currency", equalTo(currency))
+                .body("recurring.interval", equalTo(interval));
+
+        logger.info("✅ Successfully created price with interval: {}", interval);
+    }
+
+    @Test(groups = { "unit" }, dependsOnMethods = "TC_05_positive_Create_Price")
+    public void TC_07_positive_Retrieve_Price() {
+        String priceId = TestContext.getPriceId();
+        if (priceId == null) {
+            String productId = SubscriptionHelper.createProduct(true);
+            productIdsToCleanup.add(productId);
+            priceId = SubscriptionHelper.createRecurringPrice(productId, 1500, "usd", "month", true);
+        }
+
+        Price.retrievePrice(priceId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("id", equalTo(priceId));
+
+        logger.info("✅ Price retrieved successfully: {}", priceId);
+    }
+
+    @Test(groups = { "unit" }, dataProvider = "invalidPriceBodies", dataProviderClass = SubscriptionDataProvider.class)
+    public void TC_08_negative_Create_Price_Invalid(String testCaseName, Map<String, Object> body) {
+        logger.info("Running invalid price body case: {}", testCaseName);
+
+        if ("Negative Amount".equals(testCaseName) || "Invalid Currency".equals(testCaseName)) {
+            String productId = TestContext.getProductId();
+            if (productId == null) {
+                productId = SubscriptionHelper.createProduct(true);
+                productIdsToCleanup.add(productId);
+            }
+            body.put("product", productId);
+        }
+
+        Price.createPrice(body)
+                .then()
+                .spec(ResponseSpec.request_failed())
+                .body("error.type", equalTo("invalid_request_error"));
+
+        logger.info("✅ Correctly rejected invalid price body: {}", testCaseName);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ██ SUBSCRIPTION TESTS
+    // ═══════════════════════════════════════════════════════════════
+
+    @Test(groups = { "flow", "unit" })
+    public void TC_09_positive_Create_Subscription() {
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+
+        String customerId = TestContext.getCustomerId();
+        if (customerId == null) {
+            customerId = SubscriptionHelper.createSubscriptionReadyCustomer();
+            customerIdsToCleanup.add(customerId);
+        }
+
+        String priceId = TestContext.getPriceId();
+        if (priceId == null) {
+            String productId = SubscriptionHelper.createProduct(true);
+            productIdsToCleanup.add(productId);
+            priceId = SubscriptionHelper.createRecurringPrice(productId, 1500, "usd", "month", true);
+        }
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("customer", customerId);
+        body.put("items[0][price]", priceId);
+
+        Response resp = Subscription.createSubscription(body);
+        String subId = resp.then()
+                .spec(ResponseSpec.OK())
+                .body("id", notNullValue())
+                .body("customer", equalTo(customerId))
+                .body("items.data[0].price.id", equalTo(priceId))
+                .body("status", equalTo("active"))
+                .extract()
+                .jsonPath()
+                .getString("id");
+
+        subscriptionIdsToCleanup.add(subId);
+        TestContext.setSubscriptionId(subId);
+        logger.info("✅ Subscription created successfully: {}", subId);
+    }
+
+    @Test(groups = { "unit" }, dependsOnMethods = "TC_09_positive_Create_Subscription")
+    public void TC_10_positive_Retrieve_Subscription() {
+        String subId = TestContext.getSubscriptionId();
+        if (subId == null) {
+            subId = SubscriptionHelper.createFullSubscription();
+            subscriptionIdsToCleanup.add(subId);
+        }
+
+        Subscription.retrieveSubscription(subId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("id", equalTo(subId))
+                .body("status", equalTo("active"));
+
+        logger.info("✅ Subscription retrieved successfully: {}", subId);
+    }
+
+    @Test(groups = {
+            "unit" }, dataProvider = "subscriptionMetadataUpdates", dataProviderClass = SubscriptionDataProvider.class)
+    public void TC_11_positive_Update_Subscription_Metadata(String key, String value) {
+        String subId = TestContext.getSubscriptionId();
+        if (subId == null) {
+            subId = SubscriptionHelper.createFullSubscription();
+            subscriptionIdsToCleanup.add(subId);
+        }
+
+        Map<String, Object> updateBody = new HashMap<>();
+        updateBody.put("metadata[" + key + "]", value);
+
+        Subscription.updateSubscription(subId, updateBody)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("metadata." + key, equalTo(value));
+
+        logger.info("✅ Subscription metadata updated successfully: {}={}", key, value);
+    }
+
+    @Test(groups = { "unit" })
+    public void TC_12_positive_List_Subscriptions() {
+        String subId = TestContext.getSubscriptionId();
+        if (subId == null) {
+            subId = SubscriptionHelper.createFullSubscription();
+            subscriptionIdsToCleanup.add(subId);
+        }
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("limit", 3);
+
+        Subscription.listSubscriptions(queryParams)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("object", equalTo("list"))
+                .body("data.size()", greaterThanOrEqualTo(1))
+                .body("data[0].object", equalTo("subscription"));
+
+        logger.info("✅ Subscriptions listed successfully");
+    }
+
+    @Test(groups = { "unit" }, dependsOnMethods = "TC_09_positive_Create_Subscription")
+    public void TC_13_positive_Cancel_Subscription() {
+        String subId = TestContext.getSubscriptionId();
+        if (subId == null) {
+            subId = SubscriptionHelper.createFullSubscription();
+            subscriptionIdsToCleanup.add(subId);
+        }
+
+        Subscription.cancelSubscription(subId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("id", equalTo(subId))
+                .body("status", equalTo("canceled"));
+
+        logger.info("✅ Subscription canceled successfully: {}", subId);
+    }
+
+    @Test(groups = {
+            "unit" }, dataProvider = "invalidSubscriptionIds", dataProviderClass = SubscriptionDataProvider.class)
+    public void TC_14_negative_Retrieve_Invalid_Subscription(String invalidId) {
+        logger.info("Retrieving invalid subscription: {}", invalidId);
+
+        Subscription.retrieveSubscription(invalidId)
+                .then()
+                .spec(ResponseSpec.not_found());
+
+        logger.info("✅ Correctly rejected invalid subscription ID retrieval: {}", invalidId);
+    }
+
+    @Test(groups = { "unit" })
+    public void TC_15_negative_Create_Subscription_Invalid_Customer() {
+        String priceId = TestContext.getPriceId();
+        if (priceId == null) {
+            String productId = SubscriptionHelper.createProduct(true);
+            productIdsToCleanup.add(productId);
+            priceId = SubscriptionHelper.createRecurringPrice(productId, 1500, "usd", "month", true);
+        }
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("customer", "cus_invalid_id_123");
+        body.put("items[0][price]", priceId);
+
+        Subscription.createSubscription(body)
+                .then()
+                .spec(ResponseSpec.not_found())
+                .body("error.message", containsString("No such customer"));
+
+        logger.info("✅ Correctly rejected subscription creation for nonexistent customer");
+    }
+
+    @Test(groups = { "unit" })
+    public void TC_16_negative_Create_Subscription_Invalid_Price() {
+        String customerId = TestContext.getCustomerId();
+        if (customerId == null) {
+            customerId = SubscriptionHelper.createSubscriptionReadyCustomer();
+            customerIdsToCleanup.add(customerId);
+        }
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("customer", customerId);
+        body.put("items[0][price]", "price_invalid_id_123");
+
+        Subscription.createSubscription(body)
+                .then()
+                .spec(ResponseSpec.request_failed())
+                .body("error.message", containsString("No such price"));
+
+        logger.info("✅ Correctly rejected subscription creation for nonexistent price");
+    }
+
+    @Test(groups = { "unit" })
+    public void TC_17_negative_Update_Nonexistent_Subscription() {
+        Map<String, Object> body = new HashMap<>();
+        body.put("metadata[key]", "value");
+
+        Subscription.updateSubscription("sub_nonexistent_123", body)
+                .then()
+                .spec(ResponseSpec.not_found())
+                .body("error.type", equalTo("invalid_request_error"));
+
+        logger.info("✅ Correctly rejected subscription update for nonexistent subscription");
+    }
+
+    @Test(groups = { "unit" })
+    public void TC_18_negative_Cancel_Already_Canceled_Subscription() {
+        String subId = SubscriptionHelper.createFullSubscription();
+        subscriptionIdsToCleanup.add(subId);
+
+        // First cancel succeeds
+        Subscription.cancelSubscription(subId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("status", equalTo("canceled"));
+
+        // Second cancel should either return already canceled or fail. Stripe API
+        // allows cancelling an already canceled subscription (returns it with canceled
+        // status), so let's verify it remains canceled.
+        Subscription.cancelSubscription(subId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("status", equalTo("canceled"));
+
+        logger.info("✅ Verified redundant cancel on already canceled subscription");
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ██ E2E FLOW TESTS
+    // ═══════════════════════════════════════════════════════════════
+
+    @Test(groups = { "flow", "unit" })
+    public void TC_19_flow_E2E_Subscription_Lifecycle() {
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+        logger.info("🔄 Starting E2E Subscription Lifecycle Flow");
+
+        // 1️⃣ Create customer
+        String name = CustomersHelper.getName();
+        String email = faker.internet().safeEmailAddress();
+        Response custResp = Customer.createCustomer(name, email, null);
+        String customerId = custResp.jsonPath().getString("id");
+        customerIdsToCleanup.add(customerId);
+        logger.info("  Step 1: Customer created → {}", customerId);
+
+        // 2️⃣ Create valid payment method
+        String paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+        logger.info("  Step 2: Payment method created → {}", paymentMethodId);
+
+        // 3️⃣ Attach payment method to customer
+        Map<String, Object> attachBody = new HashMap<>();
+        attachBody.put("customer", customerId);
+        paymentMethods.attachPaymentMethod(paymentMethodId, attachBody)
+                .then()
+                .spec(ResponseSpec.OK());
+        logger.info("  Step 3: Attached payment method to customer");
+
+        // 4️⃣ Update customer default payment method for invoices
+        Customer.updateCustomer(customerId,
+                "invoice_settings[default_payment_method]", paymentMethodId, null)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("invoice_settings.default_payment_method", equalTo(paymentMethodId));
+        logger.info("  Step 4: Default payment method set for invoices");
+
+        // 5️⃣ Create Product
+        Map<String, Object> prodBody = new HashMap<>();
+        String prodName = "E2E Premium Suite - " + System.currentTimeMillis();
+        prodBody.put("name", prodName);
+        prodBody.put("type", "service");
+        String productId = Product.createProduct(prodBody)
+                .then()
+                .spec(ResponseSpec.OK())
+                .extract()
+                .jsonPath()
+                .getString("id");
+        productIdsToCleanup.add(productId);
+        logger.info("  Step 5: Product created → {}", productId);
+
+        // 6️⃣ Create Recurring Price
+        Map<String, Object> priceBody = new HashMap<>();
+        priceBody.put("product", productId);
+        priceBody.put("unit_amount", 9900); // $99.00
+        priceBody.put("currency", "usd");
+        priceBody.put("recurring[interval]", "month");
+        String priceId = Price.createPrice(priceBody)
+                .then()
+                .spec(ResponseSpec.OK())
+                .extract()
+                .jsonPath()
+                .getString("id");
+        logger.info("  Step 6: Price created → {}", priceId);
+
+        // 7️⃣ Create Subscription
+        Map<String, Object> subBody = new HashMap<>();
+        subBody.put("customer", customerId);
+        subBody.put("items[0][price]", priceId);
+        String subId = Subscription.createSubscription(subBody)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("status", equalTo("active"))
+                .body("customer", equalTo(customerId))
+                .body("items.data[0].price.id", equalTo(priceId))
+                .extract()
+                .jsonPath()
+                .getString("id");
+        subscriptionIdsToCleanup.add(subId);
+        logger.info("  Step 7: Subscription created & active → {}", subId);
+
+        // 8️⃣ Retrieve Subscription to verify details
+        Subscription.retrieveSubscription(subId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("id", equalTo(subId))
+                .body("status", equalTo("active"))
+                .body("latest_invoice", notNullValue());
+        logger.info("  Step 8: Subscription retrieval verified ✅");
+
+        // 9️⃣ Cancel Subscription
+        Subscription.cancelSubscription(subId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("id", equalTo(subId))
+                .body("status", equalTo("canceled"));
+        logger.info("  Step 9: Subscription canceled successfully ✅");
+
+        logger.info("🎉 E2E Subscription Lifecycle Flow complete!");
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ██ CLEANUP
+    // ═══════════════════════════════════════════════════════════════
+
+    @AfterClass(alwaysRun = true)
+    public void cleanup() {
+        boolean isFlow = Arrays.asList(currentGroups).contains("flow");
+        if (isFlow) {
+            return; // Skip cleanup in flow runs to allow dependent classes/suite to clean up or
+                    // proceed
+        }
+
+        // Cancel subscriptions
+        for (String subId : subscriptionIdsToCleanup) {
+            try {
+                Subscription.cancelSubscription(subId);
+            } catch (Exception e) {
+                // Ignore failure if already canceled
+            }
+        }
+        subscriptionIdsToCleanup.clear();
+
+        // Delete products
+        for (String prodId : productIdsToCleanup) {
+            try {
+                Product.deleteProduct(prodId);
+            } catch (Exception e) {
+                // Ignore failure
+            }
+        }
+        productIdsToCleanup.clear();
+
+        // Delete customers
+        for (String custId : customerIdsToCleanup) {
+            try {
+                Customer.deleteCustomer(custId);
+            } catch (Exception e) {
+                System.out.println("⚠️ Cleanup failed for customer: " + custId);
+            }
+        }
+        customerIdsToCleanup.clear();
+    }
+}

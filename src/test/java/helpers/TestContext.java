@@ -73,6 +73,38 @@ public class TestContext {
         return refundId.get();
     }
 
+    public static void setSetupIntentId(String setupIntentId) {
+        TestContext.setupIntentId.set(setupIntentId);
+    }
+
+    public static String getSetupIntentId() {
+        return setupIntentId.get();
+    }
+
+    public static void setSubscriptionId(String subscriptionId) {
+        TestContext.subscriptionId.set(subscriptionId);
+    }
+
+    public static String getSubscriptionId() {
+        return subscriptionId.get();
+    }
+
+    public static void setProductId(String productId) {
+        TestContext.productId.set(productId);
+    }
+
+    public static String getProductId() {
+        return productId.get();
+    }
+
+    public static void setPriceId(String priceId) {
+        TestContext.priceId.set(priceId);
+    }
+
+    public static String getPriceId() {
+        return priceId.get();
+    }
+
     public static void clear() {
         customerId.remove();
         paymentMethodId.remove();
@@ -82,6 +114,10 @@ public class TestContext {
         customerIdList.get().clear();
         chargeId.remove();
         refundId.remove();
+        setupIntentId.remove();
+        subscriptionId.remove();
+        productId.remove();
+        priceId.remove();
     }
 
     private static final ThreadLocal<String> customerId = new ThreadLocal<>();
@@ -92,5 +128,9 @@ public class TestContext {
     private static final ThreadLocal<List<String>> customerIdList = ThreadLocal.withInitial(ArrayList::new);
     private static final ThreadLocal<String> chargeId = new ThreadLocal<>();
     private static final ThreadLocal<String> refundId = new ThreadLocal<>();
+    private static final ThreadLocal<String> setupIntentId = new ThreadLocal<>();
+    private static final ThreadLocal<String> subscriptionId = new ThreadLocal<>();
+    private static final ThreadLocal<String> productId = new ThreadLocal<>();
+    private static final ThreadLocal<String> priceId = new ThreadLocal<>();
 
 }

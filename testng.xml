@@ -27,6 +27,7 @@
             <class name="tests.PaymentMethodTests"/>
             <class name="tests.PaymentIntentTests"/>
             <class name="tests.RefundTests"/>
+            <class name="tests.WebhookEventTests"/>
         </classes>
     </test>
 </suite>

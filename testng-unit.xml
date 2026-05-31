@@ -13,6 +13,7 @@
             <class name="tests.PaymentIntentTests"/>
             <class name="tests.RefundTests"/>
             <class name="tests.AccountTests"/>
+            <class name="tests.ConnectedAccountsTest"/>
             <class name="tests.SetupIntentTests"/>
             <class name="tests.SubscriptionTests"/>
         </classes>

@@ -26,6 +26,7 @@
         <classes>
             <class name="tests.CustomerTests"/>
             <class name="tests.AccountTests"/>
+            <class name="tests.ConnectedAccountsTest"/>
             <class name="tests.PaymentMethodTests"/>
             <class name="tests.PaymentIntentTests"/>
             <class name="tests.RefundTests"/>

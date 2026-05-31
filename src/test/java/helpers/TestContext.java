@@ -105,6 +105,14 @@ public class TestContext {
         return priceId.get();
     }
 
+    public static void setConnectAccountId(String connectAccountId) {
+        TestContext.connectAccountId.set(connectAccountId);
+    }
+
+    public static String getConnectAccountId() {
+        return connectAccountId.get();
+    }
+
     public static void clear() {
         customerId.remove();
         paymentMethodId.remove();
@@ -118,6 +126,7 @@ public class TestContext {
         subscriptionId.remove();
         productId.remove();
         priceId.remove();
+        connectAccountId.remove();
     }
 
     private static final ThreadLocal<String> customerId = new ThreadLocal<>();
@@ -132,5 +141,6 @@ public class TestContext {
     private static final ThreadLocal<String> subscriptionId = new ThreadLocal<>();
     private static final ThreadLocal<String> productId = new ThreadLocal<>();
     private static final ThreadLocal<String> priceId = new ThreadLocal<>();
+    private static final ThreadLocal<String> connectAccountId = new ThreadLocal<>();
 
 }

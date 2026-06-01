@@ -33,6 +33,7 @@
             <class name="tests.WebhookEventTests"/>
             <class name="tests.SetupIntentTests"/>
             <class name="tests.SubscriptionTests"/>
+            <class name="tests.TransferTests"/>
         </classes>
     </test>
 </suite>

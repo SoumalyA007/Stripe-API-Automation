@@ -23,7 +23,14 @@ public class TransferTests extends BaseClass {
     public void TC_01_Create_Valid_Transfer() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
-        String connectAccountId = ConnectedAccountHelper.createConnectAccount(false);
+        String connectAccountId = TestContext.getConnectAccountId();
+        boolean isFlow = true;
+
+        if (connectAccountId == null) {
+            connectAccountId = ConnectedAccountHelper.createConnectAccount(false);
+            isFlow = false;
+        }
+
         logger.info("Created connect account ID for transfer: {}", connectAccountId);
 
         Map<String, Object> body = new HashMap<>();
@@ -42,7 +49,11 @@ public class TransferTests extends BaseClass {
                 .getString("id");
 
         logger.info("Created Transfer ID: {}", transferId);
-        TestContext.setTransferId(transferId);
+
+        if (isFlow) {
+            TestContext.setTransferId(transferId);
+        }
+
     }
 
     // ***************RETRIEVE TRANSFER – POSITIVE*******************\\
@@ -50,9 +61,11 @@ public class TransferTests extends BaseClass {
     @Test(groups = { "unit" })
     public void TC_02_Retrieve_Transfer() {
         String transferId = TestContext.getTransferId();
+        boolean isFlow = true;
 
         if (transferId == null) {
             transferId = TransfersHelper.createFallbackTransfer();
+            isFlow = false;
             logger.info("Created fallback transfer ID: {}", transferId);
         }
 
@@ -139,7 +152,8 @@ public class TransferTests extends BaseClass {
                 .spec(ResponseSpec.bad_request());
     }
 
-    @Test(groups = { "unit" }, dataProvider = "invalidTransferPayloads", dataProviderClass = TransfersDataProvider.class)
+    @Test(groups = {
+            "unit" }, dataProvider = "invalidTransferPayloads", dataProviderClass = TransfersDataProvider.class)
     public void TC_08_CreateTransfer_MissingRequiredFields(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid transfer payload case: {}", testCaseName);
 

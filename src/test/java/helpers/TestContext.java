@@ -121,6 +121,30 @@ public class TestContext {
         return transferId.get();
     }
 
+    public static void setPayoutId(String payoutId) {
+        TestContext.payoutId.set(payoutId);
+    }
+
+    public static String getPayoutId() {
+        return payoutId.get();
+    }
+
+    public static void setDisputeId(String disputeId) {
+        TestContext.disputeId.set(disputeId);
+    }
+
+    public static String getDisputeId() {
+        return disputeId.get();
+    }
+
+    public static void setEarlyFraudWarningId(String earlyFraudWarningId) {
+        TestContext.earlyFraudWarningId.set(earlyFraudWarningId);
+    }
+
+    public static String getEarlyFraudWarningId() {
+        return earlyFraudWarningId.get();
+    }
+
     public static void clear() {
         customerId.remove();
         paymentMethodId.remove();
@@ -136,6 +160,9 @@ public class TestContext {
         priceId.remove();
         connectAccountId.remove();
         transferId.remove();
+        payoutId.remove();
+        disputeId.remove();
+        earlyFraudWarningId.remove();
     }
 
     private static final ThreadLocal<String> customerId = new ThreadLocal<>();
@@ -152,5 +179,8 @@ public class TestContext {
     private static final ThreadLocal<String> priceId = new ThreadLocal<>();
     private static final ThreadLocal<String> connectAccountId = new ThreadLocal<>();
     private static final ThreadLocal<String> transferId = new ThreadLocal<>();
+    private static final ThreadLocal<String> payoutId = new ThreadLocal<>();
+    private static final ThreadLocal<String> disputeId = new ThreadLocal<>();
+    private static final ThreadLocal<String> earlyFraudWarningId = new ThreadLocal<>();
 
 }

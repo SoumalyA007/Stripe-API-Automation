@@ -17,6 +17,7 @@
             <class name="tests.SetupIntentTests"/>
             <class name="tests.SubscriptionTests"/>
             <class name="tests.TransferTests"/>
+            <class name="tests.PayoutsTest"/>
         </classes>
     </test>
 </suite>

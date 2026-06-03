@@ -15,17 +15,21 @@ import org.testng.annotations.BeforeSuite;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import org.testng.annotations.Test;
+import org.testng.annotations.Listeners;
 
+@Listeners(listeners.ExtentReportListener.class)
 public class BaseClass {
 
     public static Properties p = new Properties();
     public Logger logger = LogManager.getLogger(this.getClass());
     public static Faker faker = new Faker();
+    public static final int amount;
 
     static {
         try {
             FileReader fr = new FileReader("src/test/resources/config.properties");
             p.load(fr);
+            amount = Integer.parseInt(p.getProperty("amount"));
         } catch (Exception e) {
             throw new RuntimeException("❌ Failed to load config.properties", e);
         }

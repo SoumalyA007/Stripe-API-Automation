@@ -10,13 +10,16 @@ import java.util.Map;
 public class DisputesHelper {
 
     /**
-     * Creates a disputed payment intent using the Stripe special test token "tok_createDispute".
-     * Then queries the disputes API to find the dispute ID associated with the resulting charge.
+     * Creates a disputed payment intent using the Stripe special test token
+     * "tok_createDispute".
+     * Then queries the disputes API to find the dispute ID associated with the
+     * resulting charge.
+     * 
      * @return the associated dispute ID
      */
     public static String createDisputedCharge() {
         Map<String, Object> body = new HashMap<>();
-        body.put("amount", 1000);
+        body.put("amount", testbase.BaseClass.amount / 2);
         body.put("currency", "usd");
         body.put("payment_method", "tok_createDispute");
         body.put("confirm", true);
@@ -43,6 +46,7 @@ public class DisputesHelper {
 
     /**
      * Retrieves the dispute ID from TestContext, or creates a fallback dispute.
+     * 
      * @return the dispute ID
      */
     public static String createFallbackDispute() {

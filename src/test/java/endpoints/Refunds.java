@@ -3,6 +3,7 @@ package endpoints;
 import static io.restassured.RestAssured.given;
 import static testbase.BaseClass.p;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -15,8 +16,13 @@ public class Refunds {
     // ============== CREATE ==============
 
     public static Response createRefund(String paymentIntentId, Map<String, Object> body) {
+        return createRefund(paymentIntentId, body, new HashMap<>());
+    }
+
+    public static Response createRefund(String paymentIntentId, Map<String, Object> body, Map<String, String> headers) {
         return given()
                 .spec(RequestSpec.setupv1())
+                .headers(headers)
                 .basePath("/v1/refunds")
                 .formParams(body)
                 .when()

@@ -1,28 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="Full Regression Suite" verbose="2">
-    <!-- E2E/flow tests first -->
-    <test name="User Flow" preserve-order="true">
+<suite name="Authentication Test Suite" verbose="2">
+    <test name="Auth Tests">
         <groups>
             <run>
-                <include name="flow"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="tests.CustomerTests"/>
-            <class name="tests.PaymentMethodTests"/>
-            <class name="tests.PaymentIntentTests"/>
-            <class name="tests.RefundTests"/>
-            <class name="tests.SetupIntentTests"/>
-            <class name="tests.SubscriptionTests"/>
-        </classes>
-    </test>
-    <!-- Individual regression tests next -->
-    <test name="Regression Tests">
-        <groups>
-            <run>
-                <include name="regression"/>
-                <exclude name="flow"/>
+                <include name="auth"/>
             </run>
         </groups>
         <classes>
@@ -34,7 +16,6 @@
             <class name="tests.RefundTests"/>
             <class name="tests.WebhookEventTests"/>
             <class name="tests.SetupIntentTests"/>
-            <class name="tests.SubscriptionTests"/>
             <class name="tests.TransferTests"/>
             <class name="tests.PayoutsTest"/>
             <class name="tests.RadarTest"/>

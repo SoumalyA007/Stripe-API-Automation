@@ -5,6 +5,7 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.response.Response;
 import specification.RequestSpec;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -13,9 +14,14 @@ import static testbase.BaseClass.p;
 public class Customer {
 
     public static Response createCustomer(Object name, Object email, Map<String, String> metadata) {
+        return createCustomer(name, email, metadata, new HashMap<>());
+    }
+
+    public static Response createCustomer(Object name, Object email, Map<String, String> metadata, Map<String, String> headers) {
 
         var request = given()
                 .spec(RequestSpec.setupv1())
+                .headers(headers)
                 .basePath("/v1/customers");
 
         if (name != null) {

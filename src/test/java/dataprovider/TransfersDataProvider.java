@@ -9,9 +9,12 @@ public class TransfersDataProvider {
     @DataProvider(name = "invalidTransferPayloads")
     public Object[][] invalidTransferPayloads() {
         return new Object[][] {
-                { "Missing Destination", createMap(new String[] { "amount", "currency" }, new Object[] { 1000, "usd" }) },
-                { "Missing Amount", createMap(new String[] { "currency", "destination" }, new Object[] { "usd", "acct_123" }) },
-                { "Missing Currency", createMap(new String[] { "amount", "destination" }, new Object[] { 1000, "acct_123" }) },
+                { "Missing Destination",
+                        createMap(new String[] { "amount", "currency" }, new Object[] { 1000, "usd" }) },
+                { "Missing Amount",
+                        createMap(new String[] { "currency", "destination" }, new Object[] { "usd", "acct_123" }) },
+                { "Missing Currency",
+                        createMap(new String[] { "amount", "destination" }, new Object[] { 1000, "acct_123" }) },
         };
     }
 

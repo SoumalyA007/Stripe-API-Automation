@@ -5,6 +5,7 @@ import java.util.Map;
 
 import endpoints.Refunds;
 import specification.ResponseSpec;
+import testbase.BaseClass;
 
 public class RefundHelper {
 
@@ -17,7 +18,7 @@ public class RefundHelper {
         }
 
         Map<String, Object> body = new HashMap<>();
-        body.put("amount", 1000);
+        body.put("amount", BaseClass.amount / 2);
         body.put("currency", "usd");
         body.put("payment_intent", paymentIntentId);
 

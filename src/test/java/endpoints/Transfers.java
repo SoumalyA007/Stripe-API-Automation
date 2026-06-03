@@ -3,6 +3,7 @@ package endpoints;
 import static io.restassured.RestAssured.given;
 import static testbase.BaseClass.p;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -15,8 +16,13 @@ public class Transfers {
     // ============== CREATE ==============
 
     public static Response createTransfer(Map<String, Object> body) {
+        return createTransfer(body, new HashMap<>());
+    }
+
+    public static Response createTransfer(Map<String, Object> body, Map<String, String> headers) {
         return given()
                 .spec(RequestSpec.setupv1())
+                .headers(headers)
                 .basePath("/v1/transfers")
                 .formParams(body)
                 .when()

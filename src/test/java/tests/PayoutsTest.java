@@ -18,18 +18,19 @@ public class PayoutsTest extends BaseClass {
 
     // ***************CREATE PAYOUT – POSITIVE*******************\\
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "positive", "smoke", "regression" })
     public void TC_01_Create_Valid_Payout() {
+
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
         Map<String, Object> body = new HashMap<>();
-        body.put("amount", 1000);
+        body.put("amount", amount / 2);
         body.put("currency", "usd");
 
         String payoutId = Payouts.createPayout(body)
                 .then()
                 .spec(ResponseSpec.OK())
-                .body("amount", equalTo(1000))
+                .body("amount", equalTo(amount / 2))
                 .body("currency", equalTo("usd"))
                 .extract()
                 .jsonPath()
@@ -41,7 +42,7 @@ public class PayoutsTest extends BaseClass {
 
     // ***************RETRIEVE PAYOUT – POSITIVE*******************\\
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "positive", "regression" })
     public void TC_02_Retrieve_Payout() {
         String payoutId = TestContext.getPayoutId();
         if (payoutId == null) {
@@ -57,7 +58,7 @@ public class PayoutsTest extends BaseClass {
 
     // ***************CANCEL PAYOUT – POSITIVE*******************\\
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "positive", "regression" })
     public void TC_03_Cancel_Payout() {
         String payoutId = TestContext.getPayoutId();
         if (payoutId == null) {
@@ -74,8 +75,9 @@ public class PayoutsTest extends BaseClass {
 
     // ***************CREATE PAYOUT – NEGATIVE & EDGE CASES*******************\\
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "negative", "edge", "regression" })
     public void TC_04_CreatePayout_NegativeAmount() {
+        logger.info("Testing create payout with negative amount");
         Map<String, Object> body = new HashMap<>();
         body.put("amount", -100);
         body.put("currency", "usd");
@@ -83,10 +85,13 @@ public class PayoutsTest extends BaseClass {
         Payouts.createPayout(body)
                 .then()
                 .spec(ResponseSpec.bad_request());
+
+        logger.info("Successfully verified negative amount validation");
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "negative", "edge", "regression" })
     public void TC_05_CreatePayout_ZeroAmount() {
+        logger.info("Testing create payout with zero amount");
         Map<String, Object> body = new HashMap<>();
         body.put("amount", 0);
         body.put("currency", "usd");
@@ -94,10 +99,13 @@ public class PayoutsTest extends BaseClass {
         Payouts.createPayout(body)
                 .then()
                 .spec(ResponseSpec.bad_request());
+
+        logger.info("Successfully verified zero amount validation");
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "negative", "regression" })
     public void TC_06_CreatePayout_InvalidCurrency() {
+        logger.info("Testing create payout with invalid currency");
         Map<String, Object> body = new HashMap<>();
         body.put("amount", 1000);
         body.put("currency", "invalid_curr");
@@ -105,93 +113,153 @@ public class PayoutsTest extends BaseClass {
         Payouts.createPayout(body)
                 .then()
                 .spec(ResponseSpec.bad_request());
+
+        logger.info("Successfully verified invalid currency validation");
     }
 
-    @Test(groups = {
-            "unit" }, dataProvider = "invalidPayoutPayloads", dataProviderClass = PayoutsDataProvider.class)
+    @Test(groups = { "payout", "negative",
+            "regression" }, dataProvider = "invalidPayoutPayloads", dataProviderClass = PayoutsDataProvider.class)
     public void TC_07_CreatePayout_MissingRequiredFields(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid payout payload case: {}", testCaseName);
 
         Payouts.createPayout(body)
                 .then()
                 .spec(ResponseSpec.bad_request());
+
+        logger.info("Successfully verified missing field validation for: {}", testCaseName);
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "negative", "auth", "regression" })
     public void TC_08_CreatePayout_InvalidAuth() {
+        logger.info("Testing create payout with invalid auth key");
         Map<String, Object> body = new HashMap<>();
-        body.put("amount", 1000);
+        body.put("amount", amount / 2);
         body.put("currency", "usd");
 
         Payouts.createPayoutWithCustomAuth("sk_test_invalid_key_12345", body)
                 .then()
                 .spec(ResponseSpec.Unauthorized())
                 .body("error.message", containsString("Invalid API Key provided"));
+
+        logger.info("Successfully verified unauthorized response for invalid auth");
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "negative", "auth", "regression" })
     public void TC_09_CreatePayout_MissingAuth() {
+        logger.info("Testing create payout with missing auth key");
         Map<String, Object> body = new HashMap<>();
-        body.put("amount", 1000);
+        body.put("amount", amount / 2);
         body.put("currency", "usd");
 
         Payouts.createPayoutWithCustomAuth(null, body)
                 .then()
                 .spec(ResponseSpec.Unauthorized())
                 .body("error.message", containsString("You did not provide an API key"));
+
+        logger.info("Successfully verified unauthorized response for missing auth");
     }
 
     // ***************RETRIEVE PAYOUT – NEGATIVE*******************\\
 
-    @Test(groups = { "unit" }, dataProvider = "invalidPayoutIds", dataProviderClass = PayoutsDataProvider.class)
+    @Test(groups = { "payout", "negative",
+            "regression" }, dataProvider = "invalidPayoutIds", dataProviderClass = PayoutsDataProvider.class)
     public void TC_10_RetrievePayout_InvalidId(String testCaseName, String payoutId, String expectedErrorFragment) {
-        logger.info("Running invalid payout ID case: {}", testCaseName);
+        logger.info("Running invalid payout ID case: {} for ID: {}", testCaseName, payoutId);
 
         Payouts.retrievePayout(payoutId)
                 .then()
                 .spec(ResponseSpec.not_found())
                 .body("error.message", containsString(expectedErrorFragment));
+
+        logger.info("Successfully verified invalid payout ID retrieval failure: {}", expectedErrorFragment);
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "negative", "auth", "regression" })
     public void TC_11_RetrievePayout_InvalidAuth() {
+        logger.info("Testing retrieve payout with invalid auth key");
         Payouts.retrievePayoutWithCustomAuth("sk_test_invalid_key_12345", "po_any_id")
                 .then()
                 .spec(ResponseSpec.Unauthorized())
                 .body("error.message", containsString("Invalid API Key provided"));
+
+        logger.info("Successfully verified unauthorized response for retrieve payout invalid auth");
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "negative", "auth", "regression" })
     public void TC_12_RetrievePayout_MissingAuth() {
+        logger.info("Testing retrieve payout with missing auth key");
         Payouts.retrievePayoutWithCustomAuth(null, "po_any_id")
                 .then()
                 .spec(ResponseSpec.Unauthorized())
                 .body("error.message", containsString("You did not provide an API key"));
+
+        logger.info("Successfully verified unauthorized response for retrieve payout missing auth");
     }
 
     // ***************CANCEL PAYOUT – NEGATIVE*******************\\
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "negative", "regression" })
     public void TC_13_CancelPayout_InvalidId() {
+        logger.info("Testing cancel payout with invalid ID");
         Payouts.cancelPayout("po_invalid_id_12345")
                 .then()
                 .spec(ResponseSpec.not_found())
                 .body("error.message", containsString("No such payout"));
+
+        logger.info("Successfully verified cancel payout invalid ID failure");
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "negative", "auth", "regression" })
     public void TC_14_CancelPayout_InvalidAuth() {
+        logger.info("Testing cancel payout with invalid auth key");
         Payouts.cancelPayoutWithCustomAuth("sk_test_invalid_key_12345", "po_any_id")
                 .then()
                 .spec(ResponseSpec.Unauthorized())
                 .body("error.message", containsString("Invalid API Key provided"));
+
+        logger.info("Successfully verified unauthorized response for cancel payout invalid auth");
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "payout", "negative", "auth", "regression" })
     public void TC_15_CancelPayout_MissingAuth() {
+        logger.info("Testing cancel payout with missing auth key");
         Payouts.cancelPayoutWithCustomAuth(null, "po_any_id")
                 .then()
                 .spec(ResponseSpec.Unauthorized())
                 .body("error.message", containsString("You did not provide an API key"));
+
+        logger.info("Successfully verified unauthorized response for cancel payout missing auth");
+    }
+
+    @Test(groups = { "payout", "positive", "idempotency", "regression" })
+    public void TC_16_positive_Idempotent_CreatePayout() {
+        logger.info("Testing idempotent create payout");
+        Map<String, Object> body = new HashMap<>();
+        body.put("amount", amount / 2);
+        body.put("currency", "usd");
+
+        Map<String, String> headers = new HashMap<>();
+        String idempotencyKey = "payout_key_" + System.currentTimeMillis();
+        headers.put("Idempotency-Key", idempotencyKey);
+        logger.info("Using idempotency key: {}", idempotencyKey);
+
+        io.restassured.response.Response firstResponse = Payouts.createPayout(body, headers)
+                .then()
+                .spec(ResponseSpec.OK())
+                .extract()
+                .response();
+
+        String firstPayoutId = firstResponse.jsonPath().getString("id");
+
+        io.restassured.response.Response secondResponse = Payouts.createPayout(body, headers)
+                .then()
+                .spec(ResponseSpec.OK())
+                .extract()
+                .response();
+
+        String secondPayoutId = secondResponse.jsonPath().getString("id");
+
+        org.testng.Assert.assertEquals(firstPayoutId, secondPayoutId);
+        logger.info("Successfully verified idempotent create payout for ID: {}", firstPayoutId);
     }
 }

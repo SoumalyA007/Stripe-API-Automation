@@ -29,7 +29,7 @@ public class SetupIntentTests extends BaseClass {
         // ██ SETUP INTENT — CREATE
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "flow", "unit" })
+        @Test(groups = { "setup_intent", "positive", "smoke", "flow", "regression" })
         public void TC_01_positive_Create_Setup_Intent() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -66,7 +66,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ SetupIntent created: {}", setupIntentId);
         }
 
-        @Test(groups = { "unit" })
+        @Test(groups = { "setup_intent", "positive", "regression" })
         public void TC_02_positive_Create_Setup_Intent_Without_Customer() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -89,8 +89,9 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ SetupIntent (no customer) created: {}", setupIntentId);
         }
 
-        @Test(groups = { "unit" })
+        @Test(groups = { "setup_intent", "positive", "regression" })
         public void TC_03_positive_Create_Setup_Intent_OnSession() {
+                logger.info("Testing create setup intent on_session");
                 Map<String, Object> body = new HashMap<>();
                 body.put("usage", "on_session");
                 body.put("payment_method_types[0]", "card");
@@ -111,22 +112,28 @@ public class SetupIntentTests extends BaseClass {
         // ██ SETUP INTENT — CONFIRM
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "flow", "unit" })
+        @Test(groups = { "setup_intent", "positive", "smoke", "flow", "regression" })
         public void TC_04_positive_Confirm_Setup_Intent() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+                logger.info("Testing positive confirmation of SetupIntent");
 
                 String setupIntentId = TestContext.getSetupIntentId();
                 if (setupIntentId == null) {
                         setupIntentId = SetupIntentHelper.createSetupIntent(true);
                         setupIntentIdsToCleanup.add(setupIntentId);
+                        logger.info("Created fallback SetupIntent ID: {}", setupIntentId);
+                } else {
+                        logger.info("Using active SetupIntent ID from context: {}", setupIntentId);
                 }
 
                 // Create and use a valid payment method for confirmation
                 String paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+                logger.info("Created valid payment method ID: {}", paymentMethodId);
 
                 Map<String, Object> confirmBody = new HashMap<>();
                 confirmBody.put("payment_method", paymentMethodId);
 
+                logger.info("Confirming SetupIntent ID: {}", setupIntentId);
                 SetupIntent.confirmSetupIntent(setupIntentId, confirmBody)
                                 .then()
                                 .spec(ResponseSpec.OK())
@@ -137,7 +144,8 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ SetupIntent confirmed: {}", setupIntentId);
         }
 
-        @Test(groups = { "unit" }, dataProvider = "declinedCardTokensForSetupIntent", dataProviderClass = SetupIntentDataProvider.class)
+        @Test(groups = { "setup_intent", "negative",
+                        "regression" }, dataProvider = "declinedCardTokensForSetupIntent", dataProviderClass = SetupIntentDataProvider.class)
         public void TC_05_negative_Confirm_Setup_Intent_Declined_Card(String testCaseName,
                         String cardToken, String expectedErrorCode) {
 
@@ -154,6 +162,7 @@ public class SetupIntentTests extends BaseClass {
                                 .extract()
                                 .jsonPath()
                                 .getString("id");
+                logger.info("Created SetupIntent ID: {}", setupIntentId);
 
                 setupIntentIdsToCleanup.add(setupIntentId);
 
@@ -166,11 +175,13 @@ public class SetupIntentTests extends BaseClass {
                                 .extract()
                                 .jsonPath()
                                 .getString("id");
+                logger.info("Created payment method ID: {} with token {}", declinedPmId, cardToken);
 
                 // Attempt to confirm — should fail
                 Map<String, Object> confirmBody = new HashMap<>();
                 confirmBody.put("payment_method", declinedPmId);
 
+                logger.info("Attempting to confirm SetupIntent with declined payment method");
                 SetupIntent.confirmSetupIntent(setupIntentId, confirmBody)
                                 .then()
                                 .spec(ResponseSpec.request_failed())
@@ -179,18 +190,22 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ Correctly declined: {} → {}", testCaseName, expectedErrorCode);
         }
 
-        @Test(groups = { "unit" })
+        @Test(groups = { "setup_intent", "negative", "edge", "regression" })
         public void TC_06_negative_Confirm_Already_Succeeded_Setup_Intent() {
+                logger.info("Testing confirm already succeeded SetupIntent");
                 // Create and confirm a SetupIntent first
                 String setupIntentId = SetupIntentHelper.createAndConfirmSetupIntent();
+                logger.info("Created and confirmed SetupIntent ID: {}", setupIntentId);
                 setupIntentIdsToCleanup.add(setupIntentId);
 
                 String paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+                logger.info("Created valid payment method ID: {}", paymentMethodId);
 
                 Map<String, Object> confirmBody = new HashMap<>();
                 confirmBody.put("payment_method", paymentMethodId);
 
                 // Attempting to confirm an already succeeded SetupIntent
+                logger.info("Attempting to confirm already succeeded SetupIntent ID: {}", setupIntentId);
                 SetupIntent.confirmSetupIntent(setupIntentId, confirmBody)
                                 .then()
                                 .spec(ResponseSpec.request_failed())
@@ -199,8 +214,9 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ Correctly rejected re-confirmation of succeeded SetupIntent");
         }
 
-        @Test(groups = { "unit" })
+        @Test(groups = { "setup_intent", "negative", "edge", "regression" })
         public void TC_07_negative_Confirm_Canceled_Setup_Intent() {
+                logger.info("Testing confirm canceled SetupIntent");
                 // Create a SetupIntent and cancel it
                 Map<String, Object> siBody = new HashMap<>();
                 siBody.put("usage", "off_session");
@@ -212,20 +228,24 @@ public class SetupIntentTests extends BaseClass {
                                 .extract()
                                 .jsonPath()
                                 .getString("id");
+                logger.info("Created SetupIntent ID: {}", setupIntentId);
 
                 setupIntentIdsToCleanup.add(setupIntentId);
 
                 // Cancel it
+                logger.info("Canceling SetupIntent ID: {}", setupIntentId);
                 SetupIntent.cancelSetupIntent(setupIntentId)
                                 .then()
                                 .spec(ResponseSpec.OK())
                                 .body("status", equalTo("canceled"));
+                logger.info("SetupIntent canceled successfully");
 
                 // Attempt to confirm a canceled SetupIntent
                 String paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
                 Map<String, Object> confirmBody = new HashMap<>();
                 confirmBody.put("payment_method", paymentMethodId);
 
+                logger.info("Attempting to confirm canceled SetupIntent ID: {}", setupIntentId);
                 SetupIntent.confirmSetupIntent(setupIntentId, confirmBody)
                                 .then()
                                 .spec(ResponseSpec.request_failed())
@@ -238,11 +258,14 @@ public class SetupIntentTests extends BaseClass {
         // ██ SETUP INTENT — RETRIEVE
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "unit" })
+        @Test(groups = { "setup_intent", "positive", "regression" })
         public void TC_08_positive_Retrieve_Setup_Intent() {
+                logger.info("Testing retrieve SetupIntent");
                 String setupIntentId = SetupIntentHelper.createSetupIntent(false);
+                logger.info("Created SetupIntent ID: {}", setupIntentId);
                 setupIntentIdsToCleanup.add(setupIntentId);
 
+                logger.info("Retrieving SetupIntent ID: {}", setupIntentId);
                 SetupIntent.retrieveSetupIntent(setupIntentId)
                                 .then()
                                 .spec(ResponseSpec.OK())
@@ -252,9 +275,11 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ SetupIntent retrieved: {}", setupIntentId);
         }
 
-        @Test(groups = { "unit" }, dataProvider = "invalidSetupIntentIds", dataProviderClass = SetupIntentDataProvider.class)
+        @Test(groups = { "setup_intent", "negative",
+                        "regression" }, dataProvider = "invalidSetupIntentIds", dataProviderClass = SetupIntentDataProvider.class)
         public void TC_09_negative_Retrieve_Invalid_Setup_Intent(String invalidId,
                         io.restassured.specification.ResponseSpecification expectedSpec) {
+                logger.info("Testing retrieve invalid SetupIntent ID: {}", invalidId);
 
                 SetupIntent.retrieveSetupIntent(invalidId)
                                 .then()
@@ -267,15 +292,18 @@ public class SetupIntentTests extends BaseClass {
         // ██ SETUP INTENT — UPDATE
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "unit" }, dataProvider = "setupIntentMetadataUpdates", dataProviderClass = SetupIntentDataProvider.class)
+        @Test(groups = { "setup_intent", "positive",
+                        "regression" }, dataProvider = "setupIntentMetadataUpdates", dataProviderClass = SetupIntentDataProvider.class)
         public void TC_10_positive_Update_Setup_Intent_Metadata(String key, String value) {
-
+                logger.info("Testing update SetupIntent metadata: {}={}", key, value);
                 String setupIntentId = SetupIntentHelper.createSetupIntent(false);
+                logger.info("Created SetupIntent ID: {}", setupIntentId);
                 setupIntentIdsToCleanup.add(setupIntentId);
 
                 Map<String, Object> updateBody = new HashMap<>();
                 updateBody.put("metadata[" + key + "]", value);
 
+                logger.info("Updating SetupIntent ID: {}", setupIntentId);
                 SetupIntent.updateSetupIntent(setupIntentId, updateBody)
                                 .then()
                                 .spec(ResponseSpec.OK())
@@ -284,8 +312,9 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ SetupIntent metadata updated: {}={}", key, value);
         }
 
-        @Test(groups = { "unit" })
+        @Test(groups = { "setup_intent", "negative", "regression" })
         public void TC_11_negative_Update_Nonexistent_Setup_Intent() {
+                logger.info("Testing update nonexistent SetupIntent");
                 Map<String, Object> updateBody = new HashMap<>();
                 updateBody.put("metadata[key]", "value");
 
@@ -301,14 +330,18 @@ public class SetupIntentTests extends BaseClass {
         // ██ SETUP INTENT — CANCEL
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "unit" }, dataProvider = "cancellationReasons", dataProviderClass = SetupIntentDataProvider.class)
+        @Test(groups = { "setup_intent", "positive",
+                        "regression" }, dataProvider = "cancellationReasons", dataProviderClass = SetupIntentDataProvider.class)
         public void TC_12_positive_Cancel_Setup_Intent(String reason) {
+                logger.info("Testing cancel SetupIntent with reason: {}", reason);
                 String setupIntentId = SetupIntentHelper.createSetupIntent(false);
+                logger.info("Created SetupIntent ID: {}", setupIntentId);
                 setupIntentIdsToCleanup.add(setupIntentId);
 
                 Map<String, Object> cancelBody = new HashMap<>();
                 cancelBody.put("cancellation_reason", reason);
 
+                logger.info("Canceling SetupIntent ID: {}", setupIntentId);
                 SetupIntent.cancelSetupIntent(setupIntentId, cancelBody)
                                 .then()
                                 .spec(ResponseSpec.OK())
@@ -318,18 +351,23 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ SetupIntent canceled with reason: {}", reason);
         }
 
-        @Test(groups = { "unit" })
+        @Test(groups = { "setup_intent", "negative", "edge", "regression" })
         public void TC_13_negative_Cancel_Already_Canceled_Setup_Intent() {
+                logger.info("Testing cancel already canceled SetupIntent");
                 String setupIntentId = SetupIntentHelper.createSetupIntent(false);
+                logger.info("Created SetupIntent ID: {}", setupIntentId);
                 setupIntentIdsToCleanup.add(setupIntentId);
 
                 // First cancel succeeds
+                logger.info("Performing first cancellation on ID: {}", setupIntentId);
                 SetupIntent.cancelSetupIntent(setupIntentId)
                                 .then()
                                 .spec(ResponseSpec.OK())
                                 .body("status", equalTo("canceled"));
+                logger.info("First cancellation succeeded");
 
                 // Second cancel fails
+                logger.info("Performing second cancellation on ID: {}", setupIntentId);
                 SetupIntent.cancelSetupIntent(setupIntentId)
                                 .then()
                                 .spec(ResponseSpec.request_failed())
@@ -338,11 +376,14 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ Correctly rejected double-cancellation of SetupIntent");
         }
 
-        @Test(groups = { "unit" })
+        @Test(groups = { "setup_intent", "negative", "edge", "regression" })
         public void TC_14_negative_Cancel_Succeeded_Setup_Intent() {
+                logger.info("Testing cancel already succeeded SetupIntent");
                 String setupIntentId = SetupIntentHelper.createAndConfirmSetupIntent();
+                logger.info("Created and confirmed SetupIntent ID: {}", setupIntentId);
                 setupIntentIdsToCleanup.add(setupIntentId);
 
+                logger.info("Attempting to cancel succeeded SetupIntent ID: {}", setupIntentId);
                 SetupIntent.cancelSetupIntent(setupIntentId)
                                 .then()
                                 .spec(ResponseSpec.request_failed())
@@ -355,7 +396,7 @@ public class SetupIntentTests extends BaseClass {
         // ██ SAVED CARD + FUTURE PAYMENT — E2E FLOW
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "flow", "unit" })
+        @Test(groups = { "setup_intent", "e2e", "flow", "regression" })
         public void TC_15_flow_Saved_Card_Future_OffSession_Payment() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
                 logger.info("🔄 Starting E2E: SetupIntent → Saved Card → Off-Session Payment");
@@ -427,7 +468,7 @@ public class SetupIntentTests extends BaseClass {
 
                 // 6️⃣ Use the saved card for an off-session payment
                 Map<String, Object> piBody = new HashMap<>();
-                piBody.put("amount", 5000);
+                piBody.put("amount", amount);
                 piBody.put("currency", "usd");
                 piBody.put("customer", customerId);
                 piBody.put("payment_method", paymentMethodId);
@@ -442,14 +483,15 @@ public class SetupIntentTests extends BaseClass {
                                 .body("status", equalTo("succeeded"))
                                 .body("customer", equalTo(customerId))
                                 .body("payment_method", equalTo(paymentMethodId))
-                                .body("amount", equalTo(5000));
+                                .body("amount", equalTo(amount));
 
                 logger.info("  Step 6: Off-session payment succeeded ✅");
                 logger.info("🎉 E2E Flow Complete: SetupIntent → Saved Card → Future Payment");
         }
 
-        @Test(groups = { "unit" })
+        @Test(groups = { "setup_intent", "positive", "idempotency", "regression" })
         public void TC_16_positive_Idempotent_Confirm_Setup_Intent() {
+                logger.info("Testing idempotent confirmation of SetupIntent");
                 // Create a SetupIntent
                 Map<String, Object> siBody = new HashMap<>();
                 siBody.put("usage", "off_session");
@@ -461,10 +503,12 @@ public class SetupIntentTests extends BaseClass {
                                 .extract()
                                 .jsonPath()
                                 .getString("id");
+                logger.info("Created SetupIntent ID: {}", setupIntentId);
 
                 setupIntentIdsToCleanup.add(setupIntentId);
 
                 String paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+                logger.info("Created valid payment method ID: {}", paymentMethodId);
 
                 Map<String, Object> confirmBody = new HashMap<>();
                 confirmBody.put("payment_method", paymentMethodId);
@@ -472,8 +516,10 @@ public class SetupIntentTests extends BaseClass {
                 String idempotencyKey = "si_key_" + System.currentTimeMillis();
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Idempotency-Key", idempotencyKey);
+                logger.info("Using idempotency key: {}", idempotencyKey);
 
                 // First confirm — Success
+                logger.info("Sending first confirmation request");
                 Response firstResp = SetupIntent.confirmSetupIntent(setupIntentId, confirmBody, headers)
                                 .then()
                                 .spec(ResponseSpec.OK())
@@ -482,8 +528,10 @@ public class SetupIntentTests extends BaseClass {
                                 .response();
 
                 String firstId = firstResp.jsonPath().getString("id");
+                logger.info("First confirmation succeeded. SetupIntent ID: {}", firstId);
 
                 // Second confirm with same idempotency key — should return same result
+                logger.info("Sending second confirmation request with same idempotency key");
                 Response secondResp = SetupIntent.confirmSetupIntent(setupIntentId, confirmBody, headers)
                                 .then()
                                 .spec(ResponseSpec.OK())
@@ -491,6 +539,7 @@ public class SetupIntentTests extends BaseClass {
                                 .response();
 
                 String secondId = secondResp.jsonPath().getString("id");
+                logger.info("Second confirmation succeeded. SetupIntent ID: {}", secondId);
 
                 assertThat("Idempotent responses should return the same SetupIntent ID",
                                 firstId, equalTo(secondId));
@@ -498,10 +547,12 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ Idempotent confirm verified for SetupIntent: {}", setupIntentId);
         }
 
-        @Test(groups = { "unit" })
+        @Test(groups = { "setup_intent", "positive", "regression" })
         public void TC_17_positive_List_Setup_Intents() {
+                logger.info("Testing list SetupIntents");
                 // Ensure at least one SetupIntent exists
-                SetupIntentHelper.createSetupIntent(false);
+                String createdId = SetupIntentHelper.createSetupIntent(false);
+                logger.info("Created setup intent ID: {}", createdId);
 
                 Map<String, Object> queryParams = new HashMap<>();
                 queryParams.put("limit", 3);
@@ -522,14 +573,18 @@ public class SetupIntentTests extends BaseClass {
 
         @AfterClass(alwaysRun = true)
         public void cleanup() {
+                logger.info("Running cleanup for SetupIntentTests");
                 boolean isFlow = Arrays.asList(currentGroups).contains("flow");
                 if (isFlow) {
+                        logger.info("In flow mode, bypassing SetupIntentTests cleanup (delegated to suite cleanup)");
                         return; // Skip cleanup in flow runs to allow dependent classes/suite to clean up or
                                 // proceed
                 }
 
+                logger.info("Canceling {} setup intents", setupIntentIdsToCleanup.size());
                 for (String siId : setupIntentIdsToCleanup) {
                         try {
+                                logger.info("Canceling SetupIntent ID: {}", siId);
                                 SetupIntent.cancelSetupIntent(siId);
                         } catch (Exception e) {
                                 // SetupIntent may already be canceled or succeeded — safe to ignore
@@ -537,11 +592,13 @@ public class SetupIntentTests extends BaseClass {
                 }
                 setupIntentIdsToCleanup.clear();
 
+                logger.info("Deleting {} customers", customerIdsToCleanup.size());
                 for (String custId : customerIdsToCleanup) {
                         try {
+                                logger.info("Deleting Customer ID: {}", custId);
                                 Customer.deleteCustomer(custId);
                         } catch (Exception e) {
-                                System.out.println("⚠️ Cleanup failed for customer: " + custId);
+                                logger.error("⚠️ Cleanup failed for customer: {}", custId, e);
                         }
                 }
                 customerIdsToCleanup.clear();

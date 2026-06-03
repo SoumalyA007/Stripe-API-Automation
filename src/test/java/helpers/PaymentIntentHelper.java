@@ -5,12 +5,16 @@ import specification.ResponseSpec;
 
 import java.util.HashMap;
 import java.util.Map;
+import testbase.BaseClass;
 
 public class PaymentIntentHelper {
 
     /**
-     * Creates a fallback payment intent for standalone testing or prerequisite flows.
-     * @param confirm Set to true to automatically confirm the payment intent upon creation (status = succeeded)
+     * Creates a fallback payment intent for standalone testing or prerequisite
+     * flows.
+     * 
+     * @param confirm Set to true to automatically confirm the payment intent upon
+     *                creation (status = succeeded)
      * @return the created payment_intent ID
      */
     public static String createFallbackPaymentIntent(boolean confirm) {
@@ -21,7 +25,7 @@ public class PaymentIntentHelper {
 
         Map<String, Object> body = new HashMap<>();
         // Default values for standard test flows
-        body.put("amount", 2000);
+        body.put("amount", BaseClass.amount);
         body.put("currency", "usd");
         body.put("payment_method", paymentMethodId);
 

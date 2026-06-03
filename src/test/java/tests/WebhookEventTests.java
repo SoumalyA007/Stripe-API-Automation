@@ -63,8 +63,9 @@ public class WebhookEventTests extends BaseClass {
         return null;
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "webhook", "positive", "regression" })
     public void TC_01_Verify_CustomerCreated_Event() {
+        logger.info("Testing customer created event verification");
         String name = CustomersHelper.getName();
         String email = faker.internet().safeEmailAddress();
         logger.info("Creating customer for event verification: {} <{}>", name, email);
@@ -73,12 +74,14 @@ public class WebhookEventTests extends BaseClass {
         createResponse.then().spec(ResponseSpec.OK());
         String customerId = createResponse.jsonPath().getString("id");
         customerIds.add(customerId);
+        logger.info("Created Customer ID: {}", customerId);
 
         // Poll for customer.created event
         String eventId = pollForEvent("customer.created", customerId);
         assertThat("Event customer.created was not found in the events log", eventId, notNullValue());
 
         // Validate the event object details
+        logger.info("Retrieving event: {}", eventId);
         Events.getEvent(eventId)
                 .then()
                 .spec(ResponseSpec.OK())
@@ -87,10 +90,12 @@ public class WebhookEventTests extends BaseClass {
                 .body("data.object.id", equalTo(customerId))
                 .body("data.object.email", equalTo(email))
                 .body("data.object.name", equalTo(name));
+        logger.info("Successfully validated customer.created event details");
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "webhook", "positive", "regression" })
     public void TC_02_Verify_RefundCreated_Event() {
+        logger.info("Testing refund created event verification");
         // Create fallback PaymentIntent to refund against
         String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
         logger.info("Created payment intent for refund event: {}", paymentIntentId);
@@ -100,6 +105,7 @@ public class WebhookEventTests extends BaseClass {
         body.put("reason", "requested_by_customer");
         body.put("payment_intent", paymentIntentId);
 
+        logger.info("Creating refund for PaymentIntent ID: {}", paymentIntentId);
         Response refundResponse = Refunds.createRefund(paymentIntentId, body);
         refundResponse.then().spec(ResponseSpec.OK());
         String refundId = refundResponse.jsonPath().getString("id");
@@ -108,37 +114,46 @@ public class WebhookEventTests extends BaseClass {
         // Poll for refund event - stripe uses charge.refunded or refund.created
         String eventId = pollForEvent("charge.refunded", paymentIntentId);
         if (eventId == null) {
+            logger.info("charge.refunded event not found yet. Polling for refund.created instead");
             eventId = pollForEvent("refund.created", refundId);
         }
 
         assertThat("Refund event was not found in the events log", eventId, notNullValue());
 
         // Validate event details
+        logger.info("Retrieving event: {}", eventId);
         Response eventResponse = Events.getEvent(eventId);
         eventResponse.then().spec(ResponseSpec.OK())
                 .body("id", equalTo(eventId));
+        logger.info("Successfully validated refund event details");
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "webhook", "negative", "regression" })
     public void TC_03_Retrieve_Event_By_Id_Negative() {
-        // Fetch event using an invalid event ID
+        logger.info("Testing retrieve event by invalid ID");
         Events.getEvent("evt_invalid12345")
                 .then()
                 .spec(ResponseSpec.not_found());
+        logger.info("Successfully verified invalid event ID retrieval rejection");
     }
 
-    @Test(groups = { "unit" })
+    @Test(groups = { "webhook", "negative", "auth", "regression" })
     public void TC_04_ListEvents_InvalidAuth() {
+        logger.info("Testing list events with invalid auth");
         Events.getEventsWithCustomAuth("invalid_key_12345", null)
                 .then()
                 .spec(ResponseSpec.Unauthorized())
                 .body("error.message", containsString("Invalid API Key provided"));
+        logger.info("Successfully verified list events invalid auth rejection");
     }
 
     @AfterMethod
     public void cleanup() {
+        logger.info("Running cleanup for WebhookEventTests");
+        logger.info("Deleting {} customers", customerIds.size());
         for (String id : customerIds) {
             try {
+                logger.info("Deleting customer ID: {}", id);
                 Customer.deleteCustomer(id);
             } catch (Exception e) {
                 logger.error("Cleanup failed for customer: {}", id, e);

@@ -3,6 +3,7 @@ package endpoints;
 import static io.restassured.RestAssured.given;
 import static testbase.BaseClass.p;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -43,8 +44,13 @@ public class Disputes {
     // ============== UPDATE ==============
 
     public static Response updateDispute(String disputeId, Map<String, Object> body) {
+        return updateDispute(disputeId, body, new HashMap<>());
+    }
+
+    public static Response updateDispute(String disputeId, Map<String, Object> body, Map<String, String> headers) {
         var request = given()
                 .spec(RequestSpec.setupv1())
+                .headers(headers)
                 .basePath("/v1/disputes/{disputeId}")
                 .pathParam("disputeId", disputeId);
 

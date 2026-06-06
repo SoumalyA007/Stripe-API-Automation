@@ -15,7 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import endpoints.PaymentIntent;
-
+import helpers.PaymentIntentHelper;
 import helpers.PaymentMethodsHelper;
 import helpers.TestContext;
 import io.restassured.response.Response;
@@ -24,341 +24,350 @@ import testbase.BaseClass;
 
 public class PaymentIntentTests extends BaseClass {
 
-    @Test(groups = { "flow", "payment_intent", "positive", "smoke",
-            "regression" }, dependsOnMethods = "tests.PaymentMethodTests.TC_03_Attach_Payment_Method", ignoreMissingDependencies = true)
-    public void TC_01_positive_Create_Payment_Intent() {
-        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+        @Test(groups = { "payment_intent", "regression", "create_cancel_paymentIntent",
+                        "create_confirm_paymentIntent" })
+        public void TC_01_positive_Create_Payment_Intent() {
+                logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
-        String paymentMethodId = TestContext.getPaymentMethodId();
-        logger.info("Intial paymentMethodId fetch --> \t" + paymentMethodId);
+                String paymentMethodId = TestContext.getPaymentMethodId();
+                logger.info("Intial paymentMethodId fetch --> \t" + paymentMethodId);
 
-        boolean doesPaymentMethodIdExist = true;
+                boolean doesPaymentMethodIdExist = true;
 
-        // Fallback for standalone run: create a temporary valid payment method if none
-        // exists
-        if (paymentMethodId == null) {
-            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
-            logger.info("Inside IF block paymentMethodId fetch when it does not exist --> \t" + paymentMethodId);
-            doesPaymentMethodIdExist = false;
+                // Fallback for standalone run: create a temporary valid payment method if none
+                // exists
+                if (paymentMethodId == null) {
+                        paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+                        logger.info("Inside IF block paymentMethodId fetch when it does not exist --> \t"
+                                        + paymentMethodId);
+                        doesPaymentMethodIdExist = false;
+                }
+
+                Map<String, Object> body = new HashMap<>();
+                body.put("amount", amount);
+                body.put("currency", "usd");
+                body.put("payment_method", paymentMethodId);
+
+                // Standard user flows often require the payment intent linked to the customer
+                String customerId = TestContext.getCustomerId();
+                logger.info("Fetched customerId from context --> \t" + customerId);
+
+                if (customerId != null) {
+                        body.put("customer", customerId);
+                }
+
+                body.put("automatic_payment_methods[enabled]", true);
+
+                String paymentIntentId = PaymentIntent.createPaymentIntent(body)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .body("amount", equalTo(amount))
+                                .body("currency", equalTo("usd"))
+                                .body("automatic_payment_methods.enabled", equalTo(true))
+                                .body("object", equalTo("payment_intent"))
+                                .body("status", anyOf(equalTo("requires_payment_method"),
+                                                equalTo("requires_confirmation")))
+                                .extract()
+                                .jsonPath()
+                                .getString("id");
+
+                logger.info("Created paymentIntentId --> \t" + paymentIntentId);
+
+                if (doesPaymentMethodIdExist) {
+                        logger.info("doesPaymentMethodIdExist --> \t" + doesPaymentMethodIdExist);
+                        TestContext.setPaymentIntentId(paymentIntentId);
+                        logger.info("paymentIntentId set in context ;");
+
+                }
+
         }
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("amount", amount);
-        body.put("currency", "usd");
-        body.put("payment_method", paymentMethodId);
+        @Test(groups = { "payment_intent", "negative",
+                        "regression",
+                        "invalid_card_payment_intent" }, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
+        public void TC_02_negative_Create_Payment_Intent(String testCaseName, Map<String, Object> body,
+                        String expectedErrorCode) {
+                logger.info("Running negative create payment intent test: {}", testCaseName);
+                String paymentMethodId = PaymentMethodsHelper.createPaymentMethod(body);
+                logger.info("Created invalid payment method ID: {}", paymentMethodId);
 
-        // Standard user flows often require the payment intent linked to the customer
-        String customerId = TestContext.getCustomerId();
-        logger.info("Fetched customerId from context --> \t" + customerId);
+                Map<String, Object> intentBody = new HashMap<>();
+                intentBody.put("amount", amount);
+                intentBody.put("currency", "usd");
+                intentBody.put("payment_method", paymentMethodId);
+                // Customer is omitted because it's optional for payment intent negative tests,
+                // reducing redundant API calls
+                intentBody.put("confirm", true);
+                intentBody.put("automatic_payment_methods[enabled]", true);
+                intentBody.put("automatic_payment_methods[allow_redirects]", "never");
 
-        if (customerId != null) {
-            body.put("customer", customerId);
+                logger.info("Creating payment intent and confirming with invalid payment method");
+                PaymentIntent.createPaymentIntent(intentBody)
+                                .then()
+                                .spec(ResponseSpec.request_failed())
+                                .body("error.code", containsString(expectedErrorCode));
+                logger.info("Successfully verified payment intent creation fails with error code: {}",
+                                expectedErrorCode);
         }
 
-        body.put("automatic_payment_methods[enabled]", true);
+        @Test(groups = { "payment_intent", "regression", "create_cancel_paymentIntent" })
+        public void TC_03_positive_Cancel_Payment_Intent() {
+                logger.info("Testing cancel payment intent");
+                // Create an unconfirmed payment intent for cancellation testing
+                String paymentIntentId = TestContext.getPaymentIntentId();
+                logger.info("Fetched payment intent: {}", paymentIntentId);
+                if (paymentIntentId == null) {
+                        paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(false);
+                        logger.info("Created fallback payment intent: {}", paymentIntentId);
+                }
 
-        String paymentIntentId = PaymentIntent.createPaymentIntent(body)
-                .then()
-                .spec(ResponseSpec.OK())
-                .body("amount", equalTo(amount))
-                .body("currency", equalTo("usd"))
-                .body("automatic_payment_methods.enabled", equalTo(true))
-                .body("object", equalTo("payment_intent"))
-                .body("status", anyOf(equalTo("requires_payment_method"), equalTo("requires_confirmation")))
-                .extract()
-                .jsonPath()
-                .getString("id");
+                Map<String, Object> cancelBody = new HashMap<>();
+                cancelBody.put("cancellation_reason", "requested_by_customer");
 
-        logger.info("Created paymentIntentId --> \t" + paymentIntentId);
-
-        if (doesPaymentMethodIdExist) {
-            logger.info("doesPaymentMethodIdExist --> \t" + doesPaymentMethodIdExist);
-            TestContext.setPaymentIntentId(paymentIntentId);
-            logger.info("paymentIntentId set in context ;");
-
+                logger.info("Canceling payment intent: {}", paymentIntentId);
+                PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .body("status", equalTo("canceled"))
+                                .body("cancellation_reason", equalTo("requested_by_customer"));
+                logger.info("Successfully canceled payment intent");
         }
 
-    }
+        @Test(groups = { "payment_intent", "negative", "regression" })
+        public void TC_04_negative_Cancel_Succeeded_Payment_Intent() {
+                logger.info("Testing cancel succeeded payment intent");
+                // This tests the negative scenario as you requested:
+                // Trying to cancel an already succeeded payment intent.
+                String paymentIntentId = TestContext.getPaymentIntentId();
 
-    @Test(groups = { "payment_intent", "negative",
-            "regression" }, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
-    public void TC_02_negative_Create_Payment_Intent(String testCaseName, Map<String, Object> body,
-            String expectedErrorCode) {
-        logger.info("Running negative create payment intent test: {}", testCaseName);
-        String paymentMethodId = PaymentMethodsHelper.createPaymentMethod(body);
-        logger.info("Created invalid payment method ID: {}", paymentMethodId);
+                // If context doesn't have an intent (standalone run), create a SUCCEEDED one.
+                if (paymentIntentId == null) {
+                        paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(true);
+                        logger.info("Created fallback succeeded payment intent: {}", paymentIntentId);
+                } else {
+                        logger.info("Using active payment intent from context: {}", paymentIntentId);
+                }
 
-        Map<String, Object> intentBody = new HashMap<>();
-        intentBody.put("amount", amount);
-        intentBody.put("currency", "usd");
-        intentBody.put("payment_method", paymentMethodId);
-        // Customer is omitted because it's optional for payment intent negative tests,
-        // reducing redundant API calls
-        intentBody.put("confirm", true);
-        intentBody.put("automatic_payment_methods[enabled]", true);
-        intentBody.put("automatic_payment_methods[allow_redirects]", "never");
+                Map<String, Object> cancelBody = new HashMap<>();
+                cancelBody.put("cancellation_reason", "abandoned");
 
-        logger.info("Creating payment intent and confirming with invalid payment method");
-        PaymentIntent.createPaymentIntent(intentBody)
-                .then()
-                .spec(ResponseSpec.request_failed())
-                .body("error.code", containsString(expectedErrorCode));
-        logger.info("Successfully verified payment intent creation fails with error code: {}", expectedErrorCode);
-    }
-
-    @Test(groups = { "payment_intent", "positive", "regression" })
-    public void TC_03_positive_Cancel_Payment_Intent() {
-        logger.info("Testing cancel payment intent");
-        // Create an unconfirmed payment intent for cancellation testing
-        String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
-        logger.info("Created fallback payment intent: {}", paymentIntentId);
-
-        Map<String, Object> cancelBody = new HashMap<>();
-        cancelBody.put("cancellation_reason", "requested_by_customer");
-
-        logger.info("Canceling payment intent: {}", paymentIntentId);
-        PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
-                .then()
-                .spec(ResponseSpec.OK())
-                .body("status", equalTo("canceled"))
-                .body("cancellation_reason", equalTo("requested_by_customer"));
-        logger.info("Successfully canceled payment intent");
-    }
-
-    @Test(groups = { "payment_intent", "negative", "edge", "regression" })
-    public void TC_04_negative_Cancel_Succeeded_Payment_Intent() {
-        logger.info("Testing cancel succeeded payment intent");
-        // This tests the negative scenario as you requested:
-        // Trying to cancel an already succeeded payment intent.
-        String paymentIntentId = TestContext.getPaymentIntentId();
-
-        // If context doesn't have an intent (standalone run), create a SUCCEEDED one.
-        if (paymentIntentId == null) {
-            paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(true);
-            logger.info("Created fallback succeeded payment intent: {}", paymentIntentId);
-        } else {
-            logger.info("Using active payment intent from context: {}", paymentIntentId);
+                logger.info("Attempting to cancel succeeded payment intent: {}", paymentIntentId);
+                PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
+                                .then()
+                                .spec(ResponseSpec.request_failed())
+                                .body("error.code", equalTo("payment_intent_unexpected_state"));
+                logger.info("Successfully verified cancel succeeded payment intent rejection");
         }
 
-        Map<String, Object> cancelBody = new HashMap<>();
-        cancelBody.put("cancellation_reason", "abandoned");
+        @Test(groups = { "payment_intent", "negative", "regression" })
+        public void TC_05_negative_Cancel_Already_Canceled_Payment_Intent() {
+                logger.info("Testing cancel already canceled payment intent");
+                // Unconfirmed so it's originally valid for cancellation
+                String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
+                logger.info("Created fallback payment intent for cancellation: {}", paymentIntentId);
 
-        logger.info("Attempting to cancel succeeded payment intent: {}", paymentIntentId);
-        PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
-                .then()
-                .spec(ResponseSpec.request_failed())
-                .body("error.code", equalTo("payment_intent_unexpected_state"));
-        logger.info("Successfully verified cancel succeeded payment intent rejection");
-    }
+                Map<String, Object> cancelBody = new HashMap<>();
+                cancelBody.put("cancellation_reason", "duplicate");
 
-    @Test(groups = { "payment_intent", "negative", "edge", "regression" })
-    public void TC_05_negative_Cancel_Already_Canceled_Payment_Intent() {
-        logger.info("Testing cancel already canceled payment intent");
-        // Unconfirmed so it's originally valid for cancellation
-        String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
-        logger.info("Created fallback payment intent for cancellation: {}", paymentIntentId);
+                // First cancellation succeeds
+                logger.info("Performing first cancellation on ID: {}", paymentIntentId);
+                PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .body("status", equalTo("canceled"));
+                logger.info("First cancellation succeeded");
 
-        Map<String, Object> cancelBody = new HashMap<>();
-        cancelBody.put("cancellation_reason", "duplicate");
-
-        // First cancellation succeeds
-        logger.info("Performing first cancellation on ID: {}", paymentIntentId);
-        PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
-                .then()
-                .spec(ResponseSpec.OK())
-                .body("status", equalTo("canceled"));
-        logger.info("First cancellation succeeded");
-
-        // Second cancellation fails
-        logger.info("Performing second cancellation on ID: {}", paymentIntentId);
-        PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
-                .then()
-                .spec(ResponseSpec.request_failed())
-                .body("error.code", equalTo("payment_intent_unexpected_state"));
-        logger.info("Successfully verified double cancellation rejection");
-    }
-
-    @Test(groups = { "flow", "payment_intent", "positive", "smoke",
-            "regression" }, dependsOnMethods = "tests.PaymentIntentTests.TC_01_positive_Create_Payment_Intent", ignoreMissingDependencies = true)
-    public void TC_06_positive_Confirm_Payment_Intent() {
-        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
-
-        String paymentIntentId = TestContext.getPaymentIntentId();
-        logger.info("Intial payemtnIntenId fetch --> \t" + paymentIntentId);
-
-        // If it doesn't exist, execute the whole prerequisite flow
-        if (paymentIntentId == null) {
-            paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
-            logger.info("Inside IF block when intentId does not exist payemtnIntenId fetch --> \t" + paymentIntentId);
+                // Second cancellation fails
+                logger.info("Performing second cancellation on ID: {}", paymentIntentId);
+                PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
+                                .then()
+                                .spec(ResponseSpec.request_failed())
+                                .body("error.code", equalTo("payment_intent_unexpected_state"));
+                logger.info("Successfully verified double cancellation rejection");
         }
 
-        Map<String, Object> confirmBody = new HashMap<>();
-        confirmBody.put("return_url", "https://example.com/return");
+        @Test(groups = { "payment_intent", "regression", "create_confirm_paymentIntent" })
+        public void TC_06_positive_Confirm_Payment_Intent() {
+                logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
-        logger.info("Confirming payment intent: {}", paymentIntentId);
-        PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
-                .then()
-                .spec(ResponseSpec.OK())
-                .body("status", equalTo("succeeded"))
-                .body("object", equalTo("payment_intent"));
-        logger.info("Successfully confirmed payment intent");
-    }
+                String paymentIntentId = TestContext.getPaymentIntentId();
+                logger.info("Intial payemtnIntenId fetch --> \t" + paymentIntentId);
 
-    @Test(groups = { "payment_intent", "positive", "idempotency", "regression" })
-    public void TC_07_positive_Idempotent_Confirm_Payment_Intent() {
-        logger.info("Testing idempotent confirmation of payment intent");
-        // Create an unconfirmed intent
-        String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
-        logger.info("Created fallback payment intent: {}", paymentIntentId);
+                // If it doesn't exist, execute the whole prerequisite flow
+                if (paymentIntentId == null) {
+                        paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
+                        logger.info("Inside IF block when intentId does not exist payemtnIntenId fetch --> \t"
+                                        + paymentIntentId);
+                }
 
-        Map<String, Object> confirmBody = new HashMap<>();
-        confirmBody.put("return_url", "https://example.com/return");
+                Map<String, Object> confirmBody = new HashMap<>();
+                confirmBody.put("return_url", "https://example.com/return");
 
-        Map<String, String> headers = new HashMap<>();
-        String idempotencyKey = "key_" + System.currentTimeMillis();
-        headers.put("Idempotency-Key", idempotencyKey);
-        logger.info("Using idempotency key: {}", idempotencyKey);
+                logger.info("Confirming payment intent: {}", paymentIntentId);
+                PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .body("status", equalTo("succeeded"))
+                                .body("object", equalTo("payment_intent"));
+                logger.info("Successfully confirmed payment intent");
+        }
 
-        // First confirmation - Success
-        logger.info("Sending first confirmation request");
-        Response firstResponse = PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody, headers)
-                .then()
-                .spec(ResponseSpec.OK())
-                .extract()
-                .response();
+        @Test(groups = { "payment_intent", "regression" })
+        public void TC_07_positive_Idempotent_Confirm_Payment_Intent() {
+                logger.info("Testing idempotent confirmation of payment intent");
+                // Create an unconfirmed intent
+                String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
+                logger.info("Created fallback payment intent: {}", paymentIntentId);
 
-        String firstConfirmPaymentId = firstResponse.jsonPath().getString("id");
-        String createdTimeFirstPayment = firstResponse.jsonPath().getString("created");
-        logger.info("First confirmation succeeded. ID: {}, Created: {}", firstConfirmPaymentId,
-                createdTimeFirstPayment);
+                Map<String, Object> confirmBody = new HashMap<>();
+                confirmBody.put("return_url", "https://example.com/return");
 
-        // Second confirmation with same key - Still Success (Idempotent behavior)
-        logger.info("Sending second confirmation request with same idempotency key");
-        Response secondResponse = PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody, headers)
-                .then()
-                .spec(ResponseSpec.OK())
-                .extract()
-                .response();
+                Map<String, String> headers = new HashMap<>();
+                String idempotencyKey = "key_" + System.currentTimeMillis();
+                headers.put("Idempotency-Key", idempotencyKey);
+                logger.info("Using idempotency key: {}", idempotencyKey);
 
-        String secondConfirmPaymentId = secondResponse.jsonPath().getString("id");
-        String createdTimeSecondPayment = secondResponse.jsonPath().getString("created");
-        logger.info("Second confirmation succeeded. ID: {}, Created: {}", secondConfirmPaymentId,
-                createdTimeSecondPayment);
+                // First confirmation - Success
+                logger.info("Sending first confirmation request");
+                Response firstResponse = PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody, headers)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .extract()
+                                .response();
 
-        Assert.assertEquals(firstConfirmPaymentId, secondConfirmPaymentId);
-        Assert.assertEquals(createdTimeFirstPayment, createdTimeSecondPayment);
-        logger.info("Successfully verified idempotent confirmation returns matching response");
-    }
+                String firstConfirmPaymentId = firstResponse.jsonPath().getString("id");
+                String createdTimeFirstPayment = firstResponse.jsonPath().getString("created");
+                logger.info("First confirmation succeeded. ID: {}, Created: {}", firstConfirmPaymentId,
+                                createdTimeFirstPayment);
 
-    @Test(groups = { "payment_intent", "negative", "edge", "regression" })
-    public void TC_08_negative_Confirm_Canceled_Payment_Intent() {
-        logger.info("Testing confirmation of canceled payment intent");
-        // Create a canceled intent
-        String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
-        logger.info("Created fallback payment intent: {}", paymentIntentId);
+                // Second confirmation with same key - Still Success (Idempotent behavior)
+                logger.info("Sending second confirmation request with same idempotency key");
+                Response secondResponse = PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody, headers)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .extract()
+                                .response();
 
-        Map<String, Object> cancelBody = new HashMap<>();
-        cancelBody.put("cancellation_reason", "abandoned");
-        logger.info("Canceling payment intent: {}", paymentIntentId);
-        PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
-                .then()
-                .spec(ResponseSpec.OK());
-        logger.info("Payment intent canceled");
+                String secondConfirmPaymentId = secondResponse.jsonPath().getString("id");
+                String createdTimeSecondPayment = secondResponse.jsonPath().getString("created");
+                logger.info("Second confirmation succeeded. ID: {}, Created: {}", secondConfirmPaymentId,
+                                createdTimeSecondPayment);
 
-        Map<String, Object> confirmBody = new HashMap<>();
-        confirmBody.put("return_url", "https://example.com/return");
+                Assert.assertEquals(firstConfirmPaymentId, secondConfirmPaymentId);
+                Assert.assertEquals(createdTimeFirstPayment, createdTimeSecondPayment);
+                logger.info("Successfully verified idempotent confirmation returns matching response");
+        }
 
-        // Confirming a canceled PI results in an error
-        logger.info("Attempting to confirm canceled payment intent: {}", paymentIntentId);
-        PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
-                .then()
-                .spec(ResponseSpec.request_failed())
-                .body("error.code", equalTo("payment_intent_unexpected_state"));
-        logger.info("Successfully verified confirmation of canceled payment intent is rejected");
-    }
+        @Test(groups = { "payment_intent", "negative", "regression" })
+        public void TC_08_negative_Confirm_Canceled_Payment_Intent() {
+                logger.info("Testing confirmation of canceled payment intent");
+                // Create a canceled intent
+                String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
+                logger.info("Created fallback payment intent: {}", paymentIntentId);
 
-    @Test(groups = { "payment_intent", "negative",
-            "regression" }, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
-    public void TC_09_negative_Confirm_Invalid_Payment_Method(String testCaseName, Map<String, Object> body,
-            String expectedErrorCode) {
-        logger.info("Running confirm invalid payment method test: {}", testCaseName);
-        String paymentMethodId = PaymentMethodsHelper.createPaymentMethod(body);
-        logger.info("Created invalid payment method ID: {}", paymentMethodId);
+                Map<String, Object> cancelBody = new HashMap<>();
+                cancelBody.put("cancellation_reason", "abandoned");
+                logger.info("Canceling payment intent: {}", paymentIntentId);
+                PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
+                                .then()
+                                .spec(ResponseSpec.OK());
+                logger.info("Payment intent canceled");
 
-        Map<String, Object> intentBody = new HashMap<>();
-        intentBody.put("amount", amount);
-        intentBody.put("currency", "usd");
-        intentBody.put("payment_method", paymentMethodId);
-        // Do not confirm during creation
+                Map<String, Object> confirmBody = new HashMap<>();
+                confirmBody.put("return_url", "https://example.com/return");
 
-        String paymentIntentId = PaymentIntent.createPaymentIntent(intentBody)
-                .then()
-                .spec(ResponseSpec.OK())
-                .extract()
-                .jsonPath()
-                .getString("id");
-        logger.info("Created payment intent ID: {}", paymentIntentId);
+                // Confirming a canceled PI results in an error
+                logger.info("Attempting to confirm canceled payment intent: {}", paymentIntentId);
+                PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
+                                .then()
+                                .spec(ResponseSpec.request_failed())
+                                .body("error.code", equalTo("payment_intent_unexpected_state"));
+                logger.info("Successfully verified confirmation of canceled payment intent is rejected");
+        }
 
-        Map<String, Object> confirmBody = new HashMap<>();
-        confirmBody.put("return_url", "https://example.com/return");
+        @Test(groups = { "payment_intent", "negative",
+                        "regression" }, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
+        public void TC_09_negative_Confirm_Invalid_Payment_Method(String testCaseName, Map<String, Object> body,
+                        String expectedErrorCode) {
+                logger.info("Running confirm invalid payment method test: {}", testCaseName);
+                String paymentMethodId = PaymentMethodsHelper.createPaymentMethod(body);
+                logger.info("Created invalid payment method ID: {}", paymentMethodId);
 
-        // Confirming the intent should result in the specific card error
-        logger.info("Confirming payment intent with invalid payment method");
-        PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
-                .then()
-                .spec(ResponseSpec.request_failed())
-                .body("error.code", containsString(expectedErrorCode));
-        logger.info("Successfully verified invalid payment method confirmation fails with: {}", expectedErrorCode);
-    }
+                Map<String, Object> intentBody = new HashMap<>();
+                intentBody.put("amount", amount);
+                intentBody.put("currency", "usd");
+                intentBody.put("payment_method", paymentMethodId);
+                // Do not confirm during creation
 
-    @Test(groups = { "payment_intent", "negative", "edge", "regression" })
-    public void TC_10_negative_Confirm_Succeeded_Payment_Intent() {
-        logger.info("Testing confirmation of already succeeded payment intent");
-        // Create an already succeeded intent
-        String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(true);
-        logger.info("Created fallback succeeded payment intent: {}", paymentIntentId);
+                String paymentIntentId = PaymentIntent.createPaymentIntent(intentBody)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .extract()
+                                .jsonPath()
+                                .getString("id");
+                logger.info("Created payment intent ID: {}", paymentIntentId);
 
-        Map<String, Object> confirmBody = new HashMap<>();
-        confirmBody.put("return_url", "https://example.com/return");
+                Map<String, Object> confirmBody = new HashMap<>();
+                confirmBody.put("return_url", "https://example.com/return");
 
-        // Confirming an already succeeded PI without the original idempotency key
-        // results in an error
-        logger.info("Attempting to confirm already succeeded payment intent: {}", paymentIntentId);
-        PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
-                .then()
-                .spec(ResponseSpec.request_failed())
-                .body("error.code", equalTo("payment_intent_unexpected_state"));
-        logger.info("Successfully verified confirmation of succeeded payment intent is rejected");
-    }
+                // Confirming the intent should result in the specific card error
+                logger.info("Confirming payment intent with invalid payment method");
+                PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
+                                .then()
+                                .spec(ResponseSpec.request_failed())
+                                .body("error.code", containsString(expectedErrorCode));
+                logger.info("Successfully verified invalid payment method confirmation fails with: {}",
+                                expectedErrorCode);
+        }
 
-    @Test(groups = { "payment_intent", "negative", "edge", "regression" })
-    public void TC_11_negative_Confirm_Without_Payment_Method() {
-        logger.info("Testing confirmation of payment intent without payment method");
-        // Create an intent without any payment method attached
-        Map<String, Object> intentBody = new HashMap<>();
-        intentBody.put("amount", amount);
-        intentBody.put("currency", "usd");
+        @Test(groups = { "payment_intent", "negative", "regression" })
+        public void TC_10_negative_Confirm_Succeeded_Payment_Intent() {
+                logger.info("Testing confirmation of already succeeded payment intent");
+                // Create an already succeeded intent
+                String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(true);
+                logger.info("Created fallback succeeded payment intent: {}", paymentIntentId);
 
-        String paymentIntentId = PaymentIntent.createPaymentIntent(intentBody)
-                .then()
-                .spec(ResponseSpec.OK())
-                .extract()
-                .jsonPath()
-                .getString("id");
-        logger.info("Created payment intent ID without payment method: {}", paymentIntentId);
+                Map<String, Object> confirmBody = new HashMap<>();
+                confirmBody.put("return_url", "https://example.com/return");
 
-        Map<String, Object> confirmBody = new HashMap<>();
-        confirmBody.put("return_url", "https://example.com/return");
+                // Confirming an already succeeded PI without the original idempotency key
+                // results in an error
+                logger.info("Attempting to confirm already succeeded payment intent: {}", paymentIntentId);
+                PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
+                                .then()
+                                .spec(ResponseSpec.request_failed())
+                                .body("error.code", equalTo("payment_intent_unexpected_state"));
+                logger.info("Successfully verified confirmation of succeeded payment intent is rejected");
+        }
 
-        // Trying to confirm it without providing a payment method
-        logger.info("Attempting to confirm payment intent: {}", paymentIntentId);
-        PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
-                .then()
-                .spec(ResponseSpec.request_failed())
-                // In Stripe, you cannot confirm a PI if there's no payment method attached
-                .body("error.code", equalTo("payment_intent_unexpected_state"))
-                .body("error.message", containsString("payment_method"));
-        logger.info("Successfully verified confirmation without payment method is rejected");
-    }
+        @Test(groups = { "payment_intent", "negative", "regression" })
+        public void TC_11_negative_Confirm_Without_Payment_Method() {
+                logger.info("Testing confirmation of payment intent without payment method");
+                // Create an intent without any payment method attached
+                Map<String, Object> intentBody = new HashMap<>();
+                intentBody.put("amount", amount);
+                intentBody.put("currency", "usd");
+
+                String paymentIntentId = PaymentIntent.createPaymentIntent(intentBody)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .extract()
+                                .jsonPath()
+                                .getString("id");
+                logger.info("Created payment intent ID without payment method: {}", paymentIntentId);
+
+                Map<String, Object> confirmBody = new HashMap<>();
+                confirmBody.put("return_url", "https://example.com/return");
+
+                // Trying to confirm it without providing a payment method
+                logger.info("Attempting to confirm payment intent: {}", paymentIntentId);
+                PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
+                                .then()
+                                .spec(ResponseSpec.request_failed())
+                                // In Stripe, you cannot confirm a PI if there's no payment method attached
+                                .body("error.code", equalTo("payment_intent_unexpected_state"))
+                                .body("error.message", containsString("payment_method"));
+                logger.info("Successfully verified confirmation without payment method is rejected");
+        }
 
 }

@@ -21,7 +21,7 @@ public class ConnectedAccountsTest extends BaseClass {
 
     List<String> connectAccountIdToCleanup = new ArrayList<>();
 
-    @Test(groups = { "connect_account", "positive", "smoke", "regression" })
+    @Test(groups = { "connect_account", "regression" })
     public void TC_01_positive_Create_ConnectAccount() {
         logger.info("Testing create connect account");
         boolean isFlow = false;
@@ -49,7 +49,7 @@ public class ConnectedAccountsTest extends BaseClass {
         }
     }
 
-    @Test(groups = { "connect_account", "positive", "regression" })
+    @Test(groups = { "connect_account", "regression" })
     public void TC_02_positive_Update_ConnectAccount() {
         logger.info("Testing update connect account");
         String connectAccountId = TestContext.getConnectAccountId();
@@ -76,7 +76,7 @@ public class ConnectedAccountsTest extends BaseClass {
         }
     }
 
-    @Test(groups = { "connect_account", "positive", "regression" })
+    @Test(groups = { "connect_account", "regression" })
     public void TC_03_positive_Delete_ConnectAccount() {
         logger.info("Testing delete connect account");
         String connectAccountId = TestContext.getConnectAccountId();
@@ -100,7 +100,7 @@ public class ConnectedAccountsTest extends BaseClass {
         }
     }
 
-    @Test(groups = { "connect_account", "positive", "regression" })
+    @Test(groups = { "connect_account", "regression" })
     public void TC_04_positive_Retrieve_ConnectAccount() {
         logger.info("Testing retrieve connect account");
         String connectAccountId = TestContext.getConnectAccountId();
@@ -126,8 +126,7 @@ public class ConnectedAccountsTest extends BaseClass {
 
     // ***************CREATE CONNECT ACCOUNT – NEGATIVE*******************\\
 
-    @Test(groups = { "connect_account", "negative",
-            "regression" }, dataProvider = "invalidConnectAccountPayloads", dataProviderClass = ConnectedAccountsDataProvider.class)
+    @Test(groups = { "connect_account", "negative", "regression" }, dataProvider = "invalidConnectAccountPayloads", dataProviderClass = ConnectedAccountsDataProvider.class)
     public void TC_05_negative_Create_ConnectAccount_Invalid(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid connect account payload case: {}", testCaseName);
 
@@ -149,8 +148,7 @@ public class ConnectedAccountsTest extends BaseClass {
 
     // ***************RETRIEVE CONNECT ACCOUNT – NEGATIVE*******************\\
 
-    @Test(groups = { "connect_account", "negative",
-            "regression" }, dataProvider = "invalidAccountIds", dataProviderClass = ConnectedAccountsDataProvider.class)
+    @Test(groups = { "connect_account", "negative", "regression" }, dataProvider = "invalidAccountIds", dataProviderClass = ConnectedAccountsDataProvider.class)
     public void TC_06_negative_Retrieve_ConnectAccount_InvalidId(String invalidAccountId) {
         logger.info("Retrieving invalid connect account ID: {}", invalidAccountId);
 
@@ -181,8 +179,7 @@ public class ConnectedAccountsTest extends BaseClass {
         logger.info("✅ Correctly rejected updating nonexistent connect account");
     }
 
-    @Test(groups = { "connect_account", "negative",
-            "regression" }, dataProvider = "invalidUpdatePayloads", dataProviderClass = ConnectedAccountsDataProvider.class)
+    @Test(groups = { "connect_account", "negative", "regression" }, dataProvider = "invalidUpdatePayloads", dataProviderClass = ConnectedAccountsDataProvider.class)
     public void TC_08_negative_Update_ConnectAccount_InvalidParams(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid update connect account case: {}", testCaseName);
 
@@ -211,8 +208,7 @@ public class ConnectedAccountsTest extends BaseClass {
 
     // ***************DELETE CONNECT ACCOUNT – NEGATIVE*******************\\
 
-    @Test(groups = { "connect_account", "negative",
-            "regression" }, dataProvider = "invalidAccountIds", dataProviderClass = ConnectedAccountsDataProvider.class)
+    @Test(groups = { "connect_account", "negative", "regression" }, dataProvider = "invalidAccountIds", dataProviderClass = ConnectedAccountsDataProvider.class)
     public void TC_09_negative_Delete_ConnectAccount_InvalidId(String invalidAccountId) {
         logger.info("Deleting invalid connect account ID: {}", invalidAccountId);
 
@@ -225,7 +221,7 @@ public class ConnectedAccountsTest extends BaseClass {
         logger.info("✅ Correctly rejected deleting invalid connect account ID: {}", invalidAccountId);
     }
 
-    @Test(groups = { "connect_account", "negative", "edge", "regression" })
+    @Test(groups = { "connect_account", "negative", "regression" })
     public void TC_10_negative_Delete_ConnectAccount_AlreadyDeleted() {
         logger.info("Deleting already deleted connect account");
 
@@ -250,7 +246,7 @@ public class ConnectedAccountsTest extends BaseClass {
         logger.info("✅ Correctly rejected deleting already deleted connect account");
     }
 
-    @Test(groups = { "connect_account", "positive", "regression" })
+    @Test(groups = { "connect_account", "regression" })
     public void TC_11_positive_Link_Account() {
         logger.info("Testing positive link account");
         String connectAccountId = TestContext.getConnectAccountId();
@@ -301,7 +297,7 @@ public class ConnectedAccountsTest extends BaseClass {
         logger.info("Successfully verified invalid link account fails");
     }
 
-    @Test(groups = { "connect_account", "positive", "edge", "regression" })
+    @Test(groups = { "connect_account", "regression" })
     public void TC_13_positive_Link_Account_Expired_Redirect() {
         logger.info("Testing link account expired redirect");
         String connectAccountId = TestContext.getConnectAccountId();

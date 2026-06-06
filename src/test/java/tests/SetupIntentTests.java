@@ -29,7 +29,7 @@ public class SetupIntentTests extends BaseClass {
         // ██ SETUP INTENT — CREATE
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "setup_intent", "positive", "smoke", "flow", "regression" })
+        @Test(groups = { "setup_intent", "regression" })
         public void TC_01_positive_Create_Setup_Intent() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -66,7 +66,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ SetupIntent created: {}", setupIntentId);
         }
 
-        @Test(groups = { "setup_intent", "positive", "regression" })
+        @Test(groups = { "setup_intent", "regression" })
         public void TC_02_positive_Create_Setup_Intent_Without_Customer() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -89,7 +89,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ SetupIntent (no customer) created: {}", setupIntentId);
         }
 
-        @Test(groups = { "setup_intent", "positive", "regression" })
+        @Test(groups = { "setup_intent", "regression" })
         public void TC_03_positive_Create_Setup_Intent_OnSession() {
                 logger.info("Testing create setup intent on_session");
                 Map<String, Object> body = new HashMap<>();
@@ -112,7 +112,7 @@ public class SetupIntentTests extends BaseClass {
         // ██ SETUP INTENT — CONFIRM
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "setup_intent", "positive", "smoke", "flow", "regression" })
+        @Test(groups = { "setup_intent", "regression" })
         public void TC_04_positive_Confirm_Setup_Intent() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
                 logger.info("Testing positive confirmation of SetupIntent");
@@ -190,7 +190,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ Correctly declined: {} → {}", testCaseName, expectedErrorCode);
         }
 
-        @Test(groups = { "setup_intent", "negative", "edge", "regression" })
+        @Test(groups = { "setup_intent", "negative", "regression" })
         public void TC_06_negative_Confirm_Already_Succeeded_Setup_Intent() {
                 logger.info("Testing confirm already succeeded SetupIntent");
                 // Create and confirm a SetupIntent first
@@ -214,7 +214,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ Correctly rejected re-confirmation of succeeded SetupIntent");
         }
 
-        @Test(groups = { "setup_intent", "negative", "edge", "regression" })
+        @Test(groups = { "setup_intent", "negative", "regression" })
         public void TC_07_negative_Confirm_Canceled_Setup_Intent() {
                 logger.info("Testing confirm canceled SetupIntent");
                 // Create a SetupIntent and cancel it
@@ -258,7 +258,7 @@ public class SetupIntentTests extends BaseClass {
         // ██ SETUP INTENT — RETRIEVE
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "setup_intent", "positive", "regression" })
+        @Test(groups = { "setup_intent", "regression" })
         public void TC_08_positive_Retrieve_Setup_Intent() {
                 logger.info("Testing retrieve SetupIntent");
                 String setupIntentId = SetupIntentHelper.createSetupIntent(false);
@@ -292,7 +292,7 @@ public class SetupIntentTests extends BaseClass {
         // ██ SETUP INTENT — UPDATE
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "setup_intent", "positive",
+        @Test(groups = { "setup_intent",
                         "regression" }, dataProvider = "setupIntentMetadataUpdates", dataProviderClass = SetupIntentDataProvider.class)
         public void TC_10_positive_Update_Setup_Intent_Metadata(String key, String value) {
                 logger.info("Testing update SetupIntent metadata: {}={}", key, value);
@@ -330,7 +330,7 @@ public class SetupIntentTests extends BaseClass {
         // ██ SETUP INTENT — CANCEL
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "setup_intent", "positive",
+        @Test(groups = { "setup_intent",
                         "regression" }, dataProvider = "cancellationReasons", dataProviderClass = SetupIntentDataProvider.class)
         public void TC_12_positive_Cancel_Setup_Intent(String reason) {
                 logger.info("Testing cancel SetupIntent with reason: {}", reason);
@@ -351,7 +351,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ SetupIntent canceled with reason: {}", reason);
         }
 
-        @Test(groups = { "setup_intent", "negative", "edge", "regression" })
+        @Test(groups = { "setup_intent", "negative", "regression" })
         public void TC_13_negative_Cancel_Already_Canceled_Setup_Intent() {
                 logger.info("Testing cancel already canceled SetupIntent");
                 String setupIntentId = SetupIntentHelper.createSetupIntent(false);
@@ -376,7 +376,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ Correctly rejected double-cancellation of SetupIntent");
         }
 
-        @Test(groups = { "setup_intent", "negative", "edge", "regression" })
+        @Test(groups = { "setup_intent", "negative", "regression" })
         public void TC_14_negative_Cancel_Succeeded_Setup_Intent() {
                 logger.info("Testing cancel already succeeded SetupIntent");
                 String setupIntentId = SetupIntentHelper.createAndConfirmSetupIntent();
@@ -396,7 +396,7 @@ public class SetupIntentTests extends BaseClass {
         // ██ SAVED CARD + FUTURE PAYMENT — E2E FLOW
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "setup_intent", "e2e", "flow", "regression" })
+        @Test(groups = { "setup_intent", "regression" })
         public void TC_15_flow_Saved_Card_Future_OffSession_Payment() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
                 logger.info("🔄 Starting E2E: SetupIntent → Saved Card → Off-Session Payment");
@@ -489,7 +489,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("🎉 E2E Flow Complete: SetupIntent → Saved Card → Future Payment");
         }
 
-        @Test(groups = { "setup_intent", "positive", "idempotency", "regression" })
+        @Test(groups = { "setup_intent", "regression" })
         public void TC_16_positive_Idempotent_Confirm_Setup_Intent() {
                 logger.info("Testing idempotent confirmation of SetupIntent");
                 // Create a SetupIntent
@@ -547,7 +547,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ Idempotent confirm verified for SetupIntent: {}", setupIntentId);
         }
 
-        @Test(groups = { "setup_intent", "positive", "regression" })
+        @Test(groups = { "setup_intent", "regression" })
         public void TC_17_positive_List_Setup_Intents() {
                 logger.info("Testing list SetupIntents");
                 // Ensure at least one SetupIntent exists

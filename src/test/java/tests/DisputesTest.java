@@ -18,7 +18,7 @@ public class DisputesTest extends BaseClass {
 
     // ***************RETRIEVE DISPUTE – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "positive", "smoke", "regression" })
+    @Test(groups = { "dispute", "regression" })
     public void TC_01_Retrieve_Dispute() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -39,7 +39,7 @@ public class DisputesTest extends BaseClass {
 
     // ***************UPDATE DISPUTE EVIDENCE – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "positive", "regression" })
+    @Test(groups = { "dispute", "regression" })
     public void TC_02_Update_Dispute_Evidence() {
         String disputeId = TestContext.getDisputeId();
         if (disputeId == null) {
@@ -67,7 +67,7 @@ public class DisputesTest extends BaseClass {
 
     // ***************CLOSE DISPUTE – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "positive", "regression" })
+    @Test(groups = { "dispute", "regression" })
     public void TC_03_Close_Dispute() {
         String disputeId = TestContext.getDisputeId();
         if (disputeId == null) {
@@ -87,7 +87,7 @@ public class DisputesTest extends BaseClass {
 
     // ***************LIST DISPUTES – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "positive", "regression" })
+    @Test(groups = { "dispute", "regression" })
     public void TC_04_List_Disputes() {
         logger.info("Listing disputes with limit 3");
         Map<String, Object> query = new HashMap<>();
@@ -217,7 +217,7 @@ public class DisputesTest extends BaseClass {
         logger.info("Successfully verified unauthorized response for close dispute missing auth");
     }
 
-    @Test(groups = { "dispute", "positive", "idempotency", "regression" })
+    @Test(groups = { "dispute", "regression" })
     public void TC_14_positive_Idempotent_UpdateDispute_Evidence() {
         String disputeId = TestContext.getDisputeId();
         if (disputeId == null) {

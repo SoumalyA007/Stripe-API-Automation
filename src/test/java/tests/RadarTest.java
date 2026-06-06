@@ -18,7 +18,7 @@ public class RadarTest extends BaseClass {
 
     // ***************RETRIEVE EARLY FRAUD WARNING – POSITIVE*******************\\
 
-    @Test(groups = { "radar", "positive", "smoke", "regression" })
+    @Test(groups = { "radar", "regression" })
     public void TC_01_Retrieve_EarlyFraudWarning() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -39,7 +39,7 @@ public class RadarTest extends BaseClass {
 
     // ***************LIST EARLY FRAUD WARNINGS – POSITIVE*******************\\
 
-    @Test(groups = { "radar", "positive", "regression" })
+    @Test(groups = { "radar", "regression" })
     public void TC_02_List_EarlyFraudWarnings() {
         logger.info("Listing early fraud warnings with limit 3");
         Map<String, Object> query = new HashMap<>();

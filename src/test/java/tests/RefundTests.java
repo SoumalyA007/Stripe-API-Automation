@@ -20,14 +20,9 @@ public class RefundTests extends BaseClass {
 
         // ***************CREATE REFUND – POSITIVE*******************\\
 
-        @Test(groups = { "flow", "refund", "positive", "smoke",
-                        "regression" }, dependsOnMethods = "tests.PaymentIntentTests.TC_06_positive_Confirm_Payment_Intent", ignoreMissingDependencies = true)
-        public void TC_01_Create_Valid_Refund() {
-                logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
-
-                Map<String, Object> body = new HashMap<>();
-                body.put("amount", amount / 2);
-                body.put("reason", "requested_by_customer");
+        @Test(groups = { "refund", "regression", "refund_retrieve_cancel" })
+        public void TC_01_positive_Full_Refund() {
+                logger.info("Testing positive full refund");
                 String paymentIntentId = TestContext.getPaymentIntentId();
                 logger.info("Fetched PaymentIntentId from context -->\t" + paymentIntentId);
                 boolean isFlow = true;
@@ -39,7 +34,47 @@ public class RefundTests extends BaseClass {
                         isFlow = false;
                 }
 
+                Map<String, Object> body = new HashMap<>();
                 body.put("payment_intent", paymentIntentId);
+                body.put("amount", amount);
+
+                String refundId = Refunds.createRefund(paymentIntentId, body)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .body("amount", equalTo(amount))
+                                .body("currency", equalTo("usd"))
+                                .body("payment_intent", equalTo(paymentIntentId))
+                                .extract()
+                                .jsonPath()
+                                .getString("id");
+
+                logger.info("Refund Id -->\t" + refundId);
+
+                logger.info("Successfully verified positive full refund for amount: {}", amount);
+
+                if (isFlow) {
+                        logger.info("Setting  RefundId if inside flow -->\t" + refundId);
+                        TestContext.setRefundId(refundId);
+                }
+        }
+
+        @Test(groups = { "refund", "regression", "partialrefund_retrieve_cancel" })
+        public void TC_02_positive_Partial_Refund() {
+                logger.info("Testing positive partial refund");
+                String paymentIntentId = TestContext.getPaymentIntentId();
+                logger.info("Fetched PaymentIntentId from context -->\t" + paymentIntentId);
+                boolean isFlow = true;
+
+                if (paymentIntentId == null) {
+                        paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                        logger.info("Created new paymentIntentId -->\t" + paymentIntentId);
+
+                        isFlow = false;
+                }
+
+                Map<String, Object> body = new HashMap<>();
+                body.put("payment_intent", paymentIntentId);
+                body.put("amount", amount / 2);
 
                 String refundId = Refunds.createRefund(paymentIntentId, body)
                                 .then()
@@ -53,14 +88,15 @@ public class RefundTests extends BaseClass {
 
                 logger.info("Refund Id -->\t" + refundId);
 
+                logger.info("Successfully verified positive full refund for amount: {}", amount / 2);
+
                 if (isFlow) {
                         logger.info("Setting  RefundId if inside flow -->\t" + refundId);
                         TestContext.setRefundId(refundId);
                 }
-
         }
 
-        @Test(groups = { "refund", "positive", "regression" })
+        @Test(groups = { "refund", "regression", "refund_retrieve_cancel", "partialrefund_retrieve_cancel" })
         public void TC_02_Retrieve_Refund() {
                 String refundId = TestContext.getRefundId();
                 if (refundId == null) {
@@ -77,7 +113,7 @@ public class RefundTests extends BaseClass {
                 logger.info("Successfully retrieved refund with ID: {}", refundId);
         }
 
-        @Test(groups = { "refund", "positive", "regression" })
+        @Test(groups = { "refund", "regression", "refund_retrieve_cancel", "partialrefund_retrieve_cancel" })
         public void TC_03_Cancel_Refund() {
                 String refundId = TestContext.getRefundId();
                 boolean isFlow = true;
@@ -133,7 +169,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Create refund whose amount exceeds the original payment charge
-        @Test(groups = { "refund", "negative", "edge", "regression" })
+        @Test(groups = { "refund", "negative", "regression" })
         public void TC_06_CreateRefund_AmountExceedsCharged() {
                 logger.info("Testing create refund exceeding original charged amount");
                 String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
@@ -150,7 +186,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Create refund with zero amount
-        @Test(groups = { "refund", "negative", "edge", "regression" })
+        @Test(groups = { "refund", "negative", "regression" })
         public void TC_07_CreateRefund_ZeroAmount() {
                 logger.info("Testing create refund with zero amount");
                 String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
@@ -267,7 +303,7 @@ public class RefundTests extends BaseClass {
         }
 
         // Cancel an already-cancelled refund (double-cancel edge case)
-        @Test(groups = { "refund", "negative", "edge", "regression" })
+        @Test(groups = { "refund", "negative", "regression" })
         public void TC_15_CancelRefund_AlreadyCancelled() {
                 logger.info("Testing cancel refund already cancelled (double-cancel)");
                 // Create a fresh refund specifically for this test
@@ -311,7 +347,7 @@ public class RefundTests extends BaseClass {
                 logger.info("Successfully verified missing auth error for cancel refund");
         }
 
-        @Test(groups = { "refund", "positive", "idempotency", "regression" })
+        @Test(groups = { "refund", "regression" })
         public void TC_18_positive_Idempotent_CreateRefund() {
                 logger.info("Testing idempotent create refund");
                 String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
@@ -346,46 +382,6 @@ public class RefundTests extends BaseClass {
 
                 org.testng.Assert.assertEquals(firstRefundId, secondRefundId);
                 logger.info("Verified refund IDs are equal (Idempotency success)");
-        }
-
-        @Test(groups = { "refund", "positive", "regression" })
-        public void TC_19_positive_Full_Refund() {
-                logger.info("Testing positive full refund");
-                String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
-                logger.info("Created confirmed paymentIntentId for TC_19: {}", paymentIntentId);
-
-                Map<String, Object> body = new HashMap<>();
-                body.put("payment_intent", paymentIntentId);
-                body.put("amount", amount);
-
-                Refunds.createRefund(paymentIntentId, body)
-                                .then()
-                                .spec(ResponseSpec.OK())
-                                .body("amount", equalTo(amount))
-                                .body("currency", equalTo("usd"))
-                                .body("payment_intent", equalTo(paymentIntentId));
-
-                logger.info("Successfully verified positive full refund for amount: {}", amount);
-        }
-
-        @Test(groups = { "refund", "positive", "regression" })
-        public void TC_20_positive_Partial_Refund() {
-                logger.info("Testing positive partial refund");
-                String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
-                logger.info("Created confirmed paymentIntentId for TC_20: {}", paymentIntentId);
-
-                Map<String, Object> body = new HashMap<>();
-                body.put("payment_intent", paymentIntentId);
-                body.put("amount", amount / 2);
-
-                Refunds.createRefund(paymentIntentId, body)
-                                .then()
-                                .spec(ResponseSpec.OK())
-                                .body("amount", equalTo(amount / 2))
-                                .body("currency", equalTo("usd"))
-                                .body("payment_intent", equalTo(paymentIntentId));
-
-                logger.info("Successfully verified positive partial refund for amount: {}", amount / 2);
         }
 
 }

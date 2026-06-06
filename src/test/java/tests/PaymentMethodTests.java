@@ -20,7 +20,8 @@ import testbase.BaseClass;
 
 public class PaymentMethodTests extends BaseClass {
 
-    @Test(groups = { "payment_method", "positive", "flow", "regression" }, dataProvider = "createPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
+    @Test(groups = { "payment_method", "regression",
+            "create_attach_retrieve_detach" }, dataProvider = "createPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_01_Create_Valid_Payment_Method(String type, Map<String, Object> method) {
         logger.info("Testing create valid payment method of type: {}", type);
         String email = TestContext.getBillingEmail();
@@ -44,7 +45,8 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully created valid payment method");
     }
 
-    @Test(groups = { "payment_method", "negative", "regression" }, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
+    @Test(groups = { "payment_method", "negative",
+            "regression" }, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_02_Negative_PaymentMethod(String type, Map<String, Object> method) {
         logger.info("Testing negative create payment method of type: {}", type);
         paymentMethods.createPaymentMethod(method)
@@ -54,7 +56,8 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully verified negative create payment method rejection");
     }
 
-    @Test(groups = { "flow", "payment_method", "positive", "smoke", "regression" }, dependsOnMethods = "tests.CustomerTests.TC_01_CreateCustomer_ValidData", ignoreMissingDependencies = true)
+    @Test(groups = { "payment_method", "regression",
+            "create_attach_retrieve_detach" }, dependsOnMethods = "tests.CustomerTests.TC_01_CreateCustomer_ValidData", ignoreMissingDependencies = true)
     public void TC_03_Attach_Payment_Method() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("Testing attach payment method");
@@ -80,10 +83,12 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully attached payment method to customer");
     }
 
-    @Test(groups = { "payment_method", "negative", "regression" }, dataProvider = "attachPaymentMethodNegative", dataProviderClass = PaymentMethodsDataProvider.class)
+    @Test(groups = { "payment_method", "negative",
+            "regression" }, dataProvider = "attachPaymentMethodNegative", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_04_Attach_Invalid_Payment_Method(String customerId, String paymentMethodId,
             ResponseSpecification spec, String messsage) {
-        logger.info("Testing attach invalid payment method: customerId={}, paymentMethodId={}", customerId, paymentMethodId);
+        logger.info("Testing attach invalid payment method: customerId={}, paymentMethodId={}", customerId,
+                paymentMethodId);
 
         if (customerId == null) {
             NegativeTestHelper.createCustomerNegativeTestCase();
@@ -106,7 +111,8 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully verified attach invalid payment method rejection");
     }
 
-    @Test(groups = { "payment_method", "positive", "regression" }, dependsOnMethods = "TC_01_Create_Valid_Payment_Method", ignoreMissingDependencies = true)
+    @Test(groups = { "payment_method",
+            "regression" }, dependsOnMethods = "TC_01_Create_Valid_Payment_Method", ignoreMissingDependencies = true)
     public void TC_05_Retrieve_Payment_Method() {
         logger.info("Testing retrieve valid payment method");
         String paymentMethodId = TestContext.getPaymentMethodId();
@@ -125,7 +131,7 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully retrieved payment method");
     }
 
-    @Test(groups = { "payment_method", "negative", "regression" })
+    @Test(groups = { "payment_method", "regression" })
     public void TC_06_Retrieve_Invalid_Payment_Method() {
         logger.info("Testing retrieve invalid payment method");
         String paymentMethodId = "***";
@@ -138,7 +144,8 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully verified retrieve invalid payment method rejection");
     }
 
-    @Test(groups = { "payment_method", "positive", "regression" }, dependsOnMethods = "TC_01_Create_Valid_Payment_Method", ignoreMissingDependencies = true)
+    @Test(groups = { "payment_method", "regression",
+            "create_attach_retrieve_detach" }, dependsOnMethods = "TC_01_Create_Valid_Payment_Method", ignoreMissingDependencies = true)
     public void TC_07_Retrieve_Valid_Payment_Method_By_Customer() {
         logger.info("Testing retrieve valid payment method by customer");
         String paymentMethodId = TestContext.getPaymentMethodId();
@@ -163,10 +170,12 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully retrieved payment method by customer");
     }
 
-    @Test(groups = { "payment_method", "negative", "regression" }, dataProvider = "retrieveInvalidPaymentMethodByCustomer", dataProviderClass = PaymentMethodsDataProvider.class)
+    @Test(groups = { "payment_method", "negative",
+            "regression" }, dataProvider = "retrieveInvalidPaymentMethodByCustomer", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_08_Retrieve_InValid_Payment_Method_By_Customer(String customerId, String paymentMethodId,
             ResponseSpecification resp) {
-        logger.info("Testing retrieve invalid payment method by customer: customerId={}, paymentMethodId={}", customerId, paymentMethodId);
+        logger.info("Testing retrieve invalid payment method by customer: customerId={}, paymentMethodId={}",
+                customerId, paymentMethodId);
 
         if (customerId == null) {
             NegativeTestHelper.createCustomerNegativeTestCase();
@@ -185,7 +194,8 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully verified retrieve invalid payment method by customer rejection");
     }
 
-    @Test(groups = { "payment_method", "positive", "regression" }, dependsOnMethods = "TC_03_Attach_Payment_Method", ignoreMissingDependencies = true)
+    @Test(groups = { "payment_method", "regression",
+            "create_attach_retrieve_detach" }, dependsOnMethods = "TC_03_Attach_Payment_Method", ignoreMissingDependencies = true)
     public void TC_09_Detach_Payment_Method() {
         logger.info("Testing detach payment method");
         String customerId = TestContext.getCustomerId();
@@ -215,7 +225,8 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully detached payment method");
     }
 
-    @Test(groups = { "payment_method", "negative", "regression" }, dataProvider = "detachPaymentMethodNegativeCases", dataProviderClass = PaymentMethodsDataProvider.class)
+    @Test(groups = { "payment_method", "negative",
+            "regression" }, dataProvider = "detachPaymentMethodNegativeCases", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_10_negative_Detach_Payment_Method(String paymentMethodId, ResponseSpecification spec,
             String errorMessage) {
         logger.info("Testing negative detach payment method: {}", paymentMethodId);

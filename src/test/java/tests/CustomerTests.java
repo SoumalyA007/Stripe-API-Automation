@@ -39,7 +39,7 @@ public class CustomerTests extends BaseClass {
     // ***************CREATE CUSTOMER*******************\\
 
     // Create a Valid Customer
-    @Test(groups = { "customer", "positive", "smoke", "flow", "regression" })
+    @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete" })
     public void TC_01_CreateCustomer_ValidData() {
 
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
@@ -66,7 +66,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Creating a customer with no name
-    @Test(groups = { "customer", "positive", "regression" })
+    @Test(groups = { "customer", "regression" })
     public void TC_02_CreateCustomer_OnlyEmail() {
         logger.info("Testing create customer with only email");
         String email = faker.internet().safeEmailAddress();
@@ -85,7 +85,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Create Customer with MetaaData
-    @Test(groups = { "customer", "positive", "regression" })
+    @Test(groups = { "customer", "regression" })
     public void createCustomerUsingMetadata() {
         logger.info("Testing create customer using metadata");
         String email = faker.internet().emailAddress();
@@ -110,7 +110,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Create Customer with invalid token
-    @Test(groups = { "customer", "negative", "auth", "regression" })
+    @Test(groups = { "customer", "negative", "regression" })
     public void TC_04_CreateCustomer_InvalidApiKey() {
         logger.info("Testing create customer with invalid API key");
         Response response = Customer.createCustomerWithCustomAuth("invalid", "ABC", "ABC");
@@ -121,7 +121,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // create customer with invalid email format
-    @Test(groups = { "customer", "negative", "edge", "regression" })
+    @Test(groups = { "customer", "negative", "regression" })
     public void TC_05_CreateCustomer_InvalidEmailFormat() {
         logger.info("Testing create customer with invalid email format");
         String name = "test";
@@ -148,7 +148,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Cretae Customer with duplicate mail
-    @Test(groups = { "customer", "edge", "regression" })
+    @Test(groups = { "customer", "regression" })
     public void TC_07_CreateCustomer_DuplicateEmail() {
         logger.info("Testing create customer with duplicate email");
         String name = CustomersHelper.getName();
@@ -197,7 +197,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // create a customer with very large name
-    @Test(groups = { "customer", "negative", "edge", "regression" })
+    @Test(groups = { "customer", "negative", "regression" })
     public void TC_08_CreateCustomer_LongName() {
         logger.info("Testing create customer with very long name");
         String name = "a".repeat(550);
@@ -208,7 +208,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // create a customer name with special characters
-    @Test(groups = { "customer", "negative", "edge", "regression" })
+    @Test(groups = { "customer", "regression" })
     public void TC_09_CreateCustomer_SpecialCharacters() {
         logger.info("Testing create customer with special characters in name");
         String name = "*/*/*/*#$!#!AA!!!";
@@ -229,7 +229,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // create a customer with values set as null
-    @Test(groups = { "customer", "negative", "edge", "regression" })
+    @Test(groups = { "customer", "negative", "regression" })
     public void TC_10_CreateCustomer_EmptyValues() {
         logger.info("Testing create customer with empty values");
         String name = null;
@@ -250,9 +250,11 @@ public class CustomerTests extends BaseClass {
     }
 
     // Update customer with name , email and metadata
-    @Test(groups = { "customer", "positive", "regression" }, dataProvider = "updateDataProvider", dataProviderClass = UpdateCustomerDataProvider.class)
+    @Test(groups = { "customer", "regression",
+            "create_update_search_retrieve_delete" }, dataProvider = "updateDataProvider", dataProviderClass = UpdateCustomerDataProvider.class)
     public void TC_01_UpdateCustomer_Name(String fieldName, String fieldValue, Map<String, String> metadata) {
-        logger.info("Testing update customer name: fieldName={}, fieldValue={}, metadata={}", fieldName, fieldValue, metadata);
+        logger.info("Testing update customer name: fieldName={}, fieldValue={}, metadata={}", fieldName, fieldValue,
+                metadata);
         Response resp = null;
         String customerId = getOrSetupCustomer();
         logger.info("Using Customer ID: {}", customerId);
@@ -329,7 +331,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Update deleted Customer
-    @Test(groups = { "customer", "negative", "edge", "regression" })
+    @Test(groups = { "customer", "negative", "regression" })
     public void TC_05_UpdateCustomer_DeletedCustomer() {
         logger.info("Testing update deleted customer");
         Response resp;
@@ -352,7 +354,7 @@ public class CustomerTests extends BaseClass {
     // ****************RETRIEVE DATA TEST*****************\\
 
     // Get data with valid customer Id
-    @Test(groups = { "customer", "positive", "regression" })
+    @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete" })
     public void TC_01_RetrieveCustomer_ValidId() {
         logger.info("Testing retrieve customer with valid ID");
         String customerId = getOrSetupCustomer();
@@ -385,7 +387,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Get customer with deleted customer's id
-    @Test(groups = { "customer", "negative", "edge", "regression" })
+    @Test(groups = { "customer", "negative", "regression" })
     public void TC_04_RetrieveCustomer_DeletedCustomer() {
         logger.info("Testing retrieve deleted customer");
         String customerId = getOrSetupCustomer();
@@ -399,7 +401,7 @@ public class CustomerTests extends BaseClass {
     // ****************DELETE CUSTOMER TEST*****************\\
 
     // Delete valid customer
-    @Test(groups = { "customer", "positive", "regression" })
+    @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete" })
     public void TC_01_DeleteCustomer_Valid() {
         logger.info("Testing delete valid customer");
         String customerId = getOrSetupCustomer();
@@ -422,7 +424,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Delete already deleted customer
-    @Test(groups = { "customer", "negative", "edge", "regression" })
+    @Test(groups = { "customer", "negative", "regression" })
     public void TC_03_DeleteCustomer_AlreadyDeleted() {
         logger.info("Testing delete already deleted customer");
         String customerId = getOrSetupCustomer();
@@ -451,7 +453,7 @@ public class CustomerTests extends BaseClass {
     // ****************LIST CUSTOMER TEST*****************\\
 
     // default customer list
-    @Test(groups = { "customer", "positive", "regression" })
+    @Test(groups = { "customer", "regression" })
     public void TC_01_ListCustomers_Default() {
         logger.info("Testing list customers default");
         Map<String, Object> queryParams = new HashMap<>();
@@ -463,7 +465,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Get the list of only 2 customer
-    @Test(groups = { "customer", "positive", "regression" })
+    @Test(groups = { "customer", "regression" })
     public void TC_02_ListCustomers_WithFilter() {
         logger.info("Testing list customers with limit filter");
         Map<String, Object> queryParams = new HashMap<>();
@@ -476,7 +478,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Get the result based on pagination
-    @Test(groups = { "customer", "positive", "regression" })
+    @Test(groups = { "customer", "regression" })
     public void TC_03_ListCustomers_WithPagination() {
         logger.info("Testing list customers with pagination starting_after");
         Map<String, Object> queryParams = new HashMap<>();
@@ -503,7 +505,7 @@ public class CustomerTests extends BaseClass {
     // ****************SEARCH CUSTOMER TEST*****************\\
 
     // Search a customer by Email
-    @Test(groups = { "customer", "positive", "regression" })
+    @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete" })
     public void TC_01_SearchCustomer_ByEmail() {
         logger.info("Testing search customer by email");
         Customer.searchCustomer("email:'furever@example.com'")
@@ -544,7 +546,7 @@ public class CustomerTests extends BaseClass {
         logger.info("Successfully verified search customer invalid token rejection");
     }
 
-    @Test(groups = { "customer", "positive", "idempotency", "regression" })
+    @Test(groups = { "customer", "regression" })
     public void TC_11_positive_Idempotent_CreateCustomer() {
         logger.info("Testing idempotent create customer");
         String name = "Idempotent Cust";

@@ -63,7 +63,7 @@ public class WebhookEventTests extends BaseClass {
         return null;
     }
 
-    @Test(groups = { "webhook", "positive", "regression" })
+    @Test(groups = { "webhook", "regression" })
     public void TC_01_Verify_CustomerCreated_Event() {
         logger.info("Testing customer created event verification");
         String name = CustomersHelper.getName();
@@ -93,7 +93,7 @@ public class WebhookEventTests extends BaseClass {
         logger.info("Successfully validated customer.created event details");
     }
 
-    @Test(groups = { "webhook", "positive", "regression" })
+    @Test(groups = { "webhook", "regression" })
     public void TC_02_Verify_RefundCreated_Event() {
         logger.info("Testing refund created event verification");
         // Create fallback PaymentIntent to refund against

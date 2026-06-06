@@ -18,7 +18,7 @@ public class PayoutsTest extends BaseClass {
 
     // ***************CREATE PAYOUT – POSITIVE*******************\\
 
-    @Test(groups = { "payout", "positive", "smoke", "regression" })
+    @Test(groups = { "payout", "regression" })
     public void TC_01_Create_Valid_Payout() {
 
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
@@ -42,7 +42,7 @@ public class PayoutsTest extends BaseClass {
 
     // ***************RETRIEVE PAYOUT – POSITIVE*******************\\
 
-    @Test(groups = { "payout", "positive", "regression" })
+    @Test(groups = { "payout", "regression" })
     public void TC_02_Retrieve_Payout() {
         String payoutId = TestContext.getPayoutId();
         if (payoutId == null) {
@@ -58,7 +58,7 @@ public class PayoutsTest extends BaseClass {
 
     // ***************CANCEL PAYOUT – POSITIVE*******************\\
 
-    @Test(groups = { "payout", "positive", "regression" })
+    @Test(groups = { "payout", "regression" })
     public void TC_03_Cancel_Payout() {
         String payoutId = TestContext.getPayoutId();
         if (payoutId == null) {
@@ -75,7 +75,7 @@ public class PayoutsTest extends BaseClass {
 
     // ***************CREATE PAYOUT – NEGATIVE & EDGE CASES*******************\\
 
-    @Test(groups = { "payout", "negative", "edge", "regression" })
+    @Test(groups = { "payout", "negative", "regression" })
     public void TC_04_CreatePayout_NegativeAmount() {
         logger.info("Testing create payout with negative amount");
         Map<String, Object> body = new HashMap<>();
@@ -89,7 +89,7 @@ public class PayoutsTest extends BaseClass {
         logger.info("Successfully verified negative amount validation");
     }
 
-    @Test(groups = { "payout", "negative", "edge", "regression" })
+    @Test(groups = { "payout", "negative", "regression" })
     public void TC_05_CreatePayout_ZeroAmount() {
         logger.info("Testing create payout with zero amount");
         Map<String, Object> body = new HashMap<>();
@@ -117,8 +117,7 @@ public class PayoutsTest extends BaseClass {
         logger.info("Successfully verified invalid currency validation");
     }
 
-    @Test(groups = { "payout", "negative",
-            "regression" }, dataProvider = "invalidPayoutPayloads", dataProviderClass = PayoutsDataProvider.class)
+    @Test(groups = { "payout", "negative", "regression" }, dataProvider = "invalidPayoutPayloads", dataProviderClass = PayoutsDataProvider.class)
     public void TC_07_CreatePayout_MissingRequiredFields(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid payout payload case: {}", testCaseName);
 
@@ -161,8 +160,7 @@ public class PayoutsTest extends BaseClass {
 
     // ***************RETRIEVE PAYOUT – NEGATIVE*******************\\
 
-    @Test(groups = { "payout", "negative",
-            "regression" }, dataProvider = "invalidPayoutIds", dataProviderClass = PayoutsDataProvider.class)
+    @Test(groups = { "payout", "negative", "regression" }, dataProvider = "invalidPayoutIds", dataProviderClass = PayoutsDataProvider.class)
     public void TC_10_RetrievePayout_InvalidId(String testCaseName, String payoutId, String expectedErrorFragment) {
         logger.info("Running invalid payout ID case: {} for ID: {}", testCaseName, payoutId);
 
@@ -231,7 +229,7 @@ public class PayoutsTest extends BaseClass {
         logger.info("Successfully verified unauthorized response for cancel payout missing auth");
     }
 
-    @Test(groups = { "payout", "positive", "idempotency", "regression" })
+    @Test(groups = { "payout", "regression" })
     public void TC_16_positive_Idempotent_CreatePayout() {
         logger.info("Testing idempotent create payout");
         Map<String, Object> body = new HashMap<>();

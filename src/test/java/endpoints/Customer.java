@@ -194,4 +194,21 @@ public class Customer {
 
     }
 
+    public static Response searchCustomerWithCustomToken(String token, String query) {
+
+        var request = given()
+                .baseUri(p.getProperty("baseURI"))
+                .basePath("/v1/customers/search")
+                .queryParam("query", query);
+        if (token != null) {
+            request.header("Authorization", "Bearer " + token);
+        }
+        return request
+                .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
+                .when()
+                .get();
+
+    }
+
 }
+

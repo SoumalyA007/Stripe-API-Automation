@@ -2,6 +2,7 @@ package tests;
 
 import dataprovider.PaymentMethodsDataProvider;
 import endpoints.paymentMethods;
+import helpers.CustomersHelper;
 import helpers.NegativeTestHelper;
 import helpers.PaymentMethodsHelper;
 import helpers.TestContext;
@@ -38,10 +39,13 @@ public class PaymentMethodTests extends BaseClass {
         method.put("billing_details[name]", name);
 
         logger.info("Creating payment method");
-        paymentMethods.createPaymentMethod(method)
+        String paymentMethodId = paymentMethods.createPaymentMethod(method)
                 .then()
                 .spec(ResponseSpec.OK())
-                .body("type", equalTo(type));
+                .body("type", equalTo(type))
+                .extract()
+                .path("id");
+        TestContext.setPaymentMethodId(paymentMethodId);
         logger.info("Successfully created valid payment method");
     }
 
@@ -65,9 +69,11 @@ public class PaymentMethodTests extends BaseClass {
         String customerId = TestContext.getCustomerId();
         logger.info("Customer ID fetched from context: \t" + customerId);
         if (customerId == null) {
-            helpers.NegativeTestHelper.createCustomerNegativeTestCase();
-            customerId = TestContext.getCustomerId();
-            logger.info("New customerId created --> \t" + customerId);
+            logger.info("No customer in TestContext, creating one dynamically");
+            String createdId = CustomersHelper.createCustomer();
+            TestContext.setCustomerId(createdId);
+            customerId = createdId;
+            logger.info("Created and saved customer to TestContext: {}", customerId);
         }
         Map<String, Object> body = new HashMap<>();
         body.put("customer", customerId);

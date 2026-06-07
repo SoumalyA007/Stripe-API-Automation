@@ -6,6 +6,8 @@ import endpoints.Customer;
 import helpers.CustomersHelper;
 import helpers.TestContext;
 import io.restassured.response.Response;
+
+import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
@@ -39,6 +41,7 @@ public class CustomerTests extends BaseClass {
     // ***************CREATE CUSTOMER*******************\\
 
     // Create a Valid Customer
+    // Set in context
     @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete" })
     public void TC_01_CreateCustomer_ValidData() {
 
@@ -66,6 +69,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Creating a customer with no name
+    // Not set to context
     @Test(groups = { "customer", "regression" })
     public void TC_02_CreateCustomer_OnlyEmail() {
         logger.info("Testing create customer with only email");
@@ -85,6 +89,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Create Customer with MetaaData
+    // Not set to context
     @Test(groups = { "customer", "regression" })
     public void createCustomerUsingMetadata() {
         logger.info("Testing create customer using metadata");
@@ -110,6 +115,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Create Customer with invalid token
+    // Not set to context
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_04_CreateCustomer_InvalidApiKey() {
         logger.info("Testing create customer with invalid API key");
@@ -121,6 +127,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // create customer with invalid email format
+    // Not set to context
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_05_CreateCustomer_InvalidEmailFormat() {
         logger.info("Testing create customer with invalid email format");
@@ -137,6 +144,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Create Customer with no token
+    // Not set to context
     @Test(groups = { "customer", "negative", "auth", "regression" })
     public void TC_06_CreateCustomer_MissingAuth() {
         logger.info("Testing create customer with missing auth");
@@ -147,7 +155,8 @@ public class CustomerTests extends BaseClass {
         logger.info("Successfully verified missing auth rejection");
     }
 
-    // Cretae Customer with duplicate mail
+    // Create Customer with duplicate mail
+    // Not set to context
     @Test(groups = { "customer", "regression" })
     public void TC_07_CreateCustomer_DuplicateEmail() {
         logger.info("Testing create customer with duplicate email");
@@ -197,6 +206,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // create a customer with very large name
+    // Not set to context
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_08_CreateCustomer_LongName() {
         logger.info("Testing create customer with very long name");
@@ -208,6 +218,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // create a customer name with special characters
+    // Not set to context
     @Test(groups = { "customer", "regression" })
     public void TC_09_CreateCustomer_SpecialCharacters() {
         logger.info("Testing create customer with special characters in name");
@@ -229,6 +240,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // create a customer with values set as null
+    // Not set to context
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_10_CreateCustomer_EmptyValues() {
         logger.info("Testing create customer with empty values");
@@ -250,6 +262,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Update customer with name , email and metadata
+    // Set to context
     @Test(groups = { "customer", "regression",
             "create_update_search_retrieve_delete" }, dataProvider = "updateDataProvider", dataProviderClass = UpdateCustomerDataProvider.class)
     public void TC_01_UpdateCustomer_Name(String fieldName, String fieldValue, Map<String, String> metadata) {
@@ -257,6 +270,7 @@ public class CustomerTests extends BaseClass {
                 metadata);
         Response resp = null;
         String customerId = getOrSetupCustomer();
+        TestContext.setCustomerId(customerId);
         logger.info("Using Customer ID: {}", customerId);
         if (metadata != null) {
             resp = Customer.updateCustomer(customerId, fieldName, null, metadata);
@@ -269,6 +283,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Update customer with invalid customer id
+    // Not set to context
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_02_UpdateCustomer_InvalidId() {
         logger.info("Testing update customer with invalid ID");
@@ -289,6 +304,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Update customer with invalid auth
+    // Not set to context
     @Test(groups = { "customer", "negative", "auth", "regression" })
     public void TC_03_UpdateCustomer_InvalidAuth() {
         logger.info("Testing update customer with invalid auth");
@@ -310,6 +326,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Update customer with missing auth
+    // Not set to context
     @Test(groups = { "customer", "negative", "auth", "regression" })
     public void TC_04_UpdateCustomer_MissingAuth() {
         logger.info("Testing update customer with missing auth");
@@ -331,11 +348,12 @@ public class CustomerTests extends BaseClass {
     }
 
     // Update deleted Customer
+    // Not set to context
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_05_UpdateCustomer_DeletedCustomer() {
         logger.info("Testing update deleted customer");
         Response resp;
-        String customerId = getOrSetupCustomer();
+        String customerId = CustomersHelper.createCustomer();
         logger.info("Deleting customer first: {}", customerId);
         CustomersHelper.deleteCustomer(customerId);
         resp = Customer.updateCustomer(customerId, "name", "Invalid Test", null);
@@ -354,10 +372,12 @@ public class CustomerTests extends BaseClass {
     // ****************RETRIEVE DATA TEST*****************\\
 
     // Get data with valid customer Id
+    // Set to context
     @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete" })
     public void TC_01_RetrieveCustomer_ValidId() {
         logger.info("Testing retrieve customer with valid ID");
         String customerId = getOrSetupCustomer();
+        customerIds.add(customerId);
         logger.info("Retrieving Customer ID: {}", customerId);
         Response resp = Customer.getCustomer(customerId);
 
@@ -366,7 +386,8 @@ public class CustomerTests extends BaseClass {
         logger.info("Successfully retrieved customer data");
     }
 
-    // Get customer with valid Id
+    // Get customer with invalid Id
+    // Not set to context
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_02_RetrieveCustomer_InvalidId() {
         logger.info("Testing retrieve customer with invalid ID");
@@ -376,6 +397,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Get Customer data with invalidId
+    // Not set to context
     @Test(groups = { "customer", "negative", "auth", "regression" })
     public void TC_03_RetrieveCustomer_MissingAuth() {
         logger.info("Testing retrieve customer with missing auth");
@@ -387,6 +409,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Get customer with deleted customer's id
+    // Not set to context
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_04_RetrieveCustomer_DeletedCustomer() {
         logger.info("Testing retrieve deleted customer");
@@ -404,7 +427,7 @@ public class CustomerTests extends BaseClass {
     @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete" })
     public void TC_01_DeleteCustomer_Valid() {
         logger.info("Testing delete valid customer");
-        String customerId = getOrSetupCustomer();
+        String customerId = CustomersHelper.createCustomer();
         logger.info("Deleting Customer ID: {}", customerId);
         Customer.deleteCustomer(customerId)
                 .then()
@@ -413,6 +436,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // Delete invalid customer
+    // Not set to context
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_02_DeleteCustomer_InvalidId() {
         logger.info("Testing delete customer with invalid ID");
@@ -424,10 +448,11 @@ public class CustomerTests extends BaseClass {
     }
 
     // Delete already deleted customer
+    // Not set to context
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_03_DeleteCustomer_AlreadyDeleted() {
         logger.info("Testing delete already deleted customer");
-        String customerId = getOrSetupCustomer();
+        String customerId = CustomersHelper.createCustomer();
         logger.info("Deleting Customer ID first: {}", customerId);
         Customer.deleteCustomer(customerId);
         logger.info("Deleting Customer ID second time: {}", customerId);
@@ -438,10 +463,13 @@ public class CustomerTests extends BaseClass {
         logger.info("Successfully verified delete already deleted customer rejection");
     }
 
+    // Delete customer with invalid auth
+    // Not set to context
     @Test(groups = { "customer", "negative", "auth", "regression" })
     public void TC_04_DeleteCustomer_MissingAuth() {
         logger.info("Testing delete customer with missing auth");
-        String customerId = getOrSetupCustomer();
+        String customerId = CustomersHelper.createCustomer();
+        customerIds.add(customerId);
         logger.info("Using Customer ID: {}", customerId);
 
         Customer.deleteCustomerWithCustomAuth(null, customerId)
@@ -453,6 +481,7 @@ public class CustomerTests extends BaseClass {
     // ****************LIST CUSTOMER TEST*****************\\
 
     // default customer list
+    // Not set to context
     @Test(groups = { "customer", "regression" })
     public void TC_01_ListCustomers_Default() {
         logger.info("Testing list customers default");
@@ -465,9 +494,23 @@ public class CustomerTests extends BaseClass {
     }
 
     // Get the list of only 2 customer
+    // Not set to context
     @Test(groups = { "customer", "regression" })
     public void TC_02_ListCustomers_WithFilter() {
         logger.info("Testing list customers with limit filter");
+        // Ensure at least 2 customers exist before testing the limit filter
+        Response listResp = Customer.listCustomers(new HashMap<>());
+        int currentSize = listResp.jsonPath().getList("data").size();
+        if (currentSize < 2) {
+            int toCreate = 2 - currentSize;
+            logger.info("Only {} customer(s) found, creating {} more", currentSize, toCreate);
+            for (int i = 0; i < toCreate; i++) {
+                String name = CustomersHelper.getName();
+                String email = faker.internet().safeEmailAddress();
+                Response resp = Customer.createCustomer(name, email, null);
+                customerIds.add(resp.jsonPath().getString("id"));
+            }
+        }
         Map<String, Object> queryParams = new HashMap<>();
         queryParams.put("limit", 2);
         Customer.listCustomers(queryParams)
@@ -478,19 +521,39 @@ public class CustomerTests extends BaseClass {
     }
 
     // Get the result based on pagination
+    // Not set to context
     @Test(groups = { "customer", "regression" })
     public void TC_03_ListCustomers_WithPagination() {
         logger.info("Testing list customers with pagination starting_after");
+        // Fetch current list; create customers if fewer than 2 exist
+        Response listResp = Customer.listCustomers(new HashMap<>());
+        List<String> ids = listResp.jsonPath().getList("data.id");
+        if (ids == null || ids.size() < 2) {
+            int toCreate = 2 - (ids == null ? 0 : ids.size());
+            logger.info("Only {} customer(s) found, creating {} more", ids == null ? 0 : ids.size(), toCreate);
+            for (int i = 0; i < toCreate; i++) {
+                String name = CustomersHelper.getName();
+                String email = faker.internet().safeEmailAddress();
+                Response resp = Customer.createCustomer(name, email, null);
+                customerIds.add(resp.jsonPath().getString("id"));
+            }
+            listResp = Customer.listCustomers(new HashMap<>());
+            ids = listResp.jsonPath().getList("data.id");
+        }
+        // Use the first customer's ID as the starting_after cursor
+        String cursorId = ids.get(0);
+        logger.info("Using starting_after cursor: {}", cursorId);
         Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("starting_after", "cus_UNt0BtOK1xydSU");
+        queryParams.put("starting_after", cursorId);
         Customer.listCustomers(queryParams)
                 .then()
                 .spec(ResponseSpec.OK())
-                .body("data.id", not(hasItem("cus_UOqwXnBZ7zW9BX")));
+                .body("data.id", not(hasItem(cursorId)));
         logger.info("Successfully verified customer list pagination");
     }
 
     // Get customerlist with invalid token
+    // Not set to context
     @Test(groups = { "customer", "negative", "auth", "regression" })
     public void TC_04_ListCustomers_WithInvalidToken() {
         logger.info("Testing list customers with invalid token");
@@ -505,17 +568,49 @@ public class CustomerTests extends BaseClass {
     // ****************SEARCH CUSTOMER TEST*****************\\
 
     // Search a customer by Email
+    // Not set to context
     @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete" })
     public void TC_01_SearchCustomer_ByEmail() {
         logger.info("Testing search customer by email");
-        Customer.searchCustomer("email:'furever@example.com'")
+        // Prefer the email already stored in TestContext; fall back to listing, then
+        // create
+        String email = TestContext.getBillingEmail();
+        if (email == null || email.trim().isEmpty()) {
+            logger.info("No email in TestContext, checking existing customers via list");
+            Response listResp = Customer.listCustomers(new HashMap<>());
+            List<String> emails = listResp.jsonPath().getList("data.email");
+            if (emails != null) {
+                for (String e : emails) {
+                    if (e != null && !e.trim().isEmpty()) {
+                        email = e;
+                        break;
+                    }
+                }
+            }
+        }
+        if (email == null) {
+            logger.info("No suitable customer found, creating one and saving to TestContext");
+            String name = CustomersHelper.getName();
+            email = faker.internet().safeEmailAddress();
+            Response createResp = Customer.createCustomer(name, email, null);
+            String createdId = createResp.jsonPath().getString("id");
+            // Save to TestContext so subsequent tests can reuse this customer
+            TestContext.setCustomerId(createdId);
+            TestContext.setBillingEmail(email);
+            TestContext.setBillingName(name);
+            customerIds.add(createdId);
+        }
+        logger.info("Searching for customer with email: {}", email);
+        final String searchEmail = email;
+        Customer.searchCustomer("email:'" + searchEmail + "'")
                 .then()
                 .spec(ResponseSpec.OK())
-                .body("data.email", everyItem(equalTo("furever@example.com")));
+                .body("data.email", everyItem(equalTo(searchEmail)));
         logger.info("Successfully verified search customer by email");
     }
 
     // Search a customer by nonexisting email
+
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_02_SearchCustomer_ByInvalidEmail() {
         logger.info("Testing search customer by non-existing email");
@@ -530,7 +625,10 @@ public class CustomerTests extends BaseClass {
     @Test(groups = { "customer", "negative", "regression" })
     public void TC_03_SearchCustomer_ByInvalidQuerySyntax() {
         logger.info("Testing search customer with invalid query syntax");
-        Customer.searchCustomer("email->'furever@example.com'")
+        // Use a dynamically generated email — the query itself is what we're testing to
+        // be malformed
+        String email = faker.internet().safeEmailAddress();
+        Customer.searchCustomer("email->" + "'" + email + "'")
                 .then()
                 .spec(ResponseSpec.bad_request());
         logger.info("Successfully verified invalid query syntax rejection");
@@ -540,7 +638,10 @@ public class CustomerTests extends BaseClass {
     @Test(groups = { "customer", "negative", "auth", "regression" })
     public void TC_04_SearchCustomer_ByInvalidToken() {
         logger.info("Testing search customer with invalid token");
-        Customer.searchCustomer("email:'furever@example.com'")
+        // Use a dynamically generated email — auth failure is the focus, not the email
+        // value
+        String email = faker.internet().safeEmailAddress();
+        Customer.searchCustomerWithCustomToken("invalid_token", "email:'" + email + "'")
                 .then()
                 .spec(ResponseSpec.Unauthorized());
         logger.info("Successfully verified search customer invalid token rejection");
@@ -586,21 +687,7 @@ public class CustomerTests extends BaseClass {
 
     // ****************CLEANUP AFTER TEST*****************\\
     @AfterMethod
-    public void cleanup(org.testng.ITestContext testContext) {
-        logger.info("Running cleanup after test method");
-        boolean isFlow = false;
-        if (testContext.getIncludedGroups() != null) {
-            for (String group : testContext.getIncludedGroups()) {
-                if ("flow".equals(group)) {
-                    isFlow = true;
-                    break;
-                }
-            }
-        }
-        if (isFlow) {
-            logger.info("In flow mode, bypassing method-level cleanup (delegated to suite cleanup)");
-            return; // In flow mode, let @AfterSuite handle deletion
-        }
+    public void cleanup(ITestContext testContext) {
 
         logger.info("Cleaning up {} created customers", customerIds.size());
         for (String id : customerIds) {

@@ -16,7 +16,7 @@ public class PaymentMethodsDataProvider {
                 validCard.put("card[token]", "tok_visa");
 
                 return new Object[][] {
-                                { "Card Payment Method", validCard }
+                                { "card", validCard }
                 };
 
         }

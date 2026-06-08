@@ -13,14 +13,20 @@ import specification.ResponseSpec;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import testbase.BaseClass;
 
 public class PaymentMethodTests extends BaseClass {
 
+    List<String> customerIds = new ArrayList<>();
+    List<String> paymentMethodIds = new ArrayList<>();
+
+    // Creating payment method and setting to context only if already not present
     @Test(groups = { "payment_method", "regression",
             "create_attach_retrieve_detach" }, dataProvider = "createPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_01_Create_Valid_Payment_Method(String type, Map<String, Object> method) {
@@ -45,10 +51,13 @@ public class PaymentMethodTests extends BaseClass {
                 .body("type", equalTo(type))
                 .extract()
                 .path("id");
-        TestContext.setPaymentMethodId(paymentMethodId);
+        if (TestContext.getPaymentMethodId() == null) {
+            TestContext.setPaymentMethodId(paymentMethodId);
+        }
         logger.info("Successfully created valid payment method");
     }
 
+    // Testing negative payment method test cases and not inserting in context
     @Test(groups = { "payment_method", "negative",
             "regression" }, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_02_Negative_PaymentMethod(String type, Map<String, Object> method) {
@@ -60,6 +69,8 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully verified negative create payment method rejection");
     }
 
+    // Attaching payment method to customer and creating and setting in context if
+    // paymentmethod already not present
     @Test(groups = { "payment_method", "regression",
             "create_attach_retrieve_detach" }, dependsOnMethods = "tests.CustomerTests.TC_01_CreateCustomer_ValidData", ignoreMissingDependencies = true)
     public void TC_03_Attach_Payment_Method() {
@@ -89,6 +100,8 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully attached payment method to customer");
     }
 
+    // Attaching invalid payment method to customer and creating and setting in
+    // context if paymentmethod already not present
     @Test(groups = { "payment_method", "negative",
             "regression" }, dataProvider = "attachPaymentMethodNegative", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_04_Attach_Invalid_Payment_Method(String customerId, String paymentMethodId,
@@ -117,13 +130,14 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully verified attach invalid payment method rejection");
     }
 
+    // Retrieving payment method from context and creating one if not present
     @Test(groups = { "payment_method",
             "regression" }, dependsOnMethods = "TC_01_Create_Valid_Payment_Method", ignoreMissingDependencies = true)
     public void TC_05_Retrieve_Payment_Method() {
         logger.info("Testing retrieve valid payment method");
         String paymentMethodId = TestContext.getPaymentMethodId();
         if (paymentMethodId == null) {
-            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(true);
             logger.info("Created fallback payment method ID: {}", paymentMethodId);
         } else {
             logger.info("Using active payment method ID: {}", paymentMethodId);
@@ -137,6 +151,7 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully retrieved payment method");
     }
 
+    // Retrieving invalid payment method
     @Test(groups = { "payment_method", "regression" })
     public void TC_06_Retrieve_Invalid_Payment_Method() {
         logger.info("Testing retrieve invalid payment method");
@@ -150,20 +165,21 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully verified retrieve invalid payment method rejection");
     }
 
+    // Get a method by using customer id and payment method id
     @Test(groups = { "payment_method", "regression",
             "create_attach_retrieve_detach" }, dependsOnMethods = "TC_01_Create_Valid_Payment_Method", ignoreMissingDependencies = true)
     public void TC_07_Retrieve_Valid_Payment_Method_By_Customer() {
         logger.info("Testing retrieve valid payment method by customer");
         String paymentMethodId = TestContext.getPaymentMethodId();
+        if (paymentMethodId == null) {
+            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(true);
+            logger.info("Created fallback payment method ID: {}", paymentMethodId);
+        }
         String customerId = TestContext.getCustomerId();
         if (customerId == null) {
-            helpers.NegativeTestHelper.createCustomerNegativeTestCase();
-            customerId = TestContext.getCustomerId();
+            customerId = CustomersHelper.createCustomer();
+            TestContext.setCustomerId(customerId);
             logger.info("Created fallback customer ID: {}", customerId);
-        }
-        if (paymentMethodId == null) {
-            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
-            logger.info("Created fallback payment method ID: {}", paymentMethodId);
         }
 
         logger.info("Retrieving payment method: {} by customer: {}", paymentMethodId, customerId);
@@ -176,6 +192,7 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully retrieved payment method by customer");
     }
 
+    // Retrieve a method by using invalid customer id and payment method id
     @Test(groups = { "payment_method", "negative",
             "regression" }, dataProvider = "retrieveInvalidPaymentMethodByCustomer", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_08_Retrieve_InValid_Payment_Method_By_Customer(String customerId, String paymentMethodId,
@@ -184,13 +201,14 @@ public class PaymentMethodTests extends BaseClass {
                 customerId, paymentMethodId);
 
         if (customerId == null) {
-            NegativeTestHelper.createCustomerNegativeTestCase();
-            customerId = TestContext.getCustomerId();
+            customerId = CustomersHelper.createCustomer();
+            customerIds.add(customerId);
             logger.info("Created fallback customer ID: {}", customerId);
         }
 
         if (paymentMethodId == null) {
-            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod();
+            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+            paymentMethodIds.add(paymentMethodId);
             logger.info("Created fallback payment method ID: {}", paymentMethodId);
         }
 
@@ -200,33 +218,37 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Successfully verified retrieve invalid payment method by customer rejection");
     }
 
+    // detach the payment method by using payment method id and customer id
     @Test(groups = { "payment_method", "regression",
             "create_attach_retrieve_detach" }, dependsOnMethods = "TC_03_Attach_Payment_Method", ignoreMissingDependencies = true)
     public void TC_09_Detach_Payment_Method() {
         logger.info("Testing detach payment method");
         String customerId = TestContext.getCustomerId();
         if (customerId == null) {
-            helpers.NegativeTestHelper.createCustomerNegativeTestCase();
-            customerId = TestContext.getCustomerId();
+            customerId = CustomersHelper.createCustomer();
+            TestContext.setCustomerId(customerId);
             logger.info("Created fallback customer ID: {}", customerId);
         }
 
-        // Create a temporary payment method to detach so that the primary one remains
+        // Create a payment method to detach
         // usable for full flow
-        String tempPaymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
-        logger.info("Created temporary payment method ID: {}", tempPaymentMethodId);
+        String paymentMethodId = TestContext.getPaymentMethodId();
+        if (paymentMethodId == null) {
+            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+            logger.info("Created temporary payment method ID: {}", paymentMethodId);
+        }
 
         Map<String, Object> attachBody = new HashMap<>();
         attachBody.put("customer", customerId);
-        logger.info("Attaching temporary payment method to customer");
-        paymentMethods.attachPaymentMethod(tempPaymentMethodId, attachBody);
+        logger.info("Attaching payment method to customer");
+        paymentMethods.attachPaymentMethod(paymentMethodId, attachBody);
 
         // Detach the newly created payment method
-        logger.info("Detaching temporary payment method ID: {}", tempPaymentMethodId);
-        paymentMethods.detachPaymentMethod(tempPaymentMethodId)
+        logger.info("Detaching payment method ID: {}", paymentMethodId);
+        paymentMethods.detachPaymentMethod(paymentMethodId)
                 .then()
                 .spec(ResponseSpec.OK())
-                .body("id", equalTo(tempPaymentMethodId))
+                .body("id", equalTo(paymentMethodId))
                 .body("customer", nullValue());
         logger.info("Successfully detached payment method");
     }
@@ -238,8 +260,8 @@ public class PaymentMethodTests extends BaseClass {
         logger.info("Testing negative detach payment method: {}", paymentMethodId);
         String customerId = TestContext.getCustomerId();
         if (customerId == null) {
-            helpers.NegativeTestHelper.createCustomerNegativeTestCase();
-            customerId = TestContext.getCustomerId();
+            customerId = CustomersHelper.createCustomer();
+            customerIds.add(customerId);
             logger.info("Created fallback customer ID: {}", customerId);
         }
 

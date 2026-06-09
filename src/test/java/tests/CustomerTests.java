@@ -8,6 +8,7 @@ import helpers.TestContext;
 import io.restassured.response.Response;
 
 import org.testng.ITestContext;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
@@ -686,7 +687,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // ****************CLEANUP AFTER TEST*****************\\
-    @AfterMethod
+    @AfterClass
     public void cleanup(ITestContext testContext) {
 
         logger.info("Cleaning up {} created customers", customerIds.size());

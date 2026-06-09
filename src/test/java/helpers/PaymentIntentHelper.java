@@ -20,7 +20,7 @@ public class PaymentIntentHelper {
     public static String createFallbackPaymentIntent(boolean confirm) {
         String paymentMethodId = TestContext.getPaymentMethodId();
         if (paymentMethodId == null) {
-            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(true);
         }
 
         Map<String, Object> body = new HashMap<>();

@@ -145,6 +145,22 @@ public class TestContext {
         return earlyFraudWarningId.get();
     }
 
+    public static String getConfirmPaymentIntent() {
+        return confirmPaymentIntent.get();
+    }
+
+    public static void setConfirmPaymentIntent(String confirmPaymentIntentId) {
+        TestContext.confirmPaymentIntent.set(confirmPaymentIntentId);
+    }
+
+    public static String getCanceledPaymentIntent() {
+        return canceledPaymentIntent.get();
+    }
+
+    public static void setCanceledPaymentIntent(String canceledPaymentIntentId) {
+        TestContext.canceledPaymentIntent.set(canceledPaymentIntentId);
+    }
+
     public static void clear() {
         customerId.remove();
         paymentMethodId.remove();
@@ -182,5 +198,7 @@ public class TestContext {
     private static final ThreadLocal<String> payoutId = new ThreadLocal<>();
     private static final ThreadLocal<String> disputeId = new ThreadLocal<>();
     private static final ThreadLocal<String> earlyFraudWarningId = new ThreadLocal<>();
+    private static final ThreadLocal<String> confirmPaymentIntent = new ThreadLocal<>();
+    private static final ThreadLocal<String> canceledPaymentIntent = new ThreadLocal<>();
 
 }

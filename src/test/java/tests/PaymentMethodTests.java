@@ -1,12 +1,16 @@
 package tests;
 
 import dataprovider.PaymentMethodsDataProvider;
+import endpoints.Customer;
 import endpoints.paymentMethods;
 import helpers.CustomersHelper;
 import helpers.NegativeTestHelper;
 import helpers.PaymentMethodsHelper;
 import helpers.TestContext;
 import io.restassured.specification.ResponseSpecification;
+
+import org.testng.ITestContext;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 
@@ -286,4 +290,33 @@ public class PaymentMethodTests extends BaseClass {
                 .body("error.message", containsString(errorMessage));
         logger.info("Successfully verified negative detach rejection: {}", errorMessage);
     }
+
+    @AfterClass
+    public void cleanup() {
+
+        logger.info("Cleaning up {} created customers", customerIds.size());
+        for (String id : customerIds) {
+            try {
+                logger.info("Deleting customer ID: {}", id);
+                Customer.deleteCustomer(id);
+            } catch (Exception e) {
+                logger.error("Cleanup failed for customer: {}", id, e);
+            }
+        }
+
+        logger.info("Cleaning up {} created payment Methods", paymentMethodIds.size());
+        for (String id : paymentMethodIds) {
+            try {
+                logger.info("Deleting payment method ID: {}", id);
+                paymentMethods.detachPaymentMethod(id);
+            } catch (Exception e) {
+                logger.error("Cleanup failed for paymentId: {}", id, e);
+            }
+        }
+
+        // 🔥 Important: clear list after cleanup
+        customerIds.clear();
+        paymentMethodIds.clear();
+    }
+
 }

@@ -30,4 +30,19 @@ public class RefundHelper {
                 .getString("id");
     }
 
+    /**
+     * Creates a fresh refund and immediately cancels it.
+     * Use this as a prerequisite for negative cancel tests that need
+     * an already-cancelled refund (mirrors createCancelledPaymentIntent()).
+     *
+     * @return the cancelled refund ID
+     */
+    public static String createCancelledRefund() {
+        String refundId = createFallbackRefund();
+        Refunds.cancelRefund(refundId)
+                .then()
+                .spec(ResponseSpec.OK());
+        return refundId;
+    }
+
 }

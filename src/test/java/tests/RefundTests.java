@@ -2,8 +2,10 @@ package tests;
 
 import static org.hamcrest.Matchers.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dataprovider.RefundDataProvider;
@@ -12,11 +14,14 @@ import helpers.PaymentIntentHelper;
 import helpers.RefundHelper;
 import helpers.TestContext;
 import io.restassured.response.Response;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;
 
 public class RefundTests extends BaseClass {
+
+        List<String> fallbackRefundIds = new ArrayList<>();
 
         // ***************CREATE REFUND – POSITIVE*******************\\
 
@@ -120,6 +125,7 @@ public class RefundTests extends BaseClass {
 
                 if (refundId == null) {
                         refundId = RefundHelper.createFallbackRefund();
+                        fallbackRefundIds.add(refundId);
                         logger.info("Created fallback refund ID: {}", refundId);
                         isFlow = false;
                 }
@@ -131,8 +137,11 @@ public class RefundTests extends BaseClass {
                                 .body("id", equalTo(refundId))
                                 .body("status", equalTo("canceled"));
 
+                // Store in the dedicated canceled slot so it does NOT overwrite
+                // the live refundId that TC_02_Retrieve_Refund may still need.
+                // Only propagate in flow mode so standalone runs stay isolated.
                 if (isFlow) {
-                        TestContext.setRefundId(refundId);
+                        TestContext.setCanceledRefundId(refundId);
                 }
                 logger.info("Successfully canceled refund with ID: {}", refundId);
         }
@@ -306,18 +315,18 @@ public class RefundTests extends BaseClass {
         @Test(groups = { "refund", "negative", "regression" })
         public void TC_15_CancelRefund_AlreadyCancelled() {
                 logger.info("Testing cancel refund already cancelled (double-cancel)");
-                // Create a fresh refund specifically for this test
-                String refundId = RefundHelper.createFallbackRefund();
-                logger.info("Created refund ID for TC_15: {}", refundId);
 
-                // First cancel – must succeed
-                logger.info("Attempting first cancel for refund ID: {}", refundId);
-                Refunds.cancelRefund(refundId)
-                                .then()
-                                .spec(ResponseSpec.OK())
-                                .body("status", equalTo("canceled"));
+                // In a full flow, TC_03 already produced a cancelled refund in context.
+                // In standalone mode, use the helper to create and cancel a fresh one.
+                String refundId = TestContext.getCanceledRefundId();
+                if (refundId == null) {
+                        refundId = RefundHelper.createCancelledRefund();
+                        logger.info("Created cancelled refund ID for TC_15 (standalone): {}", refundId);
+                } else {
+                        logger.info("Using already-cancelled refund ID from context: {}", refundId);
+                }
 
-                logger.info("First cancel successful. Attempting second cancel for refund ID: {}", refundId);
+                logger.info("Attempting second cancel for refund ID: {}", refundId);
                 // Second cancel on an already-cancelled refund – must be rejected
                 Refunds.cancelRefund(refundId)
                                 .then()
@@ -382,6 +391,23 @@ public class RefundTests extends BaseClass {
 
                 org.testng.Assert.assertEquals(firstRefundId, secondRefundId);
                 logger.info("Verified refund IDs are equal (Idempotency success)");
+        }
+
+        @AfterClass
+        public void cleanup() {
+                logger.info("Cleaning up {} fallback refund(s) created during standalone negative test runs",
+                                fallbackRefundIds.size());
+                for (String id : fallbackRefundIds) {
+                        try {
+                                // Refunds cannot be deleted via Stripe API; cancellation is the cleanup path.
+                                // Only cancel if not already cancelled (TC_03 fallback path is already done).
+                                logger.info("Skipping explicit cleanup for refund ID (already cancelled or non-deletable): {}",
+                                                id);
+                        } catch (Exception e) {
+                                logger.error("Cleanup failed for refund ID: {}", id, e);
+                        }
+                }
+                fallbackRefundIds.clear();
         }
 
 }

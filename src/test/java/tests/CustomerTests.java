@@ -688,7 +688,7 @@ public class CustomerTests extends BaseClass {
 
     // ****************CLEANUP AFTER TEST*****************\\
     @AfterClass
-    public void cleanup(ITestContext testContext) {
+    public void cleanup() {
 
         logger.info("Cleaning up {} created customers", customerIds.size());
         for (String id : customerIds) {

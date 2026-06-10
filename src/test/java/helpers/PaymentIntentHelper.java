@@ -47,4 +47,13 @@ public class PaymentIntentHelper {
                 .jsonPath()
                 .getString("id");
     }
+
+    public static String createCancelledPaymentIntent() {
+        String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(false);
+
+        Map<String, Object> cancelBody = new HashMap<>();
+        cancelBody.put("cancellation_reason", "abandoned");
+        PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody);
+        return paymentIntentId;
+    }
 }

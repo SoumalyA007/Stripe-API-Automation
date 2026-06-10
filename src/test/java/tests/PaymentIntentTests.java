@@ -221,6 +221,7 @@ public class PaymentIntentTests extends BaseClass {
                 logger.info("Successfully confirmed payment intent");
         }
 
+        // Testing idempotent behaviour
         @Test(groups = { "payment_intent", "regression" })
         public void TC_07_positive_Idempotent_Confirm_Payment_Intent() {
                 logger.info("Testing idempotent confirmation of payment intent");
@@ -267,20 +268,17 @@ public class PaymentIntentTests extends BaseClass {
                 logger.info("Successfully verified idempotent confirmation returns matching response");
         }
 
+        // confirming cancelled paymentIntentId
         @Test(groups = { "payment_intent", "negative", "regression" })
         public void TC_08_negative_Confirm_Canceled_Payment_Intent() {
                 logger.info("Testing confirmation of canceled payment intent");
                 // Create a canceled intent
-                String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(false);
-                logger.info("Created fallback payment intent: {}", paymentIntentId);
 
-                Map<String, Object> cancelBody = new HashMap<>();
-                cancelBody.put("cancellation_reason", "abandoned");
-                logger.info("Canceling payment intent: {}", paymentIntentId);
-                PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
-                                .then()
-                                .spec(ResponseSpec.OK());
-                logger.info("Payment intent canceled");
+                String paymentIntentId = TestContext.getCanceledPaymentIntent();
+                if (paymentIntentId == null) {
+                        paymentIntentId = PaymentIntentHelper.createCancelledPaymentIntent();
+                        logger.info("Canceling payment intent: {}", paymentIntentId);
+                }
 
                 Map<String, Object> confirmBody = new HashMap<>();
                 confirmBody.put("return_url", "https://example.com/return");
@@ -294,6 +292,7 @@ public class PaymentIntentTests extends BaseClass {
                 logger.info("Successfully verified confirmation of canceled payment intent is rejected");
         }
 
+        // confirming payment intent with invalid cards
         @Test(groups = { "payment_intent", "negative",
                         "regression" }, dataProvider = "createInvalidPaymentMethod", dataProviderClass = PaymentIntentDataProvider.class)
         public void TC_09_negative_Confirm_Invalid_Payment_Method(String testCaseName, Map<String, Object> body,
@@ -329,12 +328,16 @@ public class PaymentIntentTests extends BaseClass {
                                 expectedErrorCode);
         }
 
+        // trying to confirm already confirmed payment
         @Test(groups = { "payment_intent", "negative", "regression" })
         public void TC_10_negative_Confirm_Succeeded_Payment_Intent() {
                 logger.info("Testing confirmation of already succeeded payment intent");
                 // Create an already succeeded intent
-                String paymentIntentId = helpers.PaymentIntentHelper.createFallbackPaymentIntent(true);
-                logger.info("Created fallback succeeded payment intent: {}", paymentIntentId);
+                String paymentIntentId = TestContext.getConfirmPaymentIntent();
+                if (paymentIntentId == null) {
+                        paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                        logger.info("Created fallback succeeded payment intent: {}", paymentIntentId);
+                }
 
                 Map<String, Object> confirmBody = new HashMap<>();
                 confirmBody.put("return_url", "https://example.com/return");
@@ -349,6 +352,7 @@ public class PaymentIntentTests extends BaseClass {
                 logger.info("Successfully verified confirmation of succeeded payment intent is rejected");
         }
 
+        // confirms payment intent without payment method
         @Test(groups = { "payment_intent", "negative", "regression" })
         public void TC_11_negative_Confirm_Without_Payment_Method() {
                 logger.info("Testing confirmation of payment intent without payment method");

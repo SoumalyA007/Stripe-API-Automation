@@ -73,6 +73,14 @@ public class TestContext {
         return refundId.get();
     }
 
+    public static void setCanceledRefundId(String canceledRefundId) {
+        TestContext.canceledRefundId.set(canceledRefundId);
+    }
+
+    public static String getCanceledRefundId() {
+        return canceledRefundId.get();
+    }
+
     public static void setSetupIntentId(String setupIntentId) {
         TestContext.setupIntentId.set(setupIntentId);
     }
@@ -170,6 +178,7 @@ public class TestContext {
         customerIdList.get().clear();
         chargeId.remove();
         refundId.remove();
+        canceledRefundId.remove();
         setupIntentId.remove();
         subscriptionId.remove();
         productId.remove();
@@ -179,6 +188,8 @@ public class TestContext {
         payoutId.remove();
         disputeId.remove();
         earlyFraudWarningId.remove();
+        confirmPaymentIntent.remove();
+        canceledPaymentIntent.remove();
     }
 
     private static final ThreadLocal<String> customerId = new ThreadLocal<>();
@@ -189,6 +200,7 @@ public class TestContext {
     private static final ThreadLocal<List<String>> customerIdList = ThreadLocal.withInitial(ArrayList::new);
     private static final ThreadLocal<String> chargeId = new ThreadLocal<>();
     private static final ThreadLocal<String> refundId = new ThreadLocal<>();
+    private static final ThreadLocal<String> canceledRefundId = new ThreadLocal<>();
     private static final ThreadLocal<String> setupIntentId = new ThreadLocal<>();
     private static final ThreadLocal<String> subscriptionId = new ThreadLocal<>();
     private static final ThreadLocal<String> productId = new ThreadLocal<>();

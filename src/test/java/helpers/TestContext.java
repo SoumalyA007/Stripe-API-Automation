@@ -169,6 +169,38 @@ public class TestContext {
         TestContext.canceledPaymentIntent.set(canceledPaymentIntentId);
     }
 
+    public static String getConfirmedSetupIntentId() {
+        return confirmedSetupIntentId.get();
+    }
+
+    public static void setConfirmedSetupIntentId(String confirmedSetupIntentId) {
+        TestContext.confirmedSetupIntentId.set(confirmedSetupIntentId);
+    }
+
+    public static String getSubscriptionCustomerId() {
+        return subscriptionCustomerId.get();
+    }
+
+    public static void setSubscriptionCustomerId(String subscriptionCustomerId) {
+        TestContext.subscriptionCustomerId.set(subscriptionCustomerId);
+    }
+
+    public static String getSubscriptionPaymentMethodId() {
+        return subscriptionPaymentMethodId.get();
+    }
+
+    public static void setSubscriptionPaymentMethodId(String subscriptionPaymentMethodId) {
+        TestContext.subscriptionPaymentMethodId.set(subscriptionPaymentMethodId);
+    }
+
+    public static String getCancelledSubscriptionId() {
+        return cancelledSubscriptionId.get();
+    }
+
+    public static void setCancelledSubscriptionId(String cancelledSubscriptionId) {
+        TestContext.cancelledSubscriptionId.set(cancelledSubscriptionId);
+    }
+
     public static void clear() {
         customerId.remove();
         paymentMethodId.remove();
@@ -190,6 +222,10 @@ public class TestContext {
         earlyFraudWarningId.remove();
         confirmPaymentIntent.remove();
         canceledPaymentIntent.remove();
+        confirmedSetupIntentId.remove();
+        subscriptionCustomerId.remove();
+        subscriptionPaymentMethodId.remove();
+        cancelledSubscriptionId.remove();
     }
 
     private static final ThreadLocal<String> customerId = new ThreadLocal<>();
@@ -212,5 +248,9 @@ public class TestContext {
     private static final ThreadLocal<String> earlyFraudWarningId = new ThreadLocal<>();
     private static final ThreadLocal<String> confirmPaymentIntent = new ThreadLocal<>();
     private static final ThreadLocal<String> canceledPaymentIntent = new ThreadLocal<>();
+    private static final ThreadLocal<String> confirmedSetupIntentId = new ThreadLocal<>();
+    private static final ThreadLocal<String> subscriptionCustomerId = new ThreadLocal<>();
+    private static final ThreadLocal<String> subscriptionPaymentMethodId = new ThreadLocal<>();
+    private static final ThreadLocal<String> cancelledSubscriptionId = new ThreadLocal<>();
 
 }

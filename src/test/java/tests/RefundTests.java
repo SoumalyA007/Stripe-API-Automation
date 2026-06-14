@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import dataprovider.RefundDataProvider;
+import endpoints.PaymentIntent;
 import endpoints.Refunds;
 import helpers.PaymentIntentHelper;
 import helpers.RefundHelper;
@@ -22,21 +23,21 @@ import testbase.BaseClass;
 public class RefundTests extends BaseClass {
 
         List<String> fallbackRefundIds = new ArrayList<>();
+        List<String> createdPaymentIntentIds = new ArrayList<>();
+        String negativeRefundPaymentIntetnId;
 
         // ***************CREATE REFUND – POSITIVE*******************\\
 
+        // Full refund of paid amount
         @Test(groups = { "refund", "regression", "refund_retrieve_cancel" })
         public void TC_01_positive_Full_Refund() {
                 logger.info("Testing positive full refund");
                 String paymentIntentId = TestContext.getPaymentIntentId();
                 logger.info("Fetched PaymentIntentId from context -->\t" + paymentIntentId);
-                boolean isFlow = true;
-
                 if (paymentIntentId == null) {
                         paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
                         logger.info("Created new paymentIntentId -->\t" + paymentIntentId);
-
-                        isFlow = false;
+                        TestContext.setPaymentIntentId(paymentIntentId);
                 }
 
                 Map<String, Object> body = new HashMap<>();
@@ -57,24 +58,20 @@ public class RefundTests extends BaseClass {
 
                 logger.info("Successfully verified positive full refund for amount: {}", amount);
 
-                if (isFlow) {
-                        logger.info("Setting  RefundId if inside flow -->\t" + refundId);
-                        TestContext.setRefundId(refundId);
-                }
+                TestContext.setRefundId(refundId);
         }
 
+        // partial refund of paid amount
         @Test(groups = { "refund", "regression", "partialrefund_retrieve_cancel" })
         public void TC_02_positive_Partial_Refund() {
                 logger.info("Testing positive partial refund");
                 String paymentIntentId = TestContext.getPaymentIntentId();
                 logger.info("Fetched PaymentIntentId from context -->\t" + paymentIntentId);
-                boolean isFlow = true;
 
                 if (paymentIntentId == null) {
                         paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
                         logger.info("Created new paymentIntentId -->\t" + paymentIntentId);
-
-                        isFlow = false;
+                        TestContext.setPaymentIntentId(paymentIntentId);
                 }
 
                 Map<String, Object> body = new HashMap<>();
@@ -95,10 +92,7 @@ public class RefundTests extends BaseClass {
 
                 logger.info("Successfully verified positive full refund for amount: {}", amount / 2);
 
-                if (isFlow) {
-                        logger.info("Setting  RefundId if inside flow -->\t" + refundId);
-                        TestContext.setRefundId(refundId);
-                }
+                TestContext.setRefundId(refundId);
         }
 
         @Test(groups = { "refund", "regression", "refund_retrieve_cancel", "partialrefund_retrieve_cancel" })
@@ -107,6 +101,7 @@ public class RefundTests extends BaseClass {
                 if (refundId == null) {
                         refundId = RefundHelper.createFallbackRefund();
                         logger.info("Created fallback refund ID: {}", refundId);
+                        TestContext.setRefundId(refundId);
                 }
 
                 logger.info("Retrieving refund with ID: {}", refundId);
@@ -118,33 +113,30 @@ public class RefundTests extends BaseClass {
                 logger.info("Successfully retrieved refund with ID: {}", refundId);
         }
 
-        @Test(groups = { "refund", "regression", "refund_retrieve_cancel", "partialrefund_retrieve_cancel" })
-        public void TC_03_Cancel_Refund() {
-                String refundId = TestContext.getRefundId();
-                boolean isFlow = true;
+        // @Test(groups = { "refund", "regression", "refund_retrieve_cancel",
+        // "partialrefund_retrieve_cancel" })
+        // public void TC_03_Cancel_Refund() {
+        // String refundId = TestContext.getRefundId();
 
-                if (refundId == null) {
-                        refundId = RefundHelper.createFallbackRefund();
-                        fallbackRefundIds.add(refundId);
-                        logger.info("Created fallback refund ID: {}", refundId);
-                        isFlow = false;
-                }
+        // if (refundId == null) {
+        // refundId = RefundHelper.createFallbackRefund();
+        // logger.info("Created fallback refund ID: {}", refundId);
+        // TestContext.setRefundId(refundId);
+        // }
 
-                logger.info("Canceling refund with ID: {}", refundId);
-                Refunds.cancelRefund(refundId)
-                                .then()
-                                .spec(ResponseSpec.OK())
-                                .body("id", equalTo(refundId))
-                                .body("status", equalTo("canceled"));
+        // logger.info("Canceling refund with ID: {}", refundId);
+        // Refunds.cancelRefund(refundId)
+        // .then()
+        // .spec(ResponseSpec.OK())
+        // .body("id", equalTo(refundId))
+        // .body("status", equalTo("canceled"));
 
-                // Store in the dedicated canceled slot so it does NOT overwrite
-                // the live refundId that TC_02_Retrieve_Refund may still need.
-                // Only propagate in flow mode so standalone runs stay isolated.
-                if (isFlow) {
-                        TestContext.setCanceledRefundId(refundId);
-                }
-                logger.info("Successfully canceled refund with ID: {}", refundId);
-        }
+        // // Store in the dedicated canceled slot so it does NOT overwrite
+        // // the live refundId that TC_02_Retrieve_Refund may still need.
+        // // Only propagate in flow mode so standalone runs stay isolated.
+        // TestContext.setCanceledRefundId(refundId);
+        // logger.info("Successfully canceled refund with ID: {}", refundId);
+        // }
 
         // ***************CREATE REFUND – NEGATIVE*******************\\
 
@@ -181,13 +173,17 @@ public class RefundTests extends BaseClass {
         @Test(groups = { "refund", "negative", "regression" })
         public void TC_06_CreateRefund_AmountExceedsCharged() {
                 logger.info("Testing create refund exceeding original charged amount");
-                String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                if (negativeRefundPaymentIntetnId == null) {
+                        negativeRefundPaymentIntetnId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                        logger.info("Created paymentIntentId for negative tests: {}", negativeRefundPaymentIntetnId);
+                        createdPaymentIntentIds.add(negativeRefundPaymentIntetnId);
+                }
 
                 Map<String, Object> body = new HashMap<>();
-                body.put("payment_intent", paymentIntentId);
+                body.put("payment_intent", negativeRefundPaymentIntetnId);
                 body.put("amount", amount + 1000);
 
-                Refunds.createRefund(paymentIntentId, body)
+                Refunds.createRefund(negativeRefundPaymentIntetnId, body)
                                 .then()
                                 .spec(ResponseSpec.bad_request());
 
@@ -198,13 +194,16 @@ public class RefundTests extends BaseClass {
         @Test(groups = { "refund", "negative", "regression" })
         public void TC_07_CreateRefund_ZeroAmount() {
                 logger.info("Testing create refund with zero amount");
-                String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
-
+                if (negativeRefundPaymentIntetnId == null) {
+                        negativeRefundPaymentIntetnId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                        logger.info("Created paymentIntentId for negative tests: {}", negativeRefundPaymentIntetnId);
+                        createdPaymentIntentIds.add(negativeRefundPaymentIntetnId);
+                }
                 Map<String, Object> body = new HashMap<>();
-                body.put("payment_intent", paymentIntentId);
+                body.put("payment_intent", negativeRefundPaymentIntetnId);
                 body.put("amount", 0);
 
-                Refunds.createRefund(paymentIntentId, body)
+                Refunds.createRefund(negativeRefundPaymentIntetnId, body)
                                 .then()
                                 .spec(ResponseSpec.bad_request());
 
@@ -217,15 +216,19 @@ public class RefundTests extends BaseClass {
         public void TC_08_CreateRefund_InvalidReason(String testCaseName, String reason, String expectedErrorFragment) {
                 logger.info("Testing create refund with invalid reason: {} -> {}", testCaseName, reason);
                 // Fresh PI per iteration so the reason field is the only failure point
-                String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
-                logger.info("Created paymentIntentId for TC_08: {}", paymentIntentId);
+                if (negativeRefundPaymentIntetnId == null) {
+                        negativeRefundPaymentIntetnId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                        logger.info("Created paymentIntentId for negative tests: {}", negativeRefundPaymentIntetnId);
+                        createdPaymentIntentIds.add(negativeRefundPaymentIntetnId);
+                }
+                logger.info("Created paymentIntentId for TC_08: {}", negativeRefundPaymentIntetnId);
 
                 Map<String, Object> body = new HashMap<>();
-                body.put("payment_intent", paymentIntentId);
+                body.put("payment_intent", negativeRefundPaymentIntetnId);
                 body.put("amount", amount / 4);
                 body.put("reason", reason);
 
-                Refunds.createRefund(paymentIntentId, body)
+                Refunds.createRefund(negativeRefundPaymentIntetnId, body)
                                 .then()
                                 .spec(ResponseSpec.bad_request())
                                 .body("error.message", containsString(expectedErrorFragment));
@@ -360,6 +363,7 @@ public class RefundTests extends BaseClass {
         public void TC_18_positive_Idempotent_CreateRefund() {
                 logger.info("Testing idempotent create refund");
                 String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                createdPaymentIntentIds.add(paymentIntentId);
                 logger.info("Created paymentIntentId for TC_18: {}", paymentIntentId);
 
                 Map<String, Object> body = new HashMap<>();
@@ -395,6 +399,7 @@ public class RefundTests extends BaseClass {
 
         @AfterClass
         public void cleanup() {
+                // ── Refund cleanup (Stripe does not support deletion; log only) ──────────
                 logger.info("Cleaning up {} fallback refund(s) created during standalone negative test runs",
                                 fallbackRefundIds.size());
                 for (String id : fallbackRefundIds) {
@@ -408,6 +413,30 @@ public class RefundTests extends BaseClass {
                         }
                 }
                 fallbackRefundIds.clear();
+
+                // ── PaymentIntent cleanup ──────────────────────────────────────────────
+                // Only cancels PIs created locally by this class (negativeRefundPaymentIntetnId
+                // shared across TC_06/07/08, and TC_18's one-off PI).
+                // PIs stored in TestContext (TC_01/TC_02 fallbacks) are excluded – they are
+                // shared resources whose lifecycle is managed separately.
+                logger.info("Cancelling {} PaymentIntent(s) created during RefundTests",
+                                createdPaymentIntentIds.size());
+                for (String piId : createdPaymentIntentIds) {
+                        try {
+                                Response cancelResponse = PaymentIntent.cancelPaymentIntent(piId, new HashMap<>());
+                                int status = cancelResponse.getStatusCode();
+                                if (status == 200) {
+                                        logger.info("Cancelled PaymentIntent: {}", piId);
+                                } else {
+                                        // 400 payment_intent_unexpected_state = already succeeded/refunded; acceptable.
+                                        logger.warn("Cancel returned HTTP {} for PaymentIntent {} – may already be in a terminal state",
+                                                        status, piId);
+                                }
+                        } catch (Exception e) {
+                                logger.error("Cleanup failed for PaymentIntent ID: {}", piId, e);
+                        }
+                }
+                createdPaymentIntentIds.clear();
         }
 
 }

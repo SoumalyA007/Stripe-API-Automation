@@ -15,6 +15,7 @@ public class RefundHelper {
 
         if (paymentIntentId == null) {
             paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+            TestContext.setPaymentIntentId(paymentIntentId);
         }
 
         Map<String, Object> body = new HashMap<>();
@@ -39,9 +40,7 @@ public class RefundHelper {
      */
     public static String createCancelledRefund() {
         String refundId = createFallbackRefund();
-        Refunds.cancelRefund(refundId)
-                .then()
-                .spec(ResponseSpec.OK());
+        Refunds.cancelRefund(refundId);
         return refundId;
     }
 

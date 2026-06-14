@@ -106,7 +106,7 @@ public class SubscriptionHelper {
         Customer.updateCustomer(customerId,
                 "invoice_settings[default_payment_method]", paymentMethodId, metadata);
 
-        TestContext.setPaymentMethodId(paymentMethodId);
+        TestContext.setSubscriptionPaymentMethodId(paymentMethodId);
         return customerId;
     }
 

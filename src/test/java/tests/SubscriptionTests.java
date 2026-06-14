@@ -1,6 +1,5 @@
 package tests;
 
-import com.github.javafaker.Faker;
 import dataprovider.SubscriptionDataProvider;
 import endpoints.Customer;
 import endpoints.Product;
@@ -24,7 +23,6 @@ import static org.hamcrest.Matchers.*;
 
 public class SubscriptionTests extends BaseClass {
 
-    private static final Faker faker = new Faker();
     private List<String> productIdsToCleanup = new ArrayList<>();
     private List<String> customerIdsToCleanup = new ArrayList<>();
     private List<String> subscriptionIdsToCleanup = new ArrayList<>();
@@ -58,7 +56,8 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Product created successfully: {}", productId);
     }
 
-    @Test(groups = { "subscription", "regression" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true)
+    @Test(groups = { "subscription",
+            "regression" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true)
     public void TC_02_positive_Retrieve_Product() {
         logger.info("Testing retrieve product");
         String productId = TestContext.getProductId();
@@ -81,7 +80,12 @@ public class SubscriptionTests extends BaseClass {
     @Test(groups = { "subscription", "regression" })
     public void TC_03_positive_Delete_Product() {
         logger.info("Testing delete product");
-        String productId = SubscriptionHelper.createProduct(false);
+        String productId = TestContext.getProductId();
+        if (productId == null) {
+            productId = SubscriptionHelper.createProduct(true);
+            productIdsToCleanup.add(productId);
+            logger.info("Created fallback product ID: {}", productId);
+        }
         logger.info("Created product ID for deletion: {}", productId);
 
         logger.info("Deleting product ID: {}", productId);
@@ -92,9 +96,11 @@ public class SubscriptionTests extends BaseClass {
                 .body("deleted", equalTo(true));
 
         logger.info("✅ Product deleted successfully: {}", productId);
+        TestContext.setProductId(null);
     }
 
-    @Test(groups = { "subscription", "negative", "regression" }, dataProvider = "invalidProductBodies", dataProviderClass = SubscriptionDataProvider.class)
+    @Test(groups = { "subscription", "negative",
+            "regression" }, dataProvider = "invalidProductBodies", dataProviderClass = SubscriptionDataProvider.class)
     public void TC_04_negative_Create_Product_Invalid(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid product body case: {}", testCaseName);
 
@@ -110,7 +116,8 @@ public class SubscriptionTests extends BaseClass {
     // ██ PRICE TESTS
     // ═══════════════════════════════════════════════════════════════
 
-    @Test(groups = { "subscription", "flow", "regression" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true)
+    @Test(groups = { "subscription", "flow",
+            "regression" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true)
     public void TC_05_positive_Create_Price() {
         logger.info("Testing positive create price");
         String productId = TestContext.getProductId();
@@ -143,7 +150,8 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Price created successfully: {}", priceId);
     }
 
-    @Test(groups = { "subscription", "regression" }, dataProvider = "subscriptionIntervals", dataProviderClass = SubscriptionDataProvider.class)
+    @Test(groups = { "subscription",
+            "regression" }, dataProvider = "subscriptionIntervals", dataProviderClass = SubscriptionDataProvider.class)
     public void TC_06_positive_Create_Price_Intervals(String planName, int amount, String currency, String interval) {
         logger.info("Creating price for: {}", planName);
 
@@ -170,7 +178,8 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Successfully created price with interval: {}", interval);
     }
 
-    @Test(groups = { "subscription", "regression" }, dependsOnMethods = "TC_05_positive_Create_Price", ignoreMissingDependencies = true)
+    @Test(groups = { "subscription",
+            "regression" }, dependsOnMethods = "TC_05_positive_Create_Price", ignoreMissingDependencies = true)
     public void TC_07_positive_Retrieve_Price() {
         logger.info("Testing retrieve price");
         String priceId = TestContext.getPriceId();
@@ -190,7 +199,8 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Price retrieved successfully: {}", priceId);
     }
 
-    @Test(groups = { "subscription", "negative", "regression" }, dataProvider = "invalidPriceBodies", dataProviderClass = SubscriptionDataProvider.class)
+    @Test(groups = { "subscription", "negative",
+            "regression" }, dataProvider = "invalidPriceBodies", dataProviderClass = SubscriptionDataProvider.class)
     public void TC_08_negative_Create_Price_Invalid(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid price body case: {}", testCaseName);
 
@@ -221,11 +231,11 @@ public class SubscriptionTests extends BaseClass {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("Testing positive create subscription");
 
-        String customerId = TestContext.getCustomerId();
-        if (customerId == null) {
-            customerId = SubscriptionHelper.createSubscriptionReadyCustomer();
-            customerIdsToCleanup.add(customerId);
-            logger.info("Created subscription ready customer ID: {}", customerId);
+        String subscriptionCustomerId = TestContext.getSubscriptionCustomerId();
+        if (subscriptionCustomerId == null) {
+            subscriptionCustomerId = SubscriptionHelper.createSubscriptionReadyCustomer();
+            customerIdsToCleanup.add(subscriptionCustomerId);
+            logger.info("Created subscription ready customer ID: {}", subscriptionCustomerId);
         }
 
         String priceId = TestContext.getPriceId();
@@ -237,15 +247,15 @@ public class SubscriptionTests extends BaseClass {
         }
 
         Map<String, Object> body = new HashMap<>();
-        body.put("customer", customerId);
+        body.put("customer", subscriptionCustomerId);
         body.put("items[0][price]", priceId);
 
-        logger.info("Creating subscription for customer: {} with price: {}", customerId, priceId);
+        logger.info("Creating subscription for customer: {} with price: {}", subscriptionCustomerId, priceId);
         Response resp = Subscription.createSubscription(body);
         String subId = resp.then()
                 .spec(ResponseSpec.OK())
                 .body("id", notNullValue())
-                .body("customer", equalTo(customerId))
+                .body("customer", equalTo(subscriptionCustomerId))
                 .body("items.data[0].price.id", equalTo(priceId))
                 .body("status", equalTo("active"))
                 .extract()
@@ -257,7 +267,8 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Subscription created successfully: {}", subId);
     }
 
-    @Test(groups = { "subscription", "regression" }, dependsOnMethods = "TC_09_positive_Create_Subscription", ignoreMissingDependencies = true)
+    @Test(groups = { "subscription",
+            "regression" }, dependsOnMethods = "TC_09_positive_Create_Subscription", ignoreMissingDependencies = true)
     public void TC_10_positive_Retrieve_Subscription() {
         logger.info("Testing retrieve subscription");
         String subId = TestContext.getSubscriptionId();
@@ -277,7 +288,8 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Subscription retrieved successfully: {}", subId);
     }
 
-    @Test(groups = { "subscription", "regression" }, dataProvider = "subscriptionMetadataUpdates", dataProviderClass = SubscriptionDataProvider.class)
+    @Test(groups = { "subscription",
+            "regression" }, dataProvider = "subscriptionMetadataUpdates", dataProviderClass = SubscriptionDataProvider.class)
     public void TC_11_positive_Update_Subscription_Metadata(String key, String value) {
         logger.info("Testing update subscription metadata: {}={}", key, value);
         String subId = TestContext.getSubscriptionId();
@@ -323,7 +335,7 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Subscriptions listed successfully");
     }
 
-    @Test(groups = { "subscription", "regression" }, dependsOnMethods = "TC_09_positive_Create_Subscription", ignoreMissingDependencies = true)
+    @Test(groups = { "subscription", "regression" })
     public void TC_13_positive_Cancel_Subscription() {
         logger.info("Testing cancel subscription");
         String subId = TestContext.getSubscriptionId();
@@ -331,6 +343,8 @@ public class SubscriptionTests extends BaseClass {
             subId = SubscriptionHelper.createFullSubscription();
             subscriptionIdsToCleanup.add(subId);
             logger.info("Created fallback subscription ID: {}", subId);
+        } else {
+            TestContext.setSubscriptionId(null);
         }
 
         logger.info("Canceling subscription ID: {}", subId);
@@ -340,10 +354,12 @@ public class SubscriptionTests extends BaseClass {
                 .body("id", equalTo(subId))
                 .body("status", equalTo("canceled"));
 
+        TestContext.setCancelledSubscriptionId(subId);
         logger.info("✅ Subscription canceled successfully: {}", subId);
     }
 
-    @Test(groups = { "subscription", "negative", "regression" }, dataProvider = "invalidSubscriptionIds", dataProviderClass = SubscriptionDataProvider.class)
+    @Test(groups = { "subscription", "negative",
+            "regression" }, dataProvider = "invalidSubscriptionIds", dataProviderClass = SubscriptionDataProvider.class)
     public void TC_14_negative_Retrieve_Invalid_Subscription(String invalidId) {
         logger.info("Retrieving invalid subscription: {}", invalidId);
 
@@ -359,9 +375,9 @@ public class SubscriptionTests extends BaseClass {
         logger.info("Testing create subscription with invalid customer");
         String priceId = TestContext.getPriceId();
         if (priceId == null) {
-            String productId = SubscriptionHelper.createProduct(true);
+            String productId = SubscriptionHelper.createProduct(false);
             productIdsToCleanup.add(productId);
-            priceId = SubscriptionHelper.createRecurringPrice(productId, 1500, "usd", "month", true);
+            priceId = SubscriptionHelper.createRecurringPrice(productId, 1500, "usd", "month", false);
             logger.info("Created fallback price ID: {}", priceId);
         }
 
@@ -419,23 +435,29 @@ public class SubscriptionTests extends BaseClass {
     @Test(groups = { "subscription", "negative", "regression" })
     public void TC_18_negative_Cancel_Already_Canceled_Subscription() {
         logger.info("Testing cancel already canceled subscription");
-        String subId = SubscriptionHelper.createFullSubscription();
-        logger.info("Created subscription ID: {}", subId);
-        subscriptionIdsToCleanup.add(subId);
+        String cancelledSubscriptionId = TestContext.getCancelledSubscriptionId();
+        if (cancelledSubscriptionId == null) {
+            String subId = SubscriptionHelper.createFullSubscription();
+            logger.info("Created subscription ID: {}", subId);
+            subscriptionIdsToCleanup.add(subId);
 
-        // First cancel succeeds
-        logger.info("Attempting first cancellation of subscription ID: {}", subId);
-        Subscription.cancelSubscription(subId)
-                .then()
-                .spec(ResponseSpec.OK())
-                .body("status", equalTo("canceled"));
-        logger.info("First cancellation succeeded");
+            // First cancel succeeds
+            logger.info("Attempting first cancellation of subscription ID: {}", subId);
+            Subscription.cancelSubscription(subId)
+                    .then()
+                    .spec(ResponseSpec.OK())
+                    .body("status", equalTo("canceled"));
+            logger.info("First cancellation succeeded");
+            cancelledSubscriptionId = subId;
+            TestContext.setCancelledSubscriptionId(subId);
+
+        }
 
         // Second cancel should either return already canceled or fail. Stripe API
         // allows cancelling an already canceled subscription (returns it with canceled
         // status), so let's verify it remains canceled.
-        logger.info("Attempting second cancellation of subscription ID: {}", subId);
-        Subscription.cancelSubscription(subId)
+        logger.info("Attempting second cancellation of subscription ID: {}", cancelledSubscriptionId);
+        Subscription.cancelSubscription(cancelledSubscriptionId)
                 .then()
                 .spec(ResponseSpec.OK())
                 .body("status", equalTo("canceled"));
@@ -558,32 +580,44 @@ public class SubscriptionTests extends BaseClass {
                     // proceed
         }
 
-        // Cancel subscriptions
+        // 1️⃣ Cancel all tracked subscriptions (must happen before customer deletion)
         logger.info("Canceling {} subscriptions", subscriptionIdsToCleanup.size());
         for (String subId : subscriptionIdsToCleanup) {
             try {
                 logger.info("Canceling Subscription ID: {}", subId);
                 Subscription.cancelSubscription(subId);
             } catch (Exception e) {
-                // Ignore failure if already canceled
+                logger.warn("⚠️ Could not cancel subscription (may already be canceled): {}", subId);
             }
         }
         subscriptionIdsToCleanup.clear();
 
-        // Delete products
-        logger.info("Deleting {} products", productIdsToCleanup.size());
-        for (String prodId : productIdsToCleanup) {
+        // 2️⃣ Detach the subscription-specific payment method stored in TestContext
+        String subPaymentMethodId = TestContext.getSubscriptionPaymentMethodId();
+        if (subPaymentMethodId != null) {
             try {
-                logger.info("Deleting Product ID: {}", prodId);
-                Product.deleteProduct(prodId);
+                logger.info("Detaching subscription payment method: {}", subPaymentMethodId);
+                paymentMethods.detachPaymentMethod(subPaymentMethodId);
             } catch (Exception e) {
-                // Ignore failure
+                logger.warn("⚠️ Could not detach subscription payment method: {}", subPaymentMethodId);
             }
+            TestContext.setSubscriptionPaymentMethodId(null);
         }
-        productIdsToCleanup.clear();
 
-        // Delete customers
-        logger.info("Deleting {} customers", customerIdsToCleanup.size());
+        // 3️⃣ Delete the subscription-specific customer stored in TestContext
+        String subCustomerId = TestContext.getSubscriptionCustomerId();
+        if (subCustomerId != null) {
+            try {
+                logger.info("Deleting subscription customer from context: {}", subCustomerId);
+                Customer.deleteCustomer(subCustomerId);
+            } catch (Exception e) {
+                logger.error("⚠️ Cleanup failed for subscription context customer: {}", subCustomerId, e);
+            }
+            TestContext.setSubscriptionCustomerId(null);
+        }
+
+        // 4️⃣ Delete all other locally tracked customers (e.g., E2E flow customers)
+        logger.info("Deleting {} locally tracked customers", customerIdsToCleanup.size());
         for (String custId : customerIdsToCleanup) {
             try {
                 logger.info("Deleting Customer ID: {}", custId);
@@ -593,5 +627,24 @@ public class SubscriptionTests extends BaseClass {
             }
         }
         customerIdsToCleanup.clear();
+
+        // 5️⃣ Delete all locally tracked products
+        logger.info("Deleting {} products", productIdsToCleanup.size());
+        for (String prodId : productIdsToCleanup) {
+            try {
+                logger.info("Deleting Product ID: {}", prodId);
+                Product.deleteProduct(prodId);
+            } catch (Exception e) {
+                logger.warn("⚠️ Could not delete product: {}", prodId);
+            }
+        }
+        productIdsToCleanup.clear();
+
+        // 6️⃣ Clear remaining subscription-specific TestContext fields
+        TestContext.setCancelledSubscriptionId(null);
+        TestContext.setSubscriptionId(null);
+        TestContext.setProductId(null);
+        TestContext.setPriceId(null);
+        logger.info("✅ SubscriptionTests cleanup complete.");
     }
 }

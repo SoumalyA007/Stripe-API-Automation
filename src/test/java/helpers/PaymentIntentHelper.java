@@ -31,8 +31,9 @@ public class PaymentIntentHelper {
 
         String customerId = TestContext.getCustomerId();
         if (customerId != null) {
-            body.put("customer", customerId);
+            customerId = CustomersHelper.createCustomer();
         }
+        body.put("customer", customerId);
 
         if (confirm) {
             body.put("confirm", true);

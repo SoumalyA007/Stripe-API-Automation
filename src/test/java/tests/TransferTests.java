@@ -2,20 +2,28 @@ package tests;
 
 import static org.hamcrest.Matchers.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dataprovider.TransfersDataProvider;
+import endpoints.ConnectAccounts;
 import endpoints.Transfers;
 import helpers.ConnectedAccountHelper;
 import helpers.TransfersHelper;
+import io.restassured.response.Response;
 import helpers.TestContext;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;
 
 public class TransferTests extends BaseClass {
+
+    List<String> fallbackConnectAccountIds = new ArrayList<>();
+    List<String> fallbackTransferIds = new ArrayList<>();
 
     // ***************CREATE TRANSFER – POSITIVE*******************\\
 
@@ -24,14 +32,13 @@ public class TransferTests extends BaseClass {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
         String connectAccountId = TestContext.getConnectAccountId();
-        boolean isFlow = true;
-
         if (connectAccountId == null) {
             connectAccountId = ConnectedAccountHelper.createConnectAccount(false);
-            isFlow = false;
+            fallbackConnectAccountIds.add(connectAccountId);
+            logger.info("Created new connect account ID --> {}", connectAccountId);
+        } else {
+            logger.info("Fetched connect account ID from context --> {}", connectAccountId);
         }
-
-        logger.info("Created connect account ID for transfer: {}", connectAccountId);
 
         Map<String, Object> body = new HashMap<>();
         body.put("amount", amount / 2);
@@ -49,11 +56,7 @@ public class TransferTests extends BaseClass {
                 .getString("id");
 
         logger.info("Created Transfer ID: {}", transferId);
-
-        if (isFlow) {
-            TestContext.setTransferId(transferId);
-        }
-
+        TestContext.setTransferId(transferId);
     }
 
     // ***************RETRIEVE TRANSFER – POSITIVE*******************\\
@@ -61,12 +64,13 @@ public class TransferTests extends BaseClass {
     @Test(groups = { "transfer", "regression" })
     public void TC_02_Retrieve_Transfer() {
         String transferId = TestContext.getTransferId();
-        boolean isFlow = true;
-
+        logger.info("Fetched transfer ID from context --> {}", transferId);
         if (transferId == null) {
             transferId = TransfersHelper.createFallbackTransfer();
-            isFlow = false;
-            logger.info("Created fallback transfer ID: {}", transferId);
+            fallbackTransferIds.add(transferId);
+            logger.info("Created fallback transfer ID --> {}", transferId);
+        } else {
+            logger.info("Using active transfer ID --> {}", transferId);
         }
 
         logger.info("Retrieving transfer with ID: {}", transferId);
@@ -82,10 +86,13 @@ public class TransferTests extends BaseClass {
     @Test(groups = { "transfer", "regression" })
     public void TC_03_Reverse_Transfer() {
         String transferId = TestContext.getTransferId();
-
+        logger.info("Fetched transfer ID from context --> {}", transferId);
         if (transferId == null) {
             transferId = TransfersHelper.createFallbackTransfer();
-            logger.info("Created fallback transfer ID: {}", transferId);
+            fallbackTransferIds.add(transferId);
+            logger.info("Created fallback transfer ID --> {}", transferId);
+        } else {
+            logger.info("Using active transfer ID --> {}", transferId);
         }
 
         logger.info("Reversing transfer with ID: {}", transferId);
@@ -167,7 +174,8 @@ public class TransferTests extends BaseClass {
         logger.info("Successfully verified invalid currency rejection");
     }
 
-    @Test(groups = { "transfer", "negative", "regression" }, dataProvider = "invalidTransferPayloads", dataProviderClass = TransfersDataProvider.class)
+    @Test(groups = { "transfer", "negative",
+            "regression" }, dataProvider = "invalidTransferPayloads", dataProviderClass = TransfersDataProvider.class)
     public void TC_08_CreateTransfer_MissingRequiredFields(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid transfer payload case: {}", testCaseName);
 
@@ -209,7 +217,8 @@ public class TransferTests extends BaseClass {
 
     // ***************RETRIEVE TRANSFER – NEGATIVE*******************\\
 
-    @Test(groups = { "transfer", "negative", "regression" }, dataProvider = "invalidTransferIds", dataProviderClass = TransfersDataProvider.class)
+    @Test(groups = { "transfer", "negative",
+            "regression" }, dataProvider = "invalidTransferIds", dataProviderClass = TransfersDataProvider.class)
     public void TC_11_RetrieveTransfer_InvalidId(String testCaseName, String transferId, String expectedErrorFragment) {
         logger.info("Testing retrieve transfer with invalid ID: {} -> {}", testCaseName, transferId);
         Transfers.retrieveTransfer(transferId)
@@ -256,10 +265,11 @@ public class TransferTests extends BaseClass {
     public void TC_15_ReverseTransfer_AmountExceedsOriginal() {
         logger.info("Testing reverse transfer with amount exceeding original");
         String transferId = TransfersHelper.createFallbackTransfer();
+        fallbackTransferIds.add(transferId);
         logger.info("Created fallback transfer ID for TC_15: {}", transferId);
 
         Map<String, Object> body = new HashMap<>();
-        body.put("amount", 2000); // Original is 1000
+        body.put("amount", 33000); // Original is 1000
 
         Transfers.reverseTransfer(transferId, body)
                 .then()
@@ -308,7 +318,7 @@ public class TransferTests extends BaseClass {
     @Test(groups = { "transfer", "regression" })
     public void TC_19_positive_Idempotent_CreateTransfer() {
         logger.info("Testing idempotent create transfer");
-        String connectAccountId = helpers.ConnectedAccountHelper.createConnectAccount(false);
+        String connectAccountId = ConnectedAccountHelper.createConnectAccount(false);
         logger.info("Created connect account ID for TC_19: {}", connectAccountId);
 
         Map<String, Object> body = new HashMap<>();
@@ -321,7 +331,7 @@ public class TransferTests extends BaseClass {
         headers.put("Idempotency-Key", idempotencyKey);
         logger.info("Using idempotency key: {}", idempotencyKey);
 
-        io.restassured.response.Response firstResponse = Transfers.createTransfer(body, headers)
+        Response firstResponse = Transfers.createTransfer(body, headers)
                 .then()
                 .spec(ResponseSpec.OK())
                 .extract()
@@ -330,7 +340,7 @@ public class TransferTests extends BaseClass {
         String firstTransferId = firstResponse.jsonPath().getString("id");
         logger.info("First response Transfer ID: {}", firstTransferId);
 
-        io.restassured.response.Response secondResponse = Transfers.createTransfer(body, headers)
+        Response secondResponse = Transfers.createTransfer(body, headers)
                 .then()
                 .spec(ResponseSpec.OK())
                 .extract()
@@ -341,5 +351,41 @@ public class TransferTests extends BaseClass {
 
         org.testng.Assert.assertEquals(firstTransferId, secondTransferId);
         logger.info("Verified transfer IDs are equal (Idempotency success)");
+    }
+
+    // ***************CLEANUP*******************\\
+
+    @AfterClass(alwaysRun = true)
+    public void cleanup() {
+        logger.info("🧹 Starting cleanup for TransferTests...");
+
+        // Stripe transfers cannot be deleted via the API (only reversed),
+        // so log any fallback transfer IDs created during the test run for
+        // manual audit or reference in the Stripe dashboard.
+        if (!fallbackTransferIds.isEmpty()) {
+            logger.info("ℹ️ {} fallback transfer(s) were created during the test run (cannot be deleted via API):",
+                    fallbackTransferIds.size());
+            for (String transferId : fallbackTransferIds) {
+                logger.info("   - Transfer ID: {}", transferId);
+            }
+        }
+
+        // Delete all connected accounts that were created as fallbacks.
+        for (String accountId : fallbackConnectAccountIds) {
+            try {
+                ConnectAccounts.deleteConnectAccount(accountId);
+                logger.info("🧹 Deleted fallback connect account: {}", accountId);
+            } catch (Exception e) {
+                logger.warn("⚠️ Failed to delete connect account {}: {}", accountId, e.getMessage());
+            }
+        }
+
+        // Clear the shared transfer ID and connect account ID from TestContext
+        // to avoid state leakage into test classes that run after TransferTests.
+        TestContext.setTransferId(null);
+        TestContext.setConnectAccountId(null);
+        logger.info("🧹 Cleared transfer and connect account IDs from TestContext.");
+
+        logger.info("✅ Cleanup complete for TransferTests.");
     }
 }

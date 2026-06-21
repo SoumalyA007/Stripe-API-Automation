@@ -14,7 +14,7 @@ public class ConnectedAccountHelper {
     public static String createConnectAccount(boolean isFlow) {
 
         Map<String, Object> body = new HashMap<>();
-        body.put("type", "application");
+        body.put("type", "express");
         body.put("country", "US");
         body.put("email", faker.internet().emailAddress());
         Response response = ConnectAccounts.createConnectAccount(body);

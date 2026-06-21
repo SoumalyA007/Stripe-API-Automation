@@ -201,6 +201,14 @@ public class TestContext {
         TestContext.cancelledSubscriptionId.set(cancelledSubscriptionId);
     }
 
+    public static String getServiceProviderEmail() {
+        return serviceProviderEmail.get();
+    }
+
+    public static void setServiceProviderEmail(String serviceProviderEmail) {
+        TestContext.serviceProviderEmail.set(serviceProviderEmail);
+    }
+
     public static void clear() {
         customerId.remove();
         paymentMethodId.remove();
@@ -226,6 +234,7 @@ public class TestContext {
         subscriptionCustomerId.remove();
         subscriptionPaymentMethodId.remove();
         cancelledSubscriptionId.remove();
+        serviceProviderEmail.remove();
     }
 
     private static final ThreadLocal<String> customerId = new ThreadLocal<>();
@@ -252,5 +261,6 @@ public class TestContext {
     private static final ThreadLocal<String> subscriptionCustomerId = new ThreadLocal<>();
     private static final ThreadLocal<String> subscriptionPaymentMethodId = new ThreadLocal<>();
     private static final ThreadLocal<String> cancelledSubscriptionId = new ThreadLocal<>();
+    private static final ThreadLocal<String> serviceProviderEmail = new ThreadLocal<>();
 
 }

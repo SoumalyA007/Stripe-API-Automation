@@ -2,20 +2,26 @@ package tests;
 
 import static org.hamcrest.Matchers.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dataprovider.PayoutsDataProvider;
 import endpoints.Payouts;
 import helpers.PayoutsHelper;
 import helpers.TestContext;
+import io.restassured.response.Response;
+
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;
 
 public class PayoutsTest extends BaseClass {
 
+    List<String> fallbackPayoutIds = new ArrayList<>();
     // ***************CREATE PAYOUT – POSITIVE*******************\\
 
     @Test(groups = { "payout", "regression" })
@@ -48,6 +54,7 @@ public class PayoutsTest extends BaseClass {
         if (payoutId == null) {
             payoutId = PayoutsHelper.createFallbackPayout();
             logger.info("Created fallback payout ID: {}", payoutId);
+            fallbackPayoutIds.add(payoutId);
         }
 
         Payouts.retrievePayout(payoutId)
@@ -64,6 +71,7 @@ public class PayoutsTest extends BaseClass {
         if (payoutId == null) {
             payoutId = PayoutsHelper.createFallbackPayout();
             logger.info("Created fallback payout ID: {}", payoutId);
+            fallbackPayoutIds.add(payoutId);
         }
 
         Payouts.cancelPayout(payoutId)
@@ -117,7 +125,8 @@ public class PayoutsTest extends BaseClass {
         logger.info("Successfully verified invalid currency validation");
     }
 
-    @Test(groups = { "payout", "negative", "regression" }, dataProvider = "invalidPayoutPayloads", dataProviderClass = PayoutsDataProvider.class)
+    @Test(groups = { "payout", "negative",
+            "regression" }, dataProvider = "invalidPayoutPayloads", dataProviderClass = PayoutsDataProvider.class)
     public void TC_07_CreatePayout_MissingRequiredFields(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid payout payload case: {}", testCaseName);
 
@@ -160,7 +169,8 @@ public class PayoutsTest extends BaseClass {
 
     // ***************RETRIEVE PAYOUT – NEGATIVE*******************\\
 
-    @Test(groups = { "payout", "negative", "regression" }, dataProvider = "invalidPayoutIds", dataProviderClass = PayoutsDataProvider.class)
+    @Test(groups = { "payout", "negative",
+            "regression" }, dataProvider = "invalidPayoutIds", dataProviderClass = PayoutsDataProvider.class)
     public void TC_10_RetrievePayout_InvalidId(String testCaseName, String payoutId, String expectedErrorFragment) {
         logger.info("Running invalid payout ID case: {} for ID: {}", testCaseName, payoutId);
 
@@ -241,7 +251,7 @@ public class PayoutsTest extends BaseClass {
         headers.put("Idempotency-Key", idempotencyKey);
         logger.info("Using idempotency key: {}", idempotencyKey);
 
-        io.restassured.response.Response firstResponse = Payouts.createPayout(body, headers)
+        Response firstResponse = Payouts.createPayout(body, headers)
                 .then()
                 .spec(ResponseSpec.OK())
                 .extract()
@@ -249,7 +259,7 @@ public class PayoutsTest extends BaseClass {
 
         String firstPayoutId = firstResponse.jsonPath().getString("id");
 
-        io.restassured.response.Response secondResponse = Payouts.createPayout(body, headers)
+        Response secondResponse = Payouts.createPayout(body, headers)
                 .then()
                 .spec(ResponseSpec.OK())
                 .extract()
@@ -259,5 +269,23 @@ public class PayoutsTest extends BaseClass {
 
         org.testng.Assert.assertEquals(firstPayoutId, secondPayoutId);
         logger.info("Successfully verified idempotent create payout for ID: {}", firstPayoutId);
+        fallbackPayoutIds.add(secondPayoutId);
+    }
+
+    // ***************CLEANUP*******************\\
+
+    @AfterClass(alwaysRun = true)
+    public void cleanup() {
+        logger.info("Running cleanup for PayoutsTest");
+        logger.info("Cancelling {} fallback payout(s)", fallbackPayoutIds.size());
+        for (String payoutId : fallbackPayoutIds) {
+            try {
+                logger.info("Cancelling payout ID: {}", payoutId);
+                Payouts.cancelPayout(payoutId);
+            } catch (Exception e) {
+                logger.warn("⚠️ Cleanup failed for payout: {}", payoutId);
+            }
+        }
+        fallbackPayoutIds.clear();
     }
 }

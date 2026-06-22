@@ -2,19 +2,24 @@ package tests;
 
 import static org.hamcrest.Matchers.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dataprovider.DisputesDataProvider;
 import endpoints.Disputes;
 import helpers.DisputesHelper;
 import helpers.TestContext;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;
 
 public class DisputesTest extends BaseClass {
+
+    List<String> fallbackDisputeIds = new ArrayList<>();
 
     // ***************RETRIEVE DISPUTE – POSITIVE*******************\\
 
@@ -25,7 +30,10 @@ public class DisputesTest extends BaseClass {
         String disputeId = TestContext.getDisputeId();
         if (disputeId == null) {
             disputeId = DisputesHelper.createFallbackDispute();
-            logger.info("Created fallback dispute ID: {}", disputeId);
+            fallbackDisputeIds.add(disputeId);
+            logger.info("Created fallback dispute ID --> {}", disputeId);
+        } else {
+            logger.info("Fetched dispute ID from context --> {}", disputeId);
         }
 
         Disputes.retrieveDispute(disputeId)
@@ -41,10 +49,15 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "regression" })
     public void TC_02_Update_Dispute_Evidence() {
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+
         String disputeId = TestContext.getDisputeId();
         if (disputeId == null) {
             disputeId = DisputesHelper.createFallbackDispute();
-            logger.info("Created fallback dispute ID: {}", disputeId);
+            fallbackDisputeIds.add(disputeId);
+            logger.info("Created fallback dispute ID --> {}", disputeId);
+        } else {
+            logger.info("Fetched dispute ID from context --> {}", disputeId);
         }
 
         Map<String, Object> evidence = new HashMap<>();
@@ -69,10 +82,15 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "regression" })
     public void TC_03_Close_Dispute() {
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+
         String disputeId = TestContext.getDisputeId();
         if (disputeId == null) {
             disputeId = DisputesHelper.createFallbackDispute();
-            logger.info("Created fallback dispute ID: {}", disputeId);
+            fallbackDisputeIds.add(disputeId);
+            logger.info("Created fallback dispute ID --> {}", disputeId);
+        } else {
+            logger.info("Fetched dispute ID from context --> {}", disputeId);
         }
 
         logger.info("Closing dispute with ID: {}", disputeId);
@@ -89,7 +107,7 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "regression" })
     public void TC_04_List_Disputes() {
-        logger.info("Listing disputes with limit 3");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Map<String, Object> query = new HashMap<>();
         query.put("limit", 3);
 
@@ -118,7 +136,7 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "negative", "auth", "regression" })
     public void TC_06_RetrieveDispute_InvalidAuth() {
-        logger.info("Testing retrieve dispute with invalid auth key");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Disputes.retrieveDisputeWithCustomAuth("sk_test_invalid_key_12345", "dp_any_id")
                 .then()
                 .spec(ResponseSpec.Unauthorized())
@@ -129,7 +147,7 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "negative", "auth", "regression" })
     public void TC_07_RetrieveDispute_MissingAuth() {
-        logger.info("Testing retrieve dispute with missing auth key");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Disputes.retrieveDisputeWithCustomAuth(null, "dp_any_id")
                 .then()
                 .spec(ResponseSpec.Unauthorized())
@@ -142,7 +160,7 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "negative", "regression" })
     public void TC_08_UpdateDispute_InvalidId() {
-        logger.info("Testing update dispute with invalid ID");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Map<String, Object> body = new HashMap<>();
         body.put("evidence", Map.of("customer_name", "Jane"));
 
@@ -156,7 +174,7 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "negative", "auth", "regression" })
     public void TC_09_UpdateDispute_InvalidAuth() {
-        logger.info("Testing update dispute with invalid auth");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Map<String, Object> body = new HashMap<>();
         body.put("evidence", Map.of("customer_name", "Jane"));
 
@@ -170,7 +188,7 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "negative", "auth", "regression" })
     public void TC_10_UpdateDispute_MissingAuth() {
-        logger.info("Testing update dispute with missing auth");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Map<String, Object> body = new HashMap<>();
         body.put("evidence", Map.of("customer_name", "Jane"));
 
@@ -186,7 +204,7 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "negative", "regression" })
     public void TC_11_CloseDispute_InvalidId() {
-        logger.info("Testing close dispute with invalid ID");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Disputes.closeDispute("dp_invalid_id_12345")
                 .then()
                 .spec(ResponseSpec.not_found())
@@ -197,7 +215,7 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "negative", "auth", "regression" })
     public void TC_12_CloseDispute_InvalidAuth() {
-        logger.info("Testing close dispute with invalid auth");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Disputes.closeDisputeWithCustomAuth("sk_test_invalid_key_12345", "dp_any_id")
                 .then()
                 .spec(ResponseSpec.Unauthorized())
@@ -208,7 +226,7 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "negative", "auth", "regression" })
     public void TC_13_CloseDispute_MissingAuth() {
-        logger.info("Testing close dispute with missing auth");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Disputes.closeDisputeWithCustomAuth(null, "dp_any_id")
                 .then()
                 .spec(ResponseSpec.Unauthorized())
@@ -219,10 +237,15 @@ public class DisputesTest extends BaseClass {
 
     @Test(groups = { "dispute", "regression" })
     public void TC_14_positive_Idempotent_UpdateDispute_Evidence() {
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+
         String disputeId = TestContext.getDisputeId();
         if (disputeId == null) {
             disputeId = DisputesHelper.createFallbackDispute();
-            logger.info("Created fallback dispute ID: {}", disputeId);
+            fallbackDisputeIds.add(disputeId);
+            logger.info("Created fallback dispute ID --> {}", disputeId);
+        } else {
+            logger.info("Fetched dispute ID from context --> {}", disputeId);
         }
 
         Map<String, Object> evidence = new HashMap<>();
@@ -256,5 +279,27 @@ public class DisputesTest extends BaseClass {
 
         org.testng.Assert.assertEquals(firstEvidenceName, secondEvidenceName);
         logger.info("Successfully verified idempotent update dispute evidence for key: {}", idempotencyKey);
+    }
+
+    // ***************CLEANUP*******************\\
+
+    @AfterClass(alwaysRun = true)
+    public void cleanup() {
+        logger.info("🧹 Starting cleanup for DisputesTest...");
+
+        // Disputes cannot be deleted via the API — log them for reference
+        if (!fallbackDisputeIds.isEmpty()) {
+            logger.info("ℹ️ {} fallback dispute(s) were created during the test run (cannot be deleted via API):",
+                    fallbackDisputeIds.size());
+            for (String id : fallbackDisputeIds) {
+                logger.info("   - Dispute ID: {}", id);
+            }
+        }
+
+        // Clear shared ID from TestContext to avoid state leakage
+        TestContext.setDisputeId(null);
+        logger.info("🧹 Cleared dispute ID from TestContext.");
+
+        logger.info("✅ Cleanup complete for DisputesTest.");
     }
 }

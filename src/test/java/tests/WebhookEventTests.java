@@ -5,8 +5,9 @@ import endpoints.Events;
 import endpoints.Refunds;
 import helpers.CustomersHelper;
 import helpers.PaymentIntentHelper;
+import helpers.TestContext;
 import io.restassured.response.Response;
-import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;
@@ -18,7 +19,8 @@ import static org.hamcrest.Matchers.*;
 
 public class WebhookEventTests extends BaseClass {
 
-    private final List<String> customerIds = new ArrayList<>();
+    List<String> fallbackCustomerIds = new ArrayList<>();
+    List<String> fallbackPaymentIntentIds = new ArrayList<>();
 
     // Helper method to poll Stripe Events API for a specific event type and object
     // ID
@@ -65,16 +67,22 @@ public class WebhookEventTests extends BaseClass {
 
     @Test(groups = { "webhook", "regression" })
     public void TC_01_Verify_CustomerCreated_Event() {
-        logger.info("Testing customer created event verification");
-        String name = CustomersHelper.getName();
-        String email = faker.internet().safeEmailAddress();
-        logger.info("Creating customer for event verification: {} <{}>", name, email);
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
-        Response createResponse = Customer.createCustomer(name, email, null);
-        createResponse.then().spec(ResponseSpec.OK());
-        String customerId = createResponse.jsonPath().getString("id");
-        customerIds.add(customerId);
-        logger.info("Created Customer ID: {}", customerId);
+        String customerId = TestContext.getCustomerId();
+        if (customerId == null) {
+            customerId = CustomersHelper.createCustomer();
+            fallbackCustomerIds.add(customerId);
+            logger.info("Created new Customer ID --> {}", customerId);
+        } else {
+            logger.info("Fetched customer ID from context --> {}", customerId);
+        }
+
+        // Retrieve customer to get name/email for event body assertions
+        Response customerResponse = Customer.getCustomer(customerId)
+                .then().spec(ResponseSpec.OK()).extract().response();
+        String name = customerResponse.jsonPath().getString("name");
+        String email = customerResponse.jsonPath().getString("email");
 
         // Poll for customer.created event
         String eventId = pollForEvent("customer.created", customerId);
@@ -95,10 +103,16 @@ public class WebhookEventTests extends BaseClass {
 
     @Test(groups = { "webhook", "regression" })
     public void TC_02_Verify_RefundCreated_Event() {
-        logger.info("Testing refund created event verification");
-        // Create fallback PaymentIntent to refund against
-        String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
-        logger.info("Created payment intent for refund event: {}", paymentIntentId);
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+
+        String paymentIntentId = TestContext.getPaymentIntentId();
+        if (paymentIntentId == null) {
+            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+            fallbackPaymentIntentIds.add(paymentIntentId);
+            logger.info("Created fallback PaymentIntent for refund event --> {}", paymentIntentId);
+        } else {
+            logger.info("Fetched PaymentIntent ID from context --> {}", paymentIntentId);
+        }
 
         Map<String, Object> body = new HashMap<>();
         body.put("amount", 800);
@@ -130,7 +144,7 @@ public class WebhookEventTests extends BaseClass {
 
     @Test(groups = { "webhook", "negative", "regression" })
     public void TC_03_Retrieve_Event_By_Id_Negative() {
-        logger.info("Testing retrieve event by invalid ID");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Events.getEvent("evt_invalid12345")
                 .then()
                 .spec(ResponseSpec.not_found());
@@ -139,7 +153,7 @@ public class WebhookEventTests extends BaseClass {
 
     @Test(groups = { "webhook", "negative", "auth", "regression" })
     public void TC_04_ListEvents_InvalidAuth() {
-        logger.info("Testing list events with invalid auth");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Events.getEventsWithCustomAuth("invalid_key_12345", null)
                 .then()
                 .spec(ResponseSpec.Unauthorized())
@@ -147,18 +161,39 @@ public class WebhookEventTests extends BaseClass {
         logger.info("Successfully verified list events invalid auth rejection");
     }
 
-    @AfterMethod
+    // ***************CLEANUP*******************\\
+
+    @AfterClass(alwaysRun = true)
     public void cleanup() {
-        logger.info("Running cleanup for WebhookEventTests");
-        logger.info("Deleting {} customers", customerIds.size());
-        for (String id : customerIds) {
-            try {
-                logger.info("Deleting customer ID: {}", id);
-                Customer.deleteCustomer(id);
-            } catch (Exception e) {
-                logger.error("Cleanup failed for customer: {}", id, e);
+        logger.info("🧹 Starting cleanup for WebhookEventTests...");
+
+        // Delete all fallback customers created during test runs
+        if (!fallbackCustomerIds.isEmpty()) {
+            logger.info("Deleting {} fallback customer(s)...", fallbackCustomerIds.size());
+            for (String id : fallbackCustomerIds) {
+                try {
+                    Customer.deleteCustomer(id);
+                    logger.info("🧹 Deleted fallback customer: {}", id);
+                } catch (Exception e) {
+                    logger.warn("⚠️ Failed to delete fallback customer {}: {}", id, e.getMessage());
+                }
             }
         }
-        customerIds.clear();
+
+        // PaymentIntents cannot be deleted via the API — log them for reference
+        if (!fallbackPaymentIntentIds.isEmpty()) {
+            logger.info("ℹ️ {} fallback PaymentIntent(s) were created during the test run (cannot be deleted via API):",
+                    fallbackPaymentIntentIds.size());
+            for (String id : fallbackPaymentIntentIds) {
+                logger.info("   - PaymentIntent ID: {}", id);
+            }
+        }
+
+        // Clear shared IDs from TestContext to avoid state leakage
+        TestContext.setCustomerId(null);
+        TestContext.setPaymentIntentId(null);
+        logger.info("🧹 Cleared customer and paymentIntent IDs from TestContext.");
+
+        logger.info("✅ Cleanup complete for WebhookEventTests.");
     }
 }

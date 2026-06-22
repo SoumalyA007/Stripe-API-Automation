@@ -2,19 +2,24 @@ package tests;
 
 import static org.hamcrest.Matchers.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dataprovider.RadarDataProvider;
 import endpoints.Radar;
 import helpers.RadarHelper;
 import helpers.TestContext;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;
 
 public class RadarTest extends BaseClass {
+
+    List<String> fallbackEarlyFraudWarningIds = new ArrayList<>();
 
     // ***************RETRIEVE EARLY FRAUD WARNING – POSITIVE*******************\\
 
@@ -25,7 +30,10 @@ public class RadarTest extends BaseClass {
         String warningId = TestContext.getEarlyFraudWarningId();
         if (warningId == null) {
             warningId = RadarHelper.createFallbackEarlyFraudWarning();
-            logger.info("Created fallback early fraud warning ID: {}", warningId);
+            fallbackEarlyFraudWarningIds.add(warningId);
+            logger.info("Created fallback early fraud warning ID --> {}", warningId);
+        } else {
+            logger.info("Fetched early fraud warning ID from context --> {}", warningId);
         }
 
         Radar.retrieveEarlyFraudWarning(warningId)
@@ -41,7 +49,7 @@ public class RadarTest extends BaseClass {
 
     @Test(groups = { "radar", "regression" })
     public void TC_02_List_EarlyFraudWarnings() {
-        logger.info("Listing early fraud warnings with limit 3");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Map<String, Object> query = new HashMap<>();
         query.put("limit", 3);
 
@@ -72,7 +80,7 @@ public class RadarTest extends BaseClass {
 
     @Test(groups = { "radar", "negative", "auth", "regression" })
     public void TC_04_RetrieveEarlyFraudWarning_InvalidAuth() {
-        logger.info("Testing retrieve early fraud warning with invalid auth key");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Radar.retrieveEarlyFraudWarningWithCustomAuth("sk_test_invalid_key_12345", "issfw_any_id")
                 .then()
                 .spec(ResponseSpec.Unauthorized())
@@ -83,12 +91,34 @@ public class RadarTest extends BaseClass {
 
     @Test(groups = { "radar", "negative", "auth", "regression" })
     public void TC_05_RetrieveEarlyFraudWarning_MissingAuth() {
-        logger.info("Testing retrieve early fraud warning with missing auth key");
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Radar.retrieveEarlyFraudWarningWithCustomAuth(null, "issfw_any_id")
                 .then()
                 .spec(ResponseSpec.Unauthorized())
                 .body("error.message", containsString("You did not provide an API key"));
 
         logger.info("Successfully verified unauthorized response for missing auth");
+    }
+
+    // ***************CLEANUP*******************\\
+
+    @AfterClass(alwaysRun = true)
+    public void cleanup() {
+        logger.info("🧹 Starting cleanup for RadarTest...");
+
+        // Early fraud warnings cannot be deleted via the API — log them for reference
+        if (!fallbackEarlyFraudWarningIds.isEmpty()) {
+            logger.info("ℹ️ {} fallback early fraud warning(s) were created during the test run (cannot be deleted via API):",
+                    fallbackEarlyFraudWarningIds.size());
+            for (String id : fallbackEarlyFraudWarningIds) {
+                logger.info("   - Early Fraud Warning ID: {}", id);
+            }
+        }
+
+        // Clear shared ID from TestContext to avoid state leakage
+        TestContext.setEarlyFraudWarningId(null);
+        logger.info("🧹 Cleared early fraud warning ID from TestContext.");
+
+        logger.info("✅ Cleanup complete for RadarTest.");
     }
 }

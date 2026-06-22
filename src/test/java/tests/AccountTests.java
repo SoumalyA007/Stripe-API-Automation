@@ -41,7 +41,8 @@ public class AccountTests extends BaseClass {
         }
 
         // Create accounts with different entity types using DataProvider
-        @Test(groups = { "accounts", "regression" }, dataProvider = "validEntityTypes", dataProviderClass = AccountDataProvider.class)
+        @Test(groups = { "accounts",
+                        "regression" }, dataProvider = "validEntityTypes", dataProviderClass = AccountDataProvider.class)
         public void TC_02_CreateAccount_DifferentEntityTypes(String testCaseName,
                         CreateAccountRequestPayload requestPayload) {
                 logger.info("Testing create account different entity types: {}", testCaseName);
@@ -59,7 +60,8 @@ public class AccountTests extends BaseClass {
         }
 
         // Create accounts with different dashboard types using DataProvider
-        @Test(groups = { "accounts", "regression" }, dataProvider = "validDashboardTypes", dataProviderClass = AccountDataProvider.class)
+        @Test(groups = { "accounts",
+                        "regression" }, dataProvider = "validDashboardTypes", dataProviderClass = AccountDataProvider.class)
         public void TC_03_CreateAccount_DifferentDashboards(String testCaseName,
                         CreateAccountRequestPayload requestPayload) {
                 logger.info("Testing create account different dashboard types: {}", testCaseName);
@@ -133,7 +135,8 @@ public class AccountTests extends BaseClass {
         // ***************CREATE ACCOUNT – NEGATIVE*******************\\
 
         // Create account with invalid/unsupported country codes using DataProvider
-        @Test(groups = { "accounts", "negative", "regression" }, dataProvider = "invalidCountryCodes", dataProviderClass = AccountDataProvider.class)
+        @Test(groups = { "accounts", "negative",
+                        "regression" }, dataProvider = "invalidCountryCodes", dataProviderClass = AccountDataProvider.class)
         public void TC_07_CreateAccount_InvalidCountryCode(String testCaseName, String countryCode,
                         String expectedErrorFragment) {
                 logger.info("Testing create account invalid country code: {} -> {}", testCaseName, countryCode);

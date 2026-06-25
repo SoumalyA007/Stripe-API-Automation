@@ -5,8 +5,10 @@ import endpoints.Events;
 import endpoints.Refunds;
 import helpers.CustomersHelper;
 import helpers.PaymentIntentHelper;
+import helpers.PojoValidator;
 import helpers.TestContext;
 import io.restassured.response.Response;
+import models.response.WebhookEventResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
@@ -90,14 +92,18 @@ public class WebhookEventTests extends BaseClass {
 
         // Validate the event object details
         logger.info("Retrieving event: {}", eventId);
-        Events.getEvent(eventId)
-                .then()
+        Response eventResp = Events.getEvent(eventId);
+        eventResp.then()
                 .spec(ResponseSpec.OK())
                 .body("id", equalTo(eventId))
                 .body("type", equalTo("customer.created"))
                 .body("data.object.id", equalTo(customerId))
                 .body("data.object.email", equalTo(email))
                 .body("data.object.name", equalTo(name));
+
+        WebhookEventResponse eventResponse = eventResp.as(WebhookEventResponse.class);
+        PojoValidator.validate(eventResponse);
+        logger.info("POJO validation passed for webhook event: {}", eventId);
         logger.info("Successfully validated customer.created event details");
     }
 

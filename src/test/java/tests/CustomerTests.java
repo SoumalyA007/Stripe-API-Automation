@@ -4,8 +4,10 @@ import com.github.javafaker.Faker;
 import dataprovider.UpdateCustomerDataProvider;
 import endpoints.Customer;
 import helpers.CustomersHelper;
+import helpers.PojoValidator;
 import helpers.TestContext;
 import io.restassured.response.Response;
+import models.response.CustomerResponse;
 
 import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
@@ -60,6 +62,10 @@ public class CustomerTests extends BaseClass {
                 .extract()
                 .jsonPath()
                 .get("id");
+
+        CustomerResponse customerResponse = resp.as(CustomerResponse.class);
+        PojoValidator.validate(customerResponse);
+        logger.info("POJO validation passed for customer: {}", id);
 
         TestContext.setCustomerId(id);
         logger.info("Customer ID of user set in context: \t" + TestContext.getCustomerId());
@@ -384,6 +390,10 @@ public class CustomerTests extends BaseClass {
 
         resp.then().spec(ResponseSpec.OK())
                 .body("id", equalTo(customerId));
+
+        CustomerResponse customerResponse = resp.as(CustomerResponse.class);
+        PojoValidator.validate(customerResponse);
+        logger.info("POJO validation passed for retrieved customer: {}", customerId);
         logger.info("Successfully retrieved customer data");
     }
 

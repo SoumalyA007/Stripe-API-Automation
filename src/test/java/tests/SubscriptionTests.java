@@ -8,9 +8,13 @@ import endpoints.Subscription;
 import endpoints.paymentMethods;
 import helpers.CustomersHelper;
 import helpers.PaymentMethodsHelper;
+import helpers.PojoValidator;
 import helpers.SubscriptionHelper;
 import helpers.TestContext;
 import io.restassured.response.Response;
+import models.response.PriceResponse;
+import models.response.ProductResponse;
+import models.response.SubscriptionResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
@@ -50,6 +54,10 @@ public class SubscriptionTests extends BaseClass {
                 .extract()
                 .jsonPath()
                 .getString("id");
+
+        ProductResponse productResponse = resp.as(ProductResponse.class);
+        PojoValidator.validate(productResponse);
+        logger.info("POJO validation passed for product: {}", productId);
 
         productIdsToCleanup.add(productId);
         TestContext.setProductId(productId);
@@ -145,6 +153,10 @@ public class SubscriptionTests extends BaseClass {
                 .extract()
                 .jsonPath()
                 .getString("id");
+
+        PriceResponse priceResponse = resp.as(PriceResponse.class);
+        PojoValidator.validate(priceResponse);
+        logger.info("POJO validation passed for price: {}", priceId);
 
         TestContext.setPriceId(priceId);
         logger.info("✅ Price created successfully: {}", priceId);
@@ -262,6 +274,10 @@ public class SubscriptionTests extends BaseClass {
                 .jsonPath()
                 .getString("id");
 
+        SubscriptionResponse subResponse = resp.as(SubscriptionResponse.class);
+        PojoValidator.validate(subResponse);
+        logger.info("POJO validation passed for subscription: {}", subId);
+
         subscriptionIdsToCleanup.add(subId);
         TestContext.setSubscriptionId(subId);
         logger.info("✅ Subscription created successfully: {}", subId);
@@ -279,12 +295,15 @@ public class SubscriptionTests extends BaseClass {
         }
 
         logger.info("Retrieving subscription ID: {}", subId);
-        Subscription.retrieveSubscription(subId)
-                .then()
+        Response resp = Subscription.retrieveSubscription(subId);
+        resp.then()
                 .spec(ResponseSpec.OK())
                 .body("id", equalTo(subId))
                 .body("status", equalTo("active"));
 
+        SubscriptionResponse subResponse = resp.as(SubscriptionResponse.class);
+        PojoValidator.validate(subResponse);
+        logger.info("POJO validation passed for retrieved subscription: {}", subId);
         logger.info("✅ Subscription retrieved successfully: {}", subId);
     }
 

@@ -20,9 +20,10 @@ import endpoints.PaymentIntent;
 import helpers.CustomersHelper;
 import helpers.PaymentIntentHelper;
 import helpers.PaymentMethodsHelper;
+import helpers.PojoValidator;
 import helpers.TestContext;
 import io.restassured.response.Response;
-
+import models.response.PaymentIntentResponse;
 import testbase.BaseClass;
 
 public class PaymentIntentTests extends BaseClass {
@@ -63,8 +64,9 @@ public class PaymentIntentTests extends BaseClass {
 
                 body.put("automatic_payment_methods[enabled]", true);
 
-                String paymentIntentId = PaymentIntent.createPaymentIntent(body)
-                                .then()
+                Response createResp = PaymentIntent.createPaymentIntent(body);
+
+                String paymentIntentId = createResp.then()
                                 .spec(ResponseSpec.OK())
                                 .body("amount", equalTo(amount))
                                 .body("currency", equalTo("usd"))
@@ -77,6 +79,10 @@ public class PaymentIntentTests extends BaseClass {
                                 .getString("id");
 
                 logger.info("Created paymentIntentId --> \t" + paymentIntentId);
+
+                PaymentIntentResponse piResponse = createResp.as(PaymentIntentResponse.class);
+                PojoValidator.validate(piResponse);
+                logger.info("POJO validation passed for payment intent: {}", paymentIntentId);
 
                 TestContext.setPaymentIntentId(paymentIntentId);
                 logger.info("paymentIntentId set in context ;");

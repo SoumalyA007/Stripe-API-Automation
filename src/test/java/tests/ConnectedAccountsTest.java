@@ -3,8 +3,10 @@ package tests;
 import dataprovider.ConnectedAccountsDataProvider;
 import endpoints.ConnectAccounts;
 import helpers.ConnectedAccountHelper;
+import helpers.PojoValidator;
 import helpers.TestContext;
 import io.restassured.response.Response;
+import models.response.ConnectedAccountResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import static io.restassured.RestAssured.given;
@@ -42,13 +44,17 @@ public class ConnectedAccountsTest extends BaseClass {
         body.put("controller[losses][payments]", "application");
         body.put("controller[stripe_dashboard][type]", "express");
 
-        String connectAccountId = ConnectAccounts.createConnectAccount(body)
-                .then()
+        Response resp = ConnectAccounts.createConnectAccount(body);
+        String connectAccountId = resp.then()
                 .body("object", equalTo("account"))
                 .body("id", notNullValue())
                 .extract()
                 .jsonPath()
                 .get("id");
+
+        ConnectedAccountResponse caResponse = resp.as(ConnectedAccountResponse.class);
+        PojoValidator.validate(caResponse);
+        logger.info("POJO validation passed for connected account: {}", connectAccountId);
 
         logger.info("Created connect account ID: {}", connectAccountId);
         TestContext.setConnectAccountId(connectAccountId);
@@ -69,10 +75,14 @@ public class ConnectedAccountsTest extends BaseClass {
         body.put("default_currency", "usd");
 
         logger.info("Updating connect account ID: {}", connectAccountId);
-        ConnectAccounts.updateConnectAccount(connectAccountId, body)
-                .then()
+        Response resp = ConnectAccounts.updateConnectAccount(connectAccountId, body);
+        resp.then()
                 .body("default_currency", equalTo("usd"))
                 .body("id", equalTo(connectAccountId));
+
+        ConnectedAccountResponse caResponse = resp.as(ConnectedAccountResponse.class);
+        PojoValidator.validate(caResponse);
+        logger.info("POJO validation passed for updated connect account: {}", connectAccountId);
         logger.info("Successfully updated connect account");
     }
 
@@ -108,9 +118,13 @@ public class ConnectedAccountsTest extends BaseClass {
         }
 
         logger.info("Retrieving connect account ID: {}", connectAccountId);
-        ConnectAccounts.retrieveConnectAccount(connectAccountId)
-                .then()
+        Response resp = ConnectAccounts.retrieveConnectAccount(connectAccountId);
+        resp.then()
                 .body("id", equalTo(connectAccountId));
+
+        ConnectedAccountResponse caResponse = resp.as(ConnectedAccountResponse.class);
+        PojoValidator.validate(caResponse);
+        logger.info("POJO validation passed for retrieved connect account: {}", connectAccountId);
         logger.info("Successfully retrieved connect account");
 
     }

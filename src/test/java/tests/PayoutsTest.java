@@ -11,8 +11,10 @@ import java.util.Map;
 import dataprovider.PayoutsDataProvider;
 import endpoints.Payouts;
 import helpers.PayoutsHelper;
+import helpers.PojoValidator;
 import helpers.TestContext;
 import io.restassured.response.Response;
+import models.response.PayoutResponse;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -33,14 +35,18 @@ public class PayoutsTest extends BaseClass {
         body.put("amount", amount / 2);
         body.put("currency", "usd");
 
-        String payoutId = Payouts.createPayout(body)
-                .then()
+        Response resp = Payouts.createPayout(body);
+        String payoutId = resp.then()
                 .spec(ResponseSpec.OK())
                 .body("amount", equalTo(amount / 2))
                 .body("currency", equalTo("usd"))
                 .extract()
                 .jsonPath()
                 .getString("id");
+
+        PayoutResponse payoutResponse = resp.as(PayoutResponse.class);
+        PojoValidator.validate(payoutResponse);
+        logger.info("POJO validation passed for payout: {}", payoutId);
 
         logger.info("Created Payout ID: {}", payoutId);
         TestContext.setPayoutId(payoutId);
@@ -57,10 +63,14 @@ public class PayoutsTest extends BaseClass {
             fallbackPayoutIds.add(payoutId);
         }
 
-        Payouts.retrievePayout(payoutId)
-                .then()
+        Response resp = Payouts.retrievePayout(payoutId);
+        resp.then()
                 .spec(ResponseSpec.OK())
                 .body("id", equalTo(payoutId));
+
+        PayoutResponse payoutResponse = resp.as(PayoutResponse.class);
+        PojoValidator.validate(payoutResponse);
+        logger.info("POJO validation passed for retrieved payout: {}", payoutId);
     }
 
     // ***************CANCEL PAYOUT – POSITIVE*******************\\

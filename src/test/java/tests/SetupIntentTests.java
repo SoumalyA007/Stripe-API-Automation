@@ -7,9 +7,11 @@ import endpoints.SetupIntent;
 import endpoints.paymentMethods;
 import helpers.CustomersHelper;
 import helpers.PaymentMethodsHelper;
+import helpers.PojoValidator;
 import helpers.SetupIntentHelper;
 import helpers.TestContext;
 import io.restassured.response.Response;
+import models.response.SetupIntentResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
@@ -59,6 +61,10 @@ public class SetupIntentTests extends BaseClass {
                                 .extract()
                                 .jsonPath()
                                 .getString("id");
+
+                SetupIntentResponse siResponse = resp.as(SetupIntentResponse.class);
+                PojoValidator.validate(siResponse);
+                logger.info("POJO validation passed for setup intent: {}", setupIntentId);
 
                 TestContext.setSetupIntentId(setupIntentId);
 
@@ -288,12 +294,15 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("Created SetupIntent ID: {}", setupIntentId);
 
                 logger.info("Retrieving SetupIntent ID: {}", setupIntentId);
-                SetupIntent.retrieveSetupIntent(setupIntentId)
-                                .then()
+                Response resp = SetupIntent.retrieveSetupIntent(setupIntentId);
+                resp.then()
                                 .spec(ResponseSpec.OK())
                                 .body("id", equalTo(setupIntentId))
                                 .body("object", equalTo("setup_intent"));
 
+                SetupIntentResponse siResponse = resp.as(SetupIntentResponse.class);
+                PojoValidator.validate(siResponse);
+                logger.info("POJO validation passed for retrieved setup intent: {}", setupIntentId);
                 logger.info("✅ SetupIntent retrieved: {}", setupIntentId);
         }
 

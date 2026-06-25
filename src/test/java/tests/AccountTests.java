@@ -4,13 +4,17 @@ import builders.requestbuilder.CreateAccountRequestPayload;
 import dataprovider.AccountDataProvider;
 import endpoints.accounts;
 import helpers.AccountsHelper;
+import helpers.PojoValidator;
+import helpers.TestContext;
 import io.restassured.response.Response;
-import org.testng.annotations.AfterMethod;
+import models.response.AccountResponse;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -18,13 +22,14 @@ import static org.hamcrest.Matchers.*;
 
 public class AccountTests extends BaseClass {
 
-        List<String> createdAccountIds = new ArrayList<>();
+        List<String> fallbackAccountIds = new ArrayList<>();
 
         // ***************CREATE ACCOUNT – POSITIVE*******************\\
 
         // Create a valid account with all fields populated
         @Test(groups = { "accounts", "create_retrieve_close_account", "regression" })
         public void TC_01_CreateAccount_ValidData() {
+                logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
                 logger.info("Testing create valid account with all fields");
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
 
@@ -36,8 +41,12 @@ public class AccountTests extends BaseClass {
                                 .jsonPath()
                                 .getString("id");
 
+                AccountResponse accountResponse = resp.as(AccountResponse.class);
+                PojoValidator.validate(accountResponse);
+                logger.info("POJO validation passed for account: {}", id);
+
                 logger.info("Created Account ID: {}", id);
-                createdAccountIds.add(id);
+                TestContext.setAccountId(id);
         }
 
         // Create accounts with different entity types using DataProvider
@@ -56,7 +65,7 @@ public class AccountTests extends BaseClass {
                                 .getString("id");
 
                 logger.info("Created Account ID: {}", id);
-                createdAccountIds.add(id);
+                fallbackAccountIds.add(id);
         }
 
         // Create accounts with different dashboard types using DataProvider
@@ -75,7 +84,7 @@ public class AccountTests extends BaseClass {
                                 .getString("id");
 
                 logger.info("Created Account ID: {}", id);
-                createdAccountIds.add(id);
+                fallbackAccountIds.add(id);
         }
 
         // Create an account with only customer configuration (no merchant)
@@ -93,7 +102,7 @@ public class AccountTests extends BaseClass {
                                 .getString("id");
 
                 logger.info("Created Account ID: {}", id);
-                createdAccountIds.add(id);
+                fallbackAccountIds.add(id);
         }
 
         // Create an account with only merchant configuration (no customer)
@@ -111,7 +120,7 @@ public class AccountTests extends BaseClass {
                                 .getString("id");
 
                 logger.info("Created Account ID: {}", id);
-                createdAccountIds.add(id);
+                fallbackAccountIds.add(id);
         }
 
         // Create an account with minimal payload (only required fields)
@@ -129,7 +138,7 @@ public class AccountTests extends BaseClass {
                                 .getString("id");
 
                 logger.info("Created Account ID: {}", id);
-                createdAccountIds.add(id);
+                fallbackAccountIds.add(id);
         }
 
         // ***************CREATE ACCOUNT – NEGATIVE*******************\\
@@ -149,8 +158,8 @@ public class AccountTests extends BaseClass {
                 // Cleanup if accidentally created
                 if (resp.getStatusCode() == 200) {
                         String id = resp.jsonPath().getString("id");
-                        logger.info("Account created unexpectedly, adding to cleanup ID: {}", id);
-                        createdAccountIds.add(id);
+                        logger.info("Account created unexpectedly, adding to fallback cleanup ID: {}", id);
+                        fallbackAccountIds.add(id);
                 }
 
                 resp.then().spec(ResponseSpec.bad_request())
@@ -170,8 +179,8 @@ public class AccountTests extends BaseClass {
                 // Cleanup if accidentally created
                 if (resp.getStatusCode() == 200) {
                         String id = resp.jsonPath().getString("id");
-                        logger.info("Account created unexpectedly, adding to cleanup ID: {}", id);
-                        createdAccountIds.add(id);
+                        logger.info("Account created unexpectedly, adding to fallback cleanup ID: {}", id);
+                        fallbackAccountIds.add(id);
                 }
 
                 resp.then().spec(ResponseSpec.bad_request());
@@ -190,8 +199,8 @@ public class AccountTests extends BaseClass {
                 // Cleanup if accidentally created
                 if (resp.getStatusCode() == 200) {
                         String id = resp.jsonPath().getString("id");
-                        logger.info("Account created unexpectedly, adding to cleanup ID: {}", id);
-                        createdAccountIds.add(id);
+                        logger.info("Account created unexpectedly, adding to fallback cleanup ID: {}", id);
+                        fallbackAccountIds.add(id);
                 }
 
                 resp.then().spec(ResponseSpec.bad_request());
@@ -236,8 +245,8 @@ public class AccountTests extends BaseClass {
                 // Cleanup if accidentally created
                 if (resp.getStatusCode() == 200) {
                         String id = resp.jsonPath().getString("id");
-                        logger.info("Account created unexpectedly, adding to cleanup ID: {}", id);
-                        createdAccountIds.add(id);
+                        logger.info("Account created unexpectedly, adding to fallback cleanup ID: {}", id);
+                        fallbackAccountIds.add(id);
                 }
 
                 resp.then().spec(ResponseSpec.bad_request());
@@ -256,8 +265,8 @@ public class AccountTests extends BaseClass {
                 // Cleanup if accidentally created
                 if (resp.getStatusCode() == 200) {
                         String id = resp.jsonPath().getString("id");
-                        logger.info("Account created unexpectedly, adding to cleanup ID: {}", id);
-                        createdAccountIds.add(id);
+                        logger.info("Account created unexpectedly, adding to fallback cleanup ID: {}", id);
+                        fallbackAccountIds.add(id);
                 }
 
                 resp.then().spec(ResponseSpec.bad_request());
@@ -276,8 +285,8 @@ public class AccountTests extends BaseClass {
                 // Cleanup if accidentally created
                 if (resp.getStatusCode() == 200) {
                         String id = resp.jsonPath().getString("id");
-                        logger.info("Account created unexpectedly, adding to cleanup ID: {}", id);
-                        createdAccountIds.add(id);
+                        logger.info("Account created unexpectedly, adding to fallback cleanup ID: {}", id);
+                        fallbackAccountIds.add(id);
                 }
 
                 resp.then().spec(ResponseSpec.bad_request());
@@ -308,21 +317,25 @@ public class AccountTests extends BaseClass {
                 logger.info("Successfully verified missing country rejection");
         }
 
+
         // ***************RETRIEVE ACCOUNT – POSITIVE*******************\\
 
         // Retrieve a valid account by its ID
         @Test(groups = { "accounts", "create_retrieve_close_account", "regression" })
         public void TC_17_RetrieveAccount_ValidId() {
                 logger.info("Testing retrieve valid account");
-                // First, create an account to retrieve
-                CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
-                Response createResp = accounts.createAccount(requestPayload);
-                String accountId = createResp.then().spec(ResponseSpec.OK())
-                                .extract()
-                                .jsonPath()
-                                .getString("id");
-                logger.info("Created account to retrieve ID: {}", accountId);
-                createdAccountIds.add(accountId);
+
+                String accountId = TestContext.getAccountId();
+                if (accountId == null) {
+                        CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
+                        accountId = accounts.createAccount(requestPayload)
+                                        .then().spec(ResponseSpec.OK())
+                                        .extract().jsonPath().getString("id");
+                        fallbackAccountIds.add(accountId);
+                        logger.info("Created fallback account to retrieve ID: {}", accountId);
+                } else {
+                        logger.info("Fetched account ID from context --> {}", accountId);
+                }
 
                 // Now retrieve it
                 logger.info("Retrieving account ID: {}", accountId);
@@ -330,8 +343,13 @@ public class AccountTests extends BaseClass {
 
                 resp.then().spec(ResponseSpec.OK())
                                 .body("id", equalTo(accountId));
+
+                AccountResponse accountResponse = resp.as(AccountResponse.class);
+                PojoValidator.validate(accountResponse);
+                logger.info("POJO validation passed for retrieved account: {}", accountId);
                 logger.info("Successfully retrieved account");
         }
+
 
         // ***************RETRIEVE ACCOUNT – NEGATIVE*******************\\
 
@@ -383,21 +401,27 @@ public class AccountTests extends BaseClass {
         @Test(groups = { "accounts", "create_retrieve_close_account", "regression" })
         public void TC_22_CloseAccount_ValidId() {
                 logger.info("Testing close valid account");
-                // First, create an account to close
-                CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
-                Response createResp = accounts.createAccount(requestPayload);
-                String accountId = createResp.then().spec(ResponseSpec.OK())
-                                .extract()
-                                .jsonPath()
-                                .getString("id");
-                logger.info("Created account to close ID: {}", accountId);
 
-                // Close it (do NOT add to cleanup list since it's already closed)
+                String accountId = TestContext.getAccountId();
+                if (accountId == null) {
+                        CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
+                        accountId = accounts.createAccount(requestPayload)
+                                        .then().spec(ResponseSpec.OK())
+                                        .extract().jsonPath().getString("id");
+                        logger.info("Created fallback account to close ID: {}", accountId);
+                } else {
+                        logger.info("Fetched account ID from context --> {}", accountId);
+                }
+
+                // Close it (do NOT add to fallback list since it's already being closed)
                 logger.info("Closing account ID: {}", accountId);
                 Response resp = accounts.closeAccount(accountId);
 
                 resp.then().spec(ResponseSpec.OK());
                 logger.info("Successfully closed account");
+
+                // Clear from context since it's now closed
+                TestContext.setAccountId(null);
         }
 
         // ***************CLOSE ACCOUNT – NEGATIVE*******************\\
@@ -416,13 +440,11 @@ public class AccountTests extends BaseClass {
         @Test(groups = { "accounts", "negative", "regression" })
         public void TC_24_CloseAccount_AlreadyClosed() {
                 logger.info("Testing close already closed account");
-                // Create and then close an account
+                // Create a fresh account specifically for this test
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
-                Response createResp = accounts.createAccount(requestPayload);
-                String accountId = createResp.then().spec(ResponseSpec.OK())
-                                .extract()
-                                .jsonPath()
-                                .getString("id");
+                String accountId = accounts.createAccount(requestPayload)
+                                .then().spec(ResponseSpec.OK())
+                                .extract().jsonPath().getString("id");
                 logger.info("Created account ID: {}", accountId);
 
                 // First close succeeds
@@ -444,13 +466,11 @@ public class AccountTests extends BaseClass {
         @Test(groups = { "accounts", "negative", "regression" })
         public void TC_25_RetrieveAccount_AfterClose() {
                 logger.info("Testing retrieve account after closing");
-                // Create and then close an account
+                // Create a fresh account specifically for this test
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
-                Response createResp = accounts.createAccount(requestPayload);
-                String accountId = createResp.then().spec(ResponseSpec.OK())
-                                .extract()
-                                .jsonPath()
-                                .getString("id");
+                String accountId = accounts.createAccount(requestPayload)
+                                .then().spec(ResponseSpec.OK())
+                                .extract().jsonPath().getString("id");
                 logger.info("Created account ID: {}", accountId);
 
                 // Close it
@@ -494,23 +514,40 @@ public class AccountTests extends BaseClass {
                 logger.info("Successfully verified close invalid auth rejection");
         }
 
-        // ***************CLEANUP AFTER TEST*******************\\
+        // ***************CLEANUP AFTER CLASS*******************\\
 
-        @AfterMethod
+        @AfterClass(alwaysRun = true)
         public void cleanup() {
-                logger.info("Running cleanup for AccountTests");
-                logger.info("Closing {} created accounts", createdAccountIds.size());
-                for (String id : createdAccountIds) {
+                logger.info("🧹 Starting cleanup for AccountTests...");
+
+                // Close the shared account from TestContext if it was never closed during tests
+                String contextAccountId = TestContext.getAccountId();
+                if (contextAccountId != null) {
                         try {
-                                logger.info("Closing account ID: {}", id);
-                                accounts.closeAccount(id);
+                                accounts.closeAccount(contextAccountId);
+                                logger.info("🧹 Closed context account: {}", contextAccountId);
                         } catch (Exception e) {
-                                logger.error("⚠️ Cleanup failed for account: {}", id, e);
+                                logger.warn("⚠️ Failed to close context account {}: {}", contextAccountId,
+                                                e.getMessage());
                         }
                 }
 
-                // 🔥 Important: clear list after cleanup
-                createdAccountIds.clear();
+                // Close all fallback accounts created during the test run
+                logger.info("ℹ️ {} fallback account(s) to close:", fallbackAccountIds.size());
+                for (String id : fallbackAccountIds) {
+                        try {
+                                accounts.closeAccount(id);
+                                logger.info("🧹 Closed fallback account: {}", id);
+                        } catch (Exception e) {
+                                logger.warn("⚠️ Failed to close fallback account {}: {}", id, e.getMessage());
+                        }
+                }
+
+                // Clear the shared account ID from TestContext to avoid state leakage
+                TestContext.setAccountId(null);
+                logger.info("🧹 Cleared account ID from TestContext.");
+
+                logger.info("✅ Cleanup complete for AccountTests.");
         }
 
 }

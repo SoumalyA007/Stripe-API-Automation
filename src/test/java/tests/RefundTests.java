@@ -13,8 +13,10 @@ import endpoints.PaymentIntent;
 import endpoints.Refunds;
 import helpers.PaymentIntentHelper;
 import helpers.RefundHelper;
+import helpers.PojoValidator;
 import helpers.TestContext;
 import io.restassured.response.Response;
+import models.response.RefundResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
@@ -44,8 +46,8 @@ public class RefundTests extends BaseClass {
                 body.put("payment_intent", paymentIntentId);
                 body.put("amount", amount);
 
-                String refundId = Refunds.createRefund(paymentIntentId, body)
-                                .then()
+                Response refundResp = Refunds.createRefund(paymentIntentId, body);
+                String refundId = refundResp.then()
                                 .spec(ResponseSpec.OK())
                                 .body("amount", equalTo(amount))
                                 .body("currency", equalTo("usd"))
@@ -53,6 +55,10 @@ public class RefundTests extends BaseClass {
                                 .extract()
                                 .jsonPath()
                                 .getString("id");
+
+                RefundResponse refundResponse = refundResp.as(RefundResponse.class);
+                PojoValidator.validate(refundResponse);
+                logger.info("POJO validation passed for refund: {}", refundId);
 
                 logger.info("Refund Id -->\t" + refundId);
 
@@ -105,11 +111,14 @@ public class RefundTests extends BaseClass {
                 }
 
                 logger.info("Retrieving refund with ID: {}", refundId);
-                Refunds.retrieveRefund(refundId)
-                                .then()
+                Response resp = Refunds.retrieveRefund(refundId);
+                resp.then()
                                 .spec(ResponseSpec.OK())
                                 .body("id", equalTo(refundId));
 
+                RefundResponse refundResponse = resp.as(RefundResponse.class);
+                PojoValidator.validate(refundResponse);
+                logger.info("POJO validation passed for retrieved refund: {}", refundId);
                 logger.info("Successfully retrieved refund with ID: {}", refundId);
         }
 

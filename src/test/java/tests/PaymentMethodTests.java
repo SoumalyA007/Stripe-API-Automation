@@ -6,8 +6,11 @@ import endpoints.paymentMethods;
 import helpers.CustomersHelper;
 import helpers.NegativeTestHelper;
 import helpers.PaymentMethodsHelper;
+import helpers.PojoValidator;
 import helpers.TestContext;
+import io.restassured.response.Response;
 import io.restassured.specification.ResponseSpecification;
+import models.response.PaymentMethodResponse;
 
 import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
@@ -49,8 +52,8 @@ public class PaymentMethodTests extends BaseClass {
         method.put("billing_details[name]", name);
 
         logger.info("Creating payment method");
-        String paymentMethodId = paymentMethods.createPaymentMethod(method)
-                .then()
+        Response resp = paymentMethods.createPaymentMethod(method);
+        String paymentMethodId = resp.then()
                 .spec(ResponseSpec.OK())
                 .body("type", equalTo(type))
                 .extract()
@@ -58,6 +61,9 @@ public class PaymentMethodTests extends BaseClass {
         if (TestContext.getPaymentMethodId() == null) {
             TestContext.setPaymentMethodId(paymentMethodId);
         }
+        PaymentMethodResponse pmResponse = resp.as(PaymentMethodResponse.class);
+        PojoValidator.validate(pmResponse);
+        logger.info("POJO validation passed for payment method: {}", paymentMethodId);
         logger.info("Successfully created valid payment method");
     }
 
@@ -148,10 +154,13 @@ public class PaymentMethodTests extends BaseClass {
         }
 
         logger.info("Retrieving payment method ID: {}", paymentMethodId);
-        paymentMethods.retrievePaymentMethod(paymentMethodId)
-                .then()
+        Response resp = paymentMethods.retrievePaymentMethod(paymentMethodId);
+        resp.then()
                 .spec(ResponseSpec.OK())
                 .body("id", equalTo(paymentMethodId));
+        PaymentMethodResponse pmResponse = resp.as(PaymentMethodResponse.class);
+        PojoValidator.validate(pmResponse);
+        logger.info("POJO validation passed for retrieved payment method: {}", paymentMethodId);
         logger.info("Successfully retrieved payment method");
     }
 

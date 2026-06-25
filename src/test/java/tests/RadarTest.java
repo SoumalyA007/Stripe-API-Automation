@@ -11,7 +11,9 @@ import java.util.Map;
 import dataprovider.RadarDataProvider;
 import endpoints.Radar;
 import helpers.RadarHelper;
+import helpers.PojoValidator;
 import helpers.TestContext;
+import models.response.RadarEarlyFraudWarningResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
@@ -36,12 +38,15 @@ public class RadarTest extends BaseClass {
             logger.info("Fetched early fraud warning ID from context --> {}", warningId);
         }
 
-        Radar.retrieveEarlyFraudWarning(warningId)
-                .then()
+        io.restassured.response.Response resp = Radar.retrieveEarlyFraudWarning(warningId);
+        resp.then()
                 .spec(ResponseSpec.OK())
                 .body("id", equalTo(warningId))
                 .body("object", equalTo("radar.early_fraud_warning"));
 
+        RadarEarlyFraudWarningResponse efwResponse = resp.as(RadarEarlyFraudWarningResponse.class);
+        PojoValidator.validate(efwResponse);
+        logger.info("POJO validation passed for radar early fraud warning: {}", warningId);
         logger.info("Successfully retrieved early fraud warning ID: {}", warningId);
     }
 

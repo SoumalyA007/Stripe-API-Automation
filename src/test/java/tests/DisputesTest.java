@@ -11,7 +11,10 @@ import java.util.Map;
 import dataprovider.DisputesDataProvider;
 import endpoints.Disputes;
 import helpers.DisputesHelper;
+import helpers.PojoValidator;
 import helpers.TestContext;
+import io.restassured.response.Response;
+import models.response.DisputeResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
@@ -36,12 +39,15 @@ public class DisputesTest extends BaseClass {
             logger.info("Fetched dispute ID from context --> {}", disputeId);
         }
 
-        Disputes.retrieveDispute(disputeId)
-                .then()
+        io.restassured.response.Response resp = Disputes.retrieveDispute(disputeId);
+        resp.then()
                 .spec(ResponseSpec.OK())
                 .body("id", equalTo(disputeId))
                 .body("object", equalTo("dispute"));
 
+        DisputeResponse disputeResponse = resp.as(DisputeResponse.class);
+        PojoValidator.validate(disputeResponse);
+        logger.info("POJO validation passed for dispute: {}", disputeId);
         logger.info("Successfully retrieved dispute ID: {}", disputeId);
     }
 

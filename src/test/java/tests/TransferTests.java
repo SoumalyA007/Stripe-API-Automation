@@ -12,9 +12,11 @@ import dataprovider.TransfersDataProvider;
 import endpoints.ConnectAccounts;
 import endpoints.Transfers;
 import helpers.ConnectedAccountHelper;
+import helpers.PojoValidator;
 import helpers.TransfersHelper;
 import io.restassured.response.Response;
 import helpers.TestContext;
+import models.response.TransferResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
@@ -45,8 +47,8 @@ public class TransferTests extends BaseClass {
         body.put("currency", "usd");
         body.put("destination", connectAccountId);
 
-        String transferId = Transfers.createTransfer(body)
-                .then()
+        Response resp = Transfers.createTransfer(body);
+        String transferId = resp.then()
                 .spec(ResponseSpec.OK())
                 .body("amount", equalTo(amount / 2))
                 .body("currency", equalTo("usd"))
@@ -54,6 +56,10 @@ public class TransferTests extends BaseClass {
                 .extract()
                 .jsonPath()
                 .getString("id");
+
+        TransferResponse transferResponse = resp.as(TransferResponse.class);
+        PojoValidator.validate(transferResponse);
+        logger.info("POJO validation passed for transfer: {}", transferId);
 
         logger.info("Created Transfer ID: {}", transferId);
         TestContext.setTransferId(transferId);
@@ -74,10 +80,13 @@ public class TransferTests extends BaseClass {
         }
 
         logger.info("Retrieving transfer with ID: {}", transferId);
-        Transfers.retrieveTransfer(transferId)
-                .then()
+        Response resp = Transfers.retrieveTransfer(transferId);
+        resp.then()
                 .spec(ResponseSpec.OK())
                 .body("id", equalTo(transferId));
+        TransferResponse transferResponse = resp.as(TransferResponse.class);
+        PojoValidator.validate(transferResponse);
+        logger.info("POJO validation passed for retrieved transfer: {}", transferId);
         logger.info("Successfully retrieved transfer with ID: {}", transferId);
     }
 

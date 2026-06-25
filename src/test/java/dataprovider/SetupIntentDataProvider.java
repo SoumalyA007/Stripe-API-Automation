@@ -3,9 +3,6 @@ package dataprovider;
 import org.testng.annotations.DataProvider;
 import specification.ResponseSpec;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class SetupIntentDataProvider {
 
     /**

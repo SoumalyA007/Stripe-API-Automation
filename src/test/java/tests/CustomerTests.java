@@ -8,10 +8,7 @@ import helpers.PojoValidator;
 import helpers.TestContext;
 import io.restassured.response.Response;
 import models.response.CustomerResponse;
-
-import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;

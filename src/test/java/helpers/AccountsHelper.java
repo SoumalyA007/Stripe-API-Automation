@@ -1,6 +1,6 @@
 package helpers;
 
-import builders.requestbuilder.*;
+import models.common.*;
 import com.github.javafaker.Faker;
 import datafactory.CreateAccountDataFactory;
 import enums.*;

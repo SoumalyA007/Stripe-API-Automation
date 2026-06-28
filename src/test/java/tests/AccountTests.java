@@ -1,6 +1,6 @@
 package tests;
 
-import builders.requestbuilder.CreateAccountRequestPayload;
+import models.common.CreateAccountRequestPayload;
 import dataprovider.AccountDataProvider;
 import endpoints.accounts;
 import helpers.AccountsHelper;

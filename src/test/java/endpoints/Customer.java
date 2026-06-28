@@ -17,7 +17,8 @@ public class Customer {
         return createCustomer(name, email, metadata, new HashMap<>());
     }
 
-    public static Response createCustomer(Object name, Object email, Map<String, String> metadata, Map<String, String> headers) {
+    public static Response createCustomer(Object name, Object email, Map<String, String> metadata,
+            Map<String, String> headers) {
 
         var request = given()
                 .spec(RequestSpec.setupv1())
@@ -210,5 +211,15 @@ public class Customer {
 
     }
 
-}
+    public static Response fundCashBalance(String customerId, Map<String, Object> body) {
+        return given()
+                .spec(RequestSpec.setupv1())
+                .basePath("/v1/test_helpers/customers/{id}/fund_cash_balance")
+                .pathParam("id", customerId)
+                .formParams(body)
+                .filters(new RequestLoggingFilter(), new ResponseLoggingFilter())
+                .when()
+                .post();
+    }
 
+}

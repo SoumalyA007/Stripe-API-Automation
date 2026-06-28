@@ -44,4 +44,18 @@ public class RefundHelper {
         return refundId;
     }
 
+    public static String createCancellableRefund() {
+        String paymentIntentId = PaymentIntentHelper.createBankTransferPaymentIntentForCancellableRefund();
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("payment_intent", paymentIntentId);
+        // No amount param → full refund of the succeeded PI
+
+        return Refunds.createRefund(paymentIntentId, body)
+                .then()
+                .extract()
+                .jsonPath()
+                .getString("id");
+    }
+
 }

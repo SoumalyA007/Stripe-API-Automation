@@ -26,7 +26,7 @@ public class PayoutsTest extends BaseClass {
     List<String> fallbackPayoutIds = new ArrayList<>();
     // ***************CREATE PAYOUT – POSITIVE*******************\\
 
-    @Test(groups = { "payout", "regression" })
+    @Test(groups = { "payout", "regression", "create_retrieve_cancel_payout" })
     public void TC_01_Create_Valid_Payout() {
 
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
@@ -54,7 +54,7 @@ public class PayoutsTest extends BaseClass {
 
     // ***************RETRIEVE PAYOUT – POSITIVE*******************\\
 
-    @Test(groups = { "payout", "regression" })
+    @Test(groups = { "payout", "regression", "create_retrieve_cancel_payout" })
     public void TC_02_Retrieve_Payout() {
         String payoutId = TestContext.getPayoutId();
         if (payoutId == null) {
@@ -75,7 +75,7 @@ public class PayoutsTest extends BaseClass {
 
     // ***************CANCEL PAYOUT – POSITIVE*******************\\
 
-    @Test(groups = { "payout", "regression" })
+    @Test(groups = { "payout", "regression", "create_retrieve_cancel_payout" })
     public void TC_03_Cancel_Payout() {
         String payoutId = TestContext.getPayoutId();
         if (payoutId == null) {

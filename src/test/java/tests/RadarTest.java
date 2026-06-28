@@ -25,7 +25,7 @@ public class RadarTest extends BaseClass {
 
     // ***************RETRIEVE EARLY FRAUD WARNING – POSITIVE*******************\\
 
-    @Test(groups = { "radar", "regression" })
+    @Test(groups = { "radar", "regression", "retrieve_list_fraud" })
     public void TC_01_Retrieve_EarlyFraudWarning() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -52,7 +52,7 @@ public class RadarTest extends BaseClass {
 
     // ***************LIST EARLY FRAUD WARNINGS – POSITIVE*******************\\
 
-    @Test(groups = { "radar", "regression" })
+    @Test(groups = { "radar", "regression", "retrieve_list_fraud" })
     public void TC_02_List_EarlyFraudWarnings() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Map<String, Object> query = new HashMap<>();
@@ -69,7 +69,8 @@ public class RadarTest extends BaseClass {
 
     // ***************RETRIEVE EARLY FRAUD WARNING – NEGATIVE*******************\\
 
-    @Test(groups = { "radar", "negative", "regression" }, dataProvider = "invalidWarningIds", dataProviderClass = RadarDataProvider.class)
+    @Test(groups = { "radar", "negative",
+            "regression" }, dataProvider = "invalidWarningIds", dataProviderClass = RadarDataProvider.class)
     public void TC_03_RetrieveEarlyFraudWarning_InvalidId(String testCaseName, String warningId,
             String expectedErrorFragment) {
         logger.info("Running retrieve early fraud warning invalid case: {} for warning ID: {}", testCaseName,
@@ -113,7 +114,8 @@ public class RadarTest extends BaseClass {
 
         // Early fraud warnings cannot be deleted via the API — log them for reference
         if (!fallbackEarlyFraudWarningIds.isEmpty()) {
-            logger.info("ℹ️ {} fallback early fraud warning(s) were created during the test run (cannot be deleted via API):",
+            logger.info(
+                    "ℹ️ {} fallback early fraud warning(s) were created during the test run (cannot be deleted via API):",
                     fallbackEarlyFraudWarningIds.size());
             for (String id : fallbackEarlyFraudWarningIds) {
                 logger.info("   - Early Fraud Warning ID: {}", id);

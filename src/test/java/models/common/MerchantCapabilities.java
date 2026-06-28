@@ -1,4 +1,4 @@
-package builders.requestbuilder;
+package models.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Automatic_indirect_tax {
-    private Boolean requested;
+public class MerchantCapabilities {
+    private Card_Payments card_payments;
 }

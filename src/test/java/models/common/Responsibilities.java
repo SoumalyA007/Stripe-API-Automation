@@ -1,4 +1,4 @@
-package builders.requestbuilder;
+package models.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import enums.DefaultsResponsibilitiesFeesCollector;

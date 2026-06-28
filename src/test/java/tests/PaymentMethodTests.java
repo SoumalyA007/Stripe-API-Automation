@@ -11,13 +11,9 @@ import helpers.TestContext;
 import io.restassured.response.Response;
 import io.restassured.specification.ResponseSpecification;
 import models.response.PaymentMethodResponse;
-
-import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import specification.ResponseSpec;
-
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import java.util.ArrayList;

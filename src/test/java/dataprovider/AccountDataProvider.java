@@ -1,6 +1,6 @@
 package dataprovider;
 
-import builders.requestbuilder.CreateAccountRequestPayload;
+import models.common.CreateAccountRequestPayload;
 import enums.*;
 import helpers.AccountsHelper;
 import org.testng.annotations.DataProvider;

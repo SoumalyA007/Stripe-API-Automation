@@ -3,7 +3,7 @@ package endpoints;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.response.Response;
-import builders.requestbuilder.CreateAccountRequestPayload;
+import models.common.CreateAccountRequestPayload;
 import specification.RequestSpec;
 
 import static io.restassured.RestAssured.given;

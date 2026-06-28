@@ -1,7 +1,6 @@
-package builders.requestbuilder;
+package models.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import enums.IdentityEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,10 +11,6 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Identity {
-
-    private String country;
-    private IdentityEntity entity_type;
-    private Business_Details business_details;
-
+public class Merchant {
+    private MerchantCapabilities capabilities;
 }

@@ -3,11 +3,9 @@ package tests;
 import static org.hamcrest.Matchers.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import dataprovider.RefundDataProvider;
 import endpoints.PaymentIntent;
 import endpoints.Refunds;
@@ -31,7 +29,7 @@ public class RefundTests extends BaseClass {
         // ***************CREATE REFUND – POSITIVE*******************\\
 
         // Full refund of paid amount
-        @Test(groups = { "refund", "regression", "refund_retrieve_cancel" })
+        @Test(groups = { "refund", "regression", "create_retrieve_refund" })
         public void TC_01_positive_Full_Refund() {
                 logger.info("Testing positive full refund");
                 String paymentIntentId = TestContext.getPaymentIntentId();
@@ -68,7 +66,7 @@ public class RefundTests extends BaseClass {
         }
 
         // partial refund of paid amount
-        @Test(groups = { "refund", "regression", "partialrefund_retrieve_cancel" })
+        @Test(groups = { "refund", "regression", "partialrefund_retrieve" })
         public void TC_02_positive_Partial_Refund() {
                 logger.info("Testing positive partial refund");
                 String paymentIntentId = TestContext.getPaymentIntentId();
@@ -101,7 +99,7 @@ public class RefundTests extends BaseClass {
                 TestContext.setRefundId(refundId);
         }
 
-        @Test(groups = { "refund", "regression", "refund_retrieve_cancel", "partialrefund_retrieve_cancel" })
+        @Test(groups = { "refund", "regression", "create_retrieve_refund", "partialrefund_retrieve" })
         public void TC_02_Retrieve_Refund() {
                 String refundId = TestContext.getRefundId();
                 if (refundId == null) {
@@ -122,30 +120,42 @@ public class RefundTests extends BaseClass {
                 logger.info("Successfully retrieved refund with ID: {}", refundId);
         }
 
-        // @Test(groups = { "refund", "regression", "refund_retrieve_cancel",
-        // "partialrefund_retrieve_cancel" })
-        // public void TC_03_Cancel_Refund() {
-        // String refundId = TestContext.getRefundId();
+        // ***************CANCEL REFUND – POSITIVE*******************\\
 
-        // if (refundId == null) {
-        // refundId = RefundHelper.createFallbackRefund();
-        // logger.info("Created fallback refund ID: {}", refundId);
-        // TestContext.setRefundId(refundId);
-        // }
+        @Test(groups = { "refund", "regression", "cancel_refund" })
+        public void TC_03_positive_CancelRefund() {
+                logger.info("Testing positive cancel refund (requires_action flow)");
 
-        // logger.info("Canceling refund with ID: {}", refundId);
-        // Refunds.cancelRefund(refundId)
-        // .then()
-        // .spec(ResponseSpec.OK())
-        // .body("id", equalTo(refundId))
-        // .body("status", equalTo("canceled"));
+                // Build a refund that is in requires_action state
+                String refundId = RefundHelper.createCancellableRefund();
+                logger.info("Created requires_action refund ID: {}", refundId);
 
-        // // Store in the dedicated canceled slot so it does NOT overwrite
-        // // the live refundId that TC_02_Retrieve_Refund may still need.
-        // // Only propagate in flow mode so standalone runs stay isolated.
-        // TestContext.setCanceledRefundId(refundId);
-        // logger.info("Successfully canceled refund with ID: {}", refundId);
-        // }
+                // Verify the refund is actually in requires_action before cancelling
+                Refunds.retrieveRefund(refundId)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .body("id", equalTo(refundId))
+                                .body("status", equalTo("requires_action"));
+                logger.info("Confirmed refund {} is in requires_action status", refundId);
+
+                // Cancel the refund — only valid in requires_action state via API
+                Response cancelResp = Refunds.cancelRefund(refundId);
+                cancelResp.then()
+                                .spec(ResponseSpec.OK())
+                                .body("id", equalTo(refundId))
+                                .body("status", equalTo("canceled"))
+                                // Stripe docs: failure_reason and failure_balance_transaction
+                                // are included on canceled refunds
+                                .body("failure_reason", notNullValue())
+                                .body("failure_balance_transaction", notNullValue());
+
+                logger.info("Refund {} successfully cancelled. Status=canceled, failure_reason present.",
+                                refundId);
+
+                // Store for TC_15 double-cancel test so it doesn't need to create its own
+                TestContext.setCanceledRefundId(refundId);
+                logger.info("Stored canceled refund ID in context for TC_15: {}", refundId);
+        }
 
         // ***************CREATE REFUND – NEGATIVE*******************\\
 

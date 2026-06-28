@@ -1,6 +1,6 @@
 package datafactory;
 
-import builders.requestbuilder.*;
+import models.common.*;
 import enums.*;
 
 

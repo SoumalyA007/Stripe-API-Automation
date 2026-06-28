@@ -1,5 +1,4 @@
-package builders.requestbuilder;
-
+package models.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
@@ -12,6 +11,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Defaults {
-    private Responsibilities responsibilities;
+public class Configuration {
+    private Customer customer;
+    private Merchant merchant;
+
 }

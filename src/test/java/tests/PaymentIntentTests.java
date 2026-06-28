@@ -5,17 +5,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import dataprovider.PaymentIntentDataProvider;
-
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
-
 import specification.ResponseSpec;
-
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-
 import endpoints.PaymentIntent;
 import helpers.CustomersHelper;
 import helpers.PaymentIntentHelper;
@@ -29,6 +24,7 @@ import testbase.BaseClass;
 public class PaymentIntentTests extends BaseClass {
 
         List<String> paymethodIds = new ArrayList<>();
+        List<String> customerIds = new ArrayList<>();
 
         // Creating paymentIntent
         @Test(groups = { "payment_intent", "regression", "create_cancel_paymentIntent",
@@ -43,6 +39,7 @@ public class PaymentIntentTests extends BaseClass {
                 // exists
                 if (paymentMethodId == null) {
                         paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod();
+                        paymethodIds.add(paymentMethodId);
                         logger.info("Inside IF block paymentMethodId fetch when it does not exist --> \t"
                                         + paymentMethodId);
                 }
@@ -59,6 +56,7 @@ public class PaymentIntentTests extends BaseClass {
                 if (customerId == null) {
                         customerId = CustomersHelper.createCustomer();
                         TestContext.setCustomerId(customerId);
+                        customerIds.add(customerId);
                 }
                 body.put("customer", customerId);
 
@@ -305,6 +303,7 @@ public class PaymentIntentTests extends BaseClass {
                         String expectedErrorCode) {
                 logger.info("Running confirm invalid payment method test: {}", testCaseName);
                 String paymentMethodId = PaymentMethodsHelper.createPaymentMethod(body);
+                paymethodIds.add(paymentMethodId);
                 logger.info("Created invalid payment method ID: {}", paymentMethodId);
 
                 Map<String, Object> intentBody = new HashMap<>();
@@ -387,6 +386,68 @@ public class PaymentIntentTests extends BaseClass {
                                 .body("error.code", equalTo("payment_intent_unexpected_state"))
                                 .body("error.message", containsString("payment_method"));
                 logger.info("Successfully verified confirmation without payment method is rejected");
+        }
+
+        @AfterClass(alwaysRun = true)
+        public void cleanup() {
+                logger.info("🧹 Starting cleanup for PaymentIntentTests...");
+
+                // Clean up any customers created during the test class execution
+                logger.info("🧹 Cleaning up {} created customers...", customerIds.size());
+                for (String id : customerIds) {
+                        try {
+                                endpoints.Customer.deleteCustomer(id);
+                                logger.info("🧹 Deleted customer: {}", id);
+                        } catch (Exception e) {
+                                logger.warn("⚠️ Failed to delete customer {}: {}", id, e.getMessage());
+                        }
+                }
+                customerIds.clear();
+
+                // Clean up any payment methods created during the test class execution
+                logger.info("🧹 Cleaning up {} created payment methods...", paymethodIds.size());
+                for (String id : paymethodIds) {
+                        try {
+                                endpoints.paymentMethods.detachPaymentMethod(id);
+                                logger.info("🧹 Detached payment method: {}", id);
+                        } catch (Exception e) {
+                                logger.warn("⚠️ Failed to detach payment method {}: {}", id, e.getMessage());
+                        }
+                }
+                paymethodIds.clear();
+
+                // Also clean up any active Customer or PaymentMethod still in TestContext
+                // (e.g. created by fallback helpers during standalone run)
+                String ctxCustomerId = TestContext.getCustomerId();
+                if (ctxCustomerId != null) {
+                        try {
+                                endpoints.Customer.deleteCustomer(ctxCustomerId);
+                                logger.info("🧹 Deleted context customer: {}", ctxCustomerId);
+                        } catch (Exception e) {
+                                logger.warn("⚠️ Failed to delete context customer {}: {}", ctxCustomerId,
+                                                e.getMessage());
+                        }
+                }
+
+                String ctxPaymentMethodId = TestContext.getPaymentMethodId();
+                if (ctxPaymentMethodId != null) {
+                        try {
+                                endpoints.paymentMethods.detachPaymentMethod(ctxPaymentMethodId);
+                                logger.info("🧹 Detached context payment method: {}", ctxPaymentMethodId);
+                        } catch (Exception e) {
+                                logger.warn("⚠️ Failed to detach context payment method {}: {}", ctxPaymentMethodId,
+                                                e.getMessage());
+                        }
+                }
+
+                // Clear TestContext to prevent leakage
+                TestContext.setPaymentMethodId(null);
+                TestContext.setCustomerId(null);
+                TestContext.setPaymentIntentId(null);
+                TestContext.setCanceledPaymentIntent(null);
+                TestContext.setConfirmPaymentIntent(null);
+
+                logger.info("✅ Cleanup complete for PaymentIntentTests.");
         }
 
 }

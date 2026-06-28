@@ -1,6 +1,7 @@
 package helpers;
 
 import endpoints.PaymentIntent;
+import endpoints.Customer;
 import specification.ResponseSpec;
 
 import java.util.HashMap;
@@ -9,14 +10,6 @@ import testbase.BaseClass;
 
 public class PaymentIntentHelper {
 
-    /**
-     * Creates a fallback payment intent for standalone testing or prerequisite
-     * flows.
-     * 
-     * @param confirm Set to true to automatically confirm the payment intent upon
-     *                creation (status = succeeded)
-     * @return the created payment_intent ID
-     */
     public static String createFallbackPaymentIntent(boolean confirm) {
         String paymentMethodId = TestContext.getPaymentMethodId();
         if (paymentMethodId == null) {
@@ -56,5 +49,39 @@ public class PaymentIntentHelper {
         cancelBody.put("cancellation_reason", "abandoned");
         PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody);
         return paymentIntentId;
+    }
+
+    public static String createBankTransferPaymentIntentForCancellableRefund() {
+        // Step 1: Create a fresh customer (customer_balance requires a customer)
+        String customerId = CustomersHelper.createCustomer();
+
+        // Step 2: Create a PaymentIntent with customer_balance / bank_transfer
+        Map<String, Object> piBody = new HashMap<>();
+        piBody.put("amount", BaseClass.amount);
+        piBody.put("currency", "usd");
+        piBody.put("customer", customerId);
+        piBody.put("payment_method_types[]", "customer_balance");
+        piBody.put("payment_method_data[type]", "customer_balance");
+        piBody.put("payment_method_options[customer_balance][funding_type]", "bank_transfer");
+        piBody.put("payment_method_options[customer_balance][bank_transfer][type]", "us_bank_transfer");
+        piBody.put("confirm", true);
+
+        String paymentIntentId = PaymentIntent.createPaymentIntent(piBody)
+                .then()
+                .spec(ResponseSpec.OK())
+                .extract()
+                .jsonPath()
+                .getString("id");
+
+        // Step 3: Fund the customer's cash balance via Stripe test helpers so the PI
+        // succeeds
+        Map<String, Object> fundBody = new HashMap<>();
+        fundBody.put("amount", BaseClass.amount);
+        fundBody.put("currency", "usd");
+
+        Customer.fundCashBalance(customerId, fundBody);
+
+        return paymentIntentId;
+
     }
 }

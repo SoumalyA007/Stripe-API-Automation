@@ -24,9 +24,26 @@ public class DisputesTest extends BaseClass {
 
     List<String> fallbackDisputeIds = new ArrayList<>();
 
+    // ***************CREATE DISPUTE – POSITIVE*******************\\
+
+    @Test(groups = { "dispute", "regression", "create_update_retrieve_close_dispute" }, priority = 1)
+    public void TC_00_Create_Dispute() {
+        logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+        logger.info("Creating a dispute via payment intent with tok_createDispute");
+
+        String disputeId = DisputesHelper.createDisputedCharge();
+        logger.info("Created dispute ID: {}", disputeId);
+
+        org.testng.Assert.assertNotNull(disputeId, "Dispute ID should not be null");
+        org.testng.Assert.assertTrue(disputeId.startsWith("dp_"), "Dispute ID should start with 'dp_'");
+
+        // Save in TestContext and fallbackDisputeIds for subsequent tests
+        TestContext.setDisputeId(disputeId);
+    }
+
     // ***************RETRIEVE DISPUTE – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "regression" })
+    @Test(groups = { "dispute", "regression", "create_update_retrieve_close_dispute" }, priority = 3)
     public void TC_01_Retrieve_Dispute() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -53,7 +70,7 @@ public class DisputesTest extends BaseClass {
 
     // ***************UPDATE DISPUTE EVIDENCE – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "regression" })
+    @Test(groups = { "dispute", "regression", "create_update_retrieve_close_dispute" }, priority = 2)
     public void TC_02_Update_Dispute_Evidence() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -86,7 +103,7 @@ public class DisputesTest extends BaseClass {
 
     // ***************CLOSE DISPUTE – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "regression" })
+    @Test(groups = { "dispute", "regression", "create_update_retrieve_close_dispute" }, priority = 4)
     public void TC_03_Close_Dispute() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -128,7 +145,8 @@ public class DisputesTest extends BaseClass {
 
     // ***************RETRIEVE DISPUTE – NEGATIVE*******************\\
 
-    @Test(groups = { "dispute", "negative", "regression" }, dataProvider = "invalidDisputeIds", dataProviderClass = DisputesDataProvider.class)
+    @Test(groups = { "dispute", "negative",
+            "regression" }, dataProvider = "invalidDisputeIds", dataProviderClass = DisputesDataProvider.class)
     public void TC_05_RetrieveDispute_InvalidId(String testCaseName, String disputeId, String expectedErrorFragment) {
         logger.info("Running retrieve dispute invalid case: {} for dispute ID: {}", testCaseName, disputeId);
 

@@ -1,16 +1,13 @@
-package builders.requestbuilder;
+package models.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import enums.Dashboard;
-import enums.Include;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 import java.util.List;
-
 
 @Data
 @Builder
@@ -28,5 +25,3 @@ public class CreateAccountRequestPayload {
     private List<String> include;
 
 }
-
-

@@ -320,9 +320,8 @@ public class DisputesTest extends BaseClass {
             }
         }
 
-        // Clear shared ID from TestContext to avoid state leakage
-        TestContext.setDisputeId(null);
-        logger.info("🧹 Cleared dispute ID from TestContext.");
+        // NOTE: TestContext.disputeId is intentionally NOT cleared here.
+        // Shared context must remain intact for any downstream class in the same suite.
 
         logger.info("✅ Cleanup complete for DisputesTest.");
     }

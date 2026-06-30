@@ -29,7 +29,7 @@ public class TransferTests extends BaseClass {
 
     // ***************CREATE TRANSFER – POSITIVE*******************\\
 
-    @Test(groups = { "transfer", "regression" })
+    @Test(groups = { "transfer", "regression", "create_retrieve_reverse_transfer", "marketplace_e2e" })
     public void TC_01_Create_Valid_Transfer() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -67,7 +67,7 @@ public class TransferTests extends BaseClass {
 
     // ***************RETRIEVE TRANSFER – POSITIVE*******************\\
 
-    @Test(groups = { "transfer", "regression" })
+    @Test(groups = { "transfer", "regression", "create_retrieve_reverse_transfer" })
     public void TC_02_Retrieve_Transfer() {
         String transferId = TestContext.getTransferId();
         logger.info("Fetched transfer ID from context --> {}", transferId);
@@ -92,7 +92,7 @@ public class TransferTests extends BaseClass {
 
     // ***************REVERSE TRANSFER – POSITIVE*******************\\
 
-    @Test(groups = { "transfer", "regression" })
+    @Test(groups = { "transfer", "regression", "create_retrieve_reverse_transfer" })
     public void TC_03_Reverse_Transfer() {
         String transferId = TestContext.getTransferId();
         logger.info("Fetched transfer ID from context --> {}", transferId);
@@ -389,11 +389,9 @@ public class TransferTests extends BaseClass {
             }
         }
 
-        // Clear the shared transfer ID and connect account ID from TestContext
-        // to avoid state leakage into test classes that run after TransferTests.
-        TestContext.setTransferId(null);
-        TestContext.setConnectAccountId(null);
-        logger.info("🧹 Cleared transfer and connect account IDs from TestContext.");
+        // NOTE: TestContext values (transferId, connectAccountId, etc.)
+        // are intentionally NOT cleared here. Shared context must remain intact for
+        // any downstream test class that runs after this one in the same suite.
 
         logger.info("✅ Cleanup complete for TransferTests.");
     }

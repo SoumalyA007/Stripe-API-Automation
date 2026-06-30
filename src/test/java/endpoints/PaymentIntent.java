@@ -44,4 +44,34 @@ public class PaymentIntent {
                 .when()
                 .post();
     }
+
+    /**
+     * Retrieves a PaymentIntent by its ID.
+     *
+     * @param paymentIntentId the PaymentIntent ID (pi_xxx)
+     * @return the full PaymentIntent response
+     */
+    public static Response retrievePaymentIntent(String paymentIntentId) {
+        return given()
+                .spec(RequestSpec.setupv1())
+                .basePath("/v1/payment_intents/{id}")
+                .pathParam("id", paymentIntentId)
+                .when()
+                .get();
+    }
+
+    /**
+     * Retrieves a Charge by its ID using the Stripe /v1/charges endpoint.
+     *
+     * @param chargeId the Charge ID (ch_xxx)
+     * @return the full Charge response
+     */
+    public static Response retrieveCharge(String chargeId) {
+        return given()
+                .spec(RequestSpec.setupv1())
+                .basePath("/v1/charges/{id}")
+                .pathParam("id", chargeId)
+                .when()
+                .get();
+    }
 }

@@ -28,7 +28,7 @@ public class PaymentIntentTests extends BaseClass {
 
         // Creating paymentIntent
         @Test(groups = { "payment_intent", "regression", "create_cancel_paymentIntent",
-                        "create_confirm_paymentIntent" })
+                        "create_confirm_paymentIntent", "marketplace_e2e" })
         public void TC_01_positive_Create_Payment_Intent() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -83,7 +83,7 @@ public class PaymentIntentTests extends BaseClass {
                 logger.info("POJO validation passed for payment intent: {}", paymentIntentId);
 
                 TestContext.setPaymentIntentId(paymentIntentId);
-                logger.info("paymentIntentId set in context ;");
+                logger.info("paymentIntentId set in context {}", paymentIntentId);
 
         }
 
@@ -199,7 +199,7 @@ public class PaymentIntentTests extends BaseClass {
         }
 
         // Confirming paymentIntent using the confirm endpoint
-        @Test(groups = { "payment_intent", "regression", "create_confirm_paymentIntent" })
+        @Test(groups = { "payment_intent", "regression", "create_confirm_paymentIntent", "marketplace_e2e" })
         public void TC_06_positive_Confirm_Payment_Intent() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -416,36 +416,9 @@ public class PaymentIntentTests extends BaseClass {
                 }
                 paymethodIds.clear();
 
-                // Also clean up any active Customer or PaymentMethod still in TestContext
-                // (e.g. created by fallback helpers during standalone run)
-                String ctxCustomerId = TestContext.getCustomerId();
-                if (ctxCustomerId != null) {
-                        try {
-                                endpoints.Customer.deleteCustomer(ctxCustomerId);
-                                logger.info("🧹 Deleted context customer: {}", ctxCustomerId);
-                        } catch (Exception e) {
-                                logger.warn("⚠️ Failed to delete context customer {}: {}", ctxCustomerId,
-                                                e.getMessage());
-                        }
-                }
-
-                String ctxPaymentMethodId = TestContext.getPaymentMethodId();
-                if (ctxPaymentMethodId != null) {
-                        try {
-                                endpoints.paymentMethods.detachPaymentMethod(ctxPaymentMethodId);
-                                logger.info("🧹 Detached context payment method: {}", ctxPaymentMethodId);
-                        } catch (Exception e) {
-                                logger.warn("⚠️ Failed to detach context payment method {}: {}", ctxPaymentMethodId,
-                                                e.getMessage());
-                        }
-                }
-
-                // Clear TestContext to prevent leakage
-                TestContext.setPaymentMethodId(null);
-                TestContext.setCustomerId(null);
-                TestContext.setPaymentIntentId(null);
-                TestContext.setCanceledPaymentIntent(null);
-                TestContext.setConfirmPaymentIntent(null);
+                // NOTE: TestContext values (customerId, paymentMethodId, paymentIntentId, etc.)
+                // are intentionally NOT cleared here. Shared context must remain intact for
+                // any downstream test class that runs after this one in the same suite.
 
                 logger.info("✅ Cleanup complete for PaymentIntentTests.");
         }

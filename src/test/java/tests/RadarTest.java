@@ -122,9 +122,8 @@ public class RadarTest extends BaseClass {
             }
         }
 
-        // Clear shared ID from TestContext to avoid state leakage
-        TestContext.setEarlyFraudWarningId(null);
-        logger.info("🧹 Cleared early fraud warning ID from TestContext.");
+        // NOTE: TestContext.earlyFraudWarningId is intentionally NOT cleared here.
+        // Shared context must remain intact for any downstream class in the same suite.
 
         logger.info("✅ Cleanup complete for RadarTest.");
     }

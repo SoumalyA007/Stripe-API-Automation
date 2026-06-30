@@ -26,7 +26,7 @@ public class PayoutsTest extends BaseClass {
     List<String> fallbackPayoutIds = new ArrayList<>();
     // ***************CREATE PAYOUT – POSITIVE*******************\\
 
-    @Test(groups = { "payout", "regression", "create_retrieve_cancel_payout" })
+    @Test(groups = { "payout", "regression", "create_retrieve_cancel_payout", "marketplace_e2e" })
     public void TC_01_Create_Valid_Payout() {
 
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));

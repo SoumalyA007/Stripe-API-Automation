@@ -419,9 +419,8 @@ public class AccountTests extends BaseClass {
 
                 resp.then().spec(ResponseSpec.OK());
                 logger.info("Successfully closed account");
-
-                // Clear from context since it's now closed
-                TestContext.setAccountId(null);
+                // NOTE: accountId stays in TestContext even though the account is now closed,
+                // to avoid breaking any downstream class that reads context for its own logic.
         }
 
         // ***************CLOSE ACCOUNT – NEGATIVE*******************\\
@@ -519,19 +518,6 @@ public class AccountTests extends BaseClass {
         @AfterClass(alwaysRun = true)
         public void cleanup() {
                 logger.info("🧹 Starting cleanup for AccountTests...");
-
-                // Close the shared account from TestContext if it was never closed during tests
-                String contextAccountId = TestContext.getAccountId();
-                if (contextAccountId != null) {
-                        try {
-                                accounts.closeAccount(contextAccountId);
-                                logger.info("🧹 Closed context account: {}", contextAccountId);
-                        } catch (Exception e) {
-                                logger.warn("⚠️ Failed to close context account {}: {}", contextAccountId,
-                                                e.getMessage());
-                        }
-                }
-
                 // Close all fallback accounts created during the test run
                 logger.info("ℹ️ {} fallback account(s) to close:", fallbackAccountIds.size());
                 for (String id : fallbackAccountIds) {
@@ -543,9 +529,8 @@ public class AccountTests extends BaseClass {
                         }
                 }
 
-                // Clear the shared account ID from TestContext to avoid state leakage
-                TestContext.setAccountId(null);
-                logger.info("🧹 Cleared account ID from TestContext.");
+                // NOTE: TestContext.accountId is intentionally NOT cleared here.
+                // Shared context must remain intact for any downstream class in the same suite.
 
                 logger.info("✅ Cleanup complete for AccountTests.");
         }

@@ -67,7 +67,7 @@ public class WebhookEventTests extends BaseClass {
         return null;
     }
 
-    @Test(groups = { "webhook", "regression" })
+    @Test(groups = { "webhook", "regression", "marketplace_e2e" })
     public void TC_01_Verify_CustomerCreated_Event() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -107,7 +107,7 @@ public class WebhookEventTests extends BaseClass {
         logger.info("Successfully validated customer.created event details");
     }
 
-    @Test(groups = { "webhook", "regression" })
+    @Test(groups = { "webhook", "regression", "marketplace_e2e" })
     public void TC_02_Verify_RefundCreated_Event() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -195,10 +195,9 @@ public class WebhookEventTests extends BaseClass {
             }
         }
 
-        // Clear shared IDs from TestContext to avoid state leakage
-        TestContext.setCustomerId(null);
-        TestContext.setPaymentIntentId(null);
-        logger.info("🧹 Cleared customer and paymentIntent IDs from TestContext.");
+        // NOTE: TestContext values (customerId, paymentIntentId, etc.)
+        // are intentionally NOT cleared here. Shared context must remain intact for
+        // any downstream test class that runs after this one in the same suite.
 
         logger.info("✅ Cleanup complete for WebhookEventTests.");
     }

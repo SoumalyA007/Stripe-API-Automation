@@ -42,7 +42,7 @@ public class CustomerTests extends BaseClass {
 
     // Create a Valid Customer
     // Set in context
-    @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete" })
+    @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete", "marketplace_e2e" })
     public void TC_01_CreateCustomer_ValidData() {
 
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
@@ -68,7 +68,6 @@ public class CustomerTests extends BaseClass {
         logger.info("Customer ID of user set in context: \t" + TestContext.getCustomerId());
         TestContext.setBillingName(name);
         TestContext.setBillingEmail(email);
-        customerIds.add(id);
 
     }
 
@@ -694,7 +693,7 @@ public class CustomerTests extends BaseClass {
     }
 
     // ****************CLEANUP AFTER TEST*****************\\
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void cleanup() {
 
         logger.info("Cleaning up {} created customers", customerIds.size());

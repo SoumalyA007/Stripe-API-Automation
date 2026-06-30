@@ -29,7 +29,7 @@ public class RefundTests extends BaseClass {
         // ***************CREATE REFUND – POSITIVE*******************\\
 
         // Full refund of paid amount
-        @Test(groups = { "refund", "regression", "create_retrieve_refund" })
+        @Test(groups = { "refund", "regression", "create_retrieve_refund", "marketplace_e2e" })
         public void TC_01_positive_Full_Refund() {
                 logger.info("Testing positive full refund");
                 String paymentIntentId = TestContext.getPaymentIntentId();
@@ -416,7 +416,7 @@ public class RefundTests extends BaseClass {
                 logger.info("Verified refund IDs are equal (Idempotency success)");
         }
 
-        @AfterClass
+        @AfterClass(alwaysRun = true)
         public void cleanup() {
                 // ── Refund cleanup (Stripe does not support deletion; log only) ──────────
                 logger.info("Cleaning up {} fallback refund(s) created during standalone negative test runs",

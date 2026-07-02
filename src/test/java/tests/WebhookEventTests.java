@@ -111,27 +111,36 @@ public class WebhookEventTests extends BaseClass {
     public void TC_02_Verify_RefundCreated_Event() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
+        String refundId = TestContext.getRefundId();
         String paymentIntentId = TestContext.getPaymentIntentId();
-        if (paymentIntentId == null) {
+
+        if (refundId != null) {
+            // ── E2E path ──────────────────────────────────────────────────────
+            // RefundTests.TC_01 already refunded this PaymentIntent (Step 10).
+            // We just verify that Stripe fired the charge.refunded / refund.created
+            // event for that action — no new refund needed.
+            logger.info("Reusing refund from context → refundId: {}, paymentIntentId: {}",
+                    refundId, paymentIntentId);
+        } else {
+            // ── Standalone / fallback path ────────────────────────────────────
+            // No prior refund in context; create our own fresh PI + refund.
             paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
             fallbackPaymentIntentIds.add(paymentIntentId);
-            logger.info("Created fallback PaymentIntent for refund event --> {}", paymentIntentId);
-        } else {
-            logger.info("Fetched PaymentIntent ID from context --> {}", paymentIntentId);
+            logger.info("No refund in context – created fresh PaymentIntent: {}", paymentIntentId);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("amount", 800);
+            body.put("reason", "requested_by_customer");
+            body.put("payment_intent", paymentIntentId);
+
+            logger.info("Creating refund for PaymentIntent ID: {}", paymentIntentId);
+            Response refundResponse = Refunds.createRefund(paymentIntentId, body);
+            refundResponse.then().spec(ResponseSpec.OK());
+            refundId = refundResponse.jsonPath().getString("id");
+            logger.info("Created refund for event verification: {}", refundId);
         }
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("amount", 800);
-        body.put("reason", "requested_by_customer");
-        body.put("payment_intent", paymentIntentId);
-
-        logger.info("Creating refund for PaymentIntent ID: {}", paymentIntentId);
-        Response refundResponse = Refunds.createRefund(paymentIntentId, body);
-        refundResponse.then().spec(ResponseSpec.OK());
-        String refundId = refundResponse.jsonPath().getString("id");
-        logger.info("Created refund for event verification: {}", refundId);
-
-        // Poll for refund event - stripe uses charge.refunded or refund.created
+        // Poll for the event Stripe fired when the refund was created
         String eventId = pollForEvent("charge.refunded", paymentIntentId);
         if (eventId == null) {
             logger.info("charge.refunded event not found yet. Polling for refund.created instead");

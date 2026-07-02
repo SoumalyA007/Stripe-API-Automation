@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="Idempotency Test Suite" verbose="2">
+<suite name="Disputes E2E Suite" verbose="2">
     <listeners>
         <listener class-name="listeners.SuiteCleanupListener"/>
     </listeners>
-    <test name="Idempotency Tests">
+    <test name="Disputes and Chargebacks Flow" preserve-order="true" thread-count="1">
         <groups>
             <run>
-                <include name="idempotency"/>
+                <include name="dispute_e2e"/>
             </run>
         </groups>
         <classes>
+            <!-- Step 1: Create Customer -->
             <class name="tests.CustomerTests"/>
-            <class name="tests.PaymentIntentTests"/>
-            <class name="tests.RefundTests"/>
-            <class name="tests.SetupIntentTests"/>
-            <class name="tests.TransferTests"/>
-            <class name="tests.PayoutsTest"/>
+            <!-- Step 2: Dispute creation, retrieval, evidence update & closure -->
             <class name="tests.DisputesTest"/>
         </classes>
     </test>

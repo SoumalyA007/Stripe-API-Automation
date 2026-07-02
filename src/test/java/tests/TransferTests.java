@@ -10,6 +10,7 @@ import java.util.Map;
 
 import dataprovider.TransfersDataProvider;
 import endpoints.ConnectAccounts;
+import endpoints.PaymentIntent;
 import endpoints.Transfers;
 import helpers.ConnectedAccountHelper;
 import helpers.PojoValidator;
@@ -32,18 +33,21 @@ public class TransferTests extends BaseClass {
     @Test(groups = { "transfer", "regression", "create_retrieve_reverse_transfer", "marketplace_e2e" })
     public void TC_01_Create_Valid_Transfer() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
-
-        String connectAccountId = TestContext.getConnectAccountId();
-        if (connectAccountId == null) {
-            connectAccountId = ConnectedAccountHelper.createConnectAccount(false);
-            fallbackConnectAccountIds.add(connectAccountId);
-            logger.info("Created new connect account ID --> {}", connectAccountId);
-        } else {
-            logger.info("Fetched connect account ID from context --> {}", connectAccountId);
+        String paymentIntentId = TestContext.getPaymentIntentId();
+        int amountPaid = amount / 2;
+        if (paymentIntentId != null) {
+            amountPaid = PaymentIntent.retrievePaymentIntent(paymentIntentId)
+                    .then()
+                    .spec(ResponseSpec.OK())
+                    .extract()
+                    .jsonPath()
+                    .getInt("amount_received");
+            logger.info("amount_received from PaymentIntent {}: {}", paymentIntentId, amountPaid);
         }
 
+        String connectAccountId = p.getProperty("merchant_account_id");
         Map<String, Object> body = new HashMap<>();
-        body.put("amount", amount / 2);
+        body.put("amount", amountPaid);
         body.put("currency", "usd");
         body.put("destination", connectAccountId);
 
@@ -324,7 +328,7 @@ public class TransferTests extends BaseClass {
         logger.info("Successfully verified missing auth error");
     }
 
-    @Test(groups = { "transfer", "regression" })
+    @Test(groups = { "idempotent_test" })
     public void TC_19_positive_Idempotent_CreateTransfer() {
         logger.info("Testing idempotent create transfer");
         String connectAccountId = ConnectedAccountHelper.createConnectAccount(false);

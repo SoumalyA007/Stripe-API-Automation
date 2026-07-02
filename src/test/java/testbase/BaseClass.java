@@ -4,8 +4,6 @@ import java.io.FileReader;
 import java.util.Properties;
 
 import com.github.javafaker.Faker;
-import endpoints.Customer;
-import endpoints.paymentMethods;
 import helpers.TestContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,19 +69,10 @@ public class BaseClass {
 
     @AfterSuite()
     public void afterSuiteSetup() {
+        // Resource cleanup and TestContext clearing are handled by
+        // SuiteCleanupListener (ISuiteListener.onFinish), which fires after
+        // every XML suite. Nothing to do here.
         logger.info("Suite End Now :) ");
-        // 🧹 Cleanup after ALL tests are done
-        String customerId = TestContext.getCustomerId();
-        String paymentMethodId = TestContext.getPaymentMethodId();
-        if (paymentMethodId != null) {
-            paymentMethods.detachPaymentMethod(paymentMethodId);
-            System.out.println("🧹 Suite payment method deleted: " + paymentMethodId);
-        }
-        if (customerId != null) {
-            Customer.deleteCustomer(customerId);
-            System.out.println("🧹 Suite customer deleted: " + customerId);
-        }
-
     }
 
 }

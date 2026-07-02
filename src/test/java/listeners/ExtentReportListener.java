@@ -5,15 +5,27 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class ExtentReportListener implements ITestListener {
+
+    private static final Logger log = LogManager.getLogger(ExtentReportListener.class);
+    private static final DateTimeFormatter TIMESTAMP_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
     private static ExtentReports extent;
     private static ThreadLocal<ExtentTest> test = new ThreadLocal<>();
@@ -21,11 +33,15 @@ public class ExtentReportListener implements ITestListener {
     @Override
     public void onStart(ITestContext context) {
         if (extent == null) {
-            String reportPath = System.getProperty("user.dir") + "/reports/ExtentReport.html";
-            File file = new File(reportPath);
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
+            String reportsDir = System.getProperty("user.dir") + "/reports";
+            String timestamp = LocalDateTime.now().format(TIMESTAMP_FMT);
+            String reportPath = reportsDir + "/ExtentReport_" + timestamp + ".html";
+
+            // ── Archive any previous HTML reports before creating the new one ──
+            archiveOldReports(reportsDir, timestamp);
+
+            File reportFile = new File(reportPath);
+            reportFile.getParentFile().mkdirs();
 
             ExtentSparkReporter htmlReporter = new ExtentSparkReporter(reportPath);
             htmlReporter.config().setDocumentTitle("Stripe API Automation Test Report");
@@ -38,20 +54,18 @@ public class ExtentReportListener implements ITestListener {
             extent.setSystemInfo("OS", System.getProperty("os.name"));
             extent.setSystemInfo("Java Version", System.getProperty("java.version"));
             extent.setSystemInfo("Project", "Stripe API Automation");
-            extent.setSystemInfo("Author", "Antigravity AI");
+            extent.setSystemInfo("Author", "Soumalya");
+            extent.setSystemInfo("Run Timestamp", timestamp);
         }
     }
 
     @Override
     public void onTestStart(ITestResult result) {
         String testName = result.getMethod().getMethodName();
-        // Extract groups if any
         Test testAnnotation = result.getMethod().getConstructorOrMethod().getMethod().getAnnotation(Test.class);
-        String[] groups = (testAnnotation != null) ? testAnnotation.groups() : new String[]{};
+        String[] groups = (testAnnotation != null) ? testAnnotation.groups() : new String[] {};
 
         ExtentTest extentTest = extent.createTest(testName);
-
-        // Assign groups/categories to the report
         for (String group : groups) {
             extentTest.assignCategory(group);
         }
@@ -88,10 +102,61 @@ public class ExtentReportListener implements ITestListener {
     public void onFinish(ITestContext context) {
         if (extent != null) {
             extent.flush();
+            // Reset so the next suite run initialises a fresh report
+            extent = null;
         }
     }
 
     public static ExtentTest getTest() {
         return test.get();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Finds all *.html files in reportsDir (excluding the one we are about to
+    // create) and packs them into a single zip archive named:
+    // reports/archive/ExtentReports_archive_<timestamp>.zip
+    // The original HTML files are deleted after successful compression.
+    // ─────────────────────────────────────────────────────────────────────────
+    private void archiveOldReports(String reportsDir, String timestamp) {
+        File dir = new File(reportsDir);
+        if (!dir.exists())
+            return;
+
+        File[] htmlFiles = dir.listFiles(f -> f.isFile() && f.getName().toLowerCase().endsWith(".html"));
+
+        if (htmlFiles == null || htmlFiles.length == 0) {
+            log.info("No previous HTML reports found to archive.");
+            return;
+        }
+
+        // Create archive sub-directory
+        File archiveDir = new File(reportsDir + "/archive");
+        archiveDir.mkdirs();
+
+        String zipName = archiveDir.getAbsolutePath()
+                + "/ExtentReports_archive_" + timestamp + ".zip";
+        File zipFile = new File(zipName);
+
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
+            for (File html : htmlFiles) {
+                log.info("Archiving old report: {}", html.getName());
+                try (FileInputStream fis = new FileInputStream(html)) {
+                    zos.putNextEntry(new ZipEntry(html.getName()));
+                    byte[] buffer = new byte[8192];
+                    int len;
+                    while ((len = fis.read(buffer)) > 0) {
+                        zos.write(buffer, 0, len);
+                    }
+                    zos.closeEntry();
+                }
+                // Delete original HTML after adding it to the zip
+                if (!html.delete()) {
+                    log.warn("Could not delete archived report file: {}", html.getName());
+                }
+            }
+            log.info("✅ Archived {} old report(s) → {}", htmlFiles.length, zipFile.getName());
+        } catch (IOException e) {
+            log.error("❌ Failed to create report archive: {}", e.getMessage());
+        }
     }
 }

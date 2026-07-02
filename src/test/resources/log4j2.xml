@@ -4,9 +4,23 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
-        <File name="File" fileName="target/logs/test_execution.log">
+
+        <!--
+            RollingFile appender: a new log file is created on every JVM startup.
+            The fileName attribute is the "current" symlink-like name that log4j2
+            uses while writing. OnStartupTriggeringPolicy triggers an immediate
+            rollover at launch, so each run gets its own timestamped archive file:
+              target/logs/archive/test_execution_<timestamp>.log
+        -->
+        <RollingFile name="File"
+                     fileName="target/logs/test_execution.log"
+                     filePattern="target/logs/archive/test_execution_%d{yyyy-MM-dd_HH-mm-ss}.log">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-        </File>
+            <Policies>
+                <!-- Roll immediately on JVM start → new file every test run -->
+                <OnStartupTriggeringPolicy />
+            </Policies>
+        </RollingFile>
     </Appenders>
     <Loggers>
         <Root level="info">

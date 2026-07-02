@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="User Flow Suite" verbose="2">
+<suite name="Subscription E2E Suite" verbose="2">
     <listeners>
         <listener class-name="listeners.SuiteCleanupListener"/>
     </listeners>
-    <test name="End-to-End User Flow" preserve-order="true" thread-count="1">
+    <test name="Subscription End-to-End Flow" preserve-order="true" thread-count="1">
         <groups>
             <run>
-                <include name="flow"/>
+                <include name="subscription_e2e"/>
             </run>
         </groups>
         <classes>
+            <!-- Step 1: Create Customer -->
             <class name="tests.CustomerTests"/>
+            <!-- Step 2 + 3: Create & Attach Payment Method -->
             <class name="tests.PaymentMethodTests"/>
-            <class name="tests.PaymentIntentTests"/>
-            <class name="tests.RefundTests"/>
-            <class name="tests.SetupIntentTests"/>
+            <!-- Step 4: Create Product, Price, Subscription, Retrieve & Cancel -->
             <class name="tests.SubscriptionTests"/>
         </classes>
     </test>

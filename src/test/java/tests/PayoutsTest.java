@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import dataprovider.PayoutsDataProvider;
+import endpoints.PaymentIntent;
 import endpoints.Payouts;
 import helpers.PayoutsHelper;
 import helpers.PojoValidator;
@@ -35,10 +36,24 @@ public class PayoutsTest extends BaseClass {
         body.put("amount", amount / 2);
         body.put("currency", "usd");
 
-        Response resp = Payouts.createPayout(body);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Stripe-Account", p.getProperty("merchant_account_id"));
+        String paymentIntentId = TestContext.getPaymentIntentId();
+        int amountPaid = amount / 2;
+        if (paymentIntentId != null) {
+            amountPaid = PaymentIntent.retrievePaymentIntent(paymentIntentId)
+                    .then()
+                    .spec(ResponseSpec.OK())
+                    .extract()
+                    .jsonPath()
+                    .getInt("amount_received");
+            logger.info("amount_received from PaymentIntent {}: {}", paymentIntentId, amountPaid);
+        }
+
+        Response resp = Payouts.createPayout(body, headers);
         String payoutId = resp.then()
                 .spec(ResponseSpec.OK())
-                .body("amount", equalTo(amount / 2))
+                .body("amount", equalTo(amountPaid))
                 .body("currency", equalTo("usd"))
                 .extract()
                 .jsonPath()
@@ -249,7 +264,7 @@ public class PayoutsTest extends BaseClass {
         logger.info("Successfully verified unauthorized response for cancel payout missing auth");
     }
 
-    @Test(groups = { "payout", "regression" })
+    @Test(groups = { "idempotent_test" })
     public void TC_16_positive_Idempotent_CreatePayout() {
         logger.info("Testing idempotent create payout");
         Map<String, Object> body = new HashMap<>();

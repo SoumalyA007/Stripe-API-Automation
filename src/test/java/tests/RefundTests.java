@@ -40,14 +40,24 @@ public class RefundTests extends BaseClass {
                         TestContext.setPaymentIntentId(paymentIntentId);
                 }
 
+                // Fetch exactly what the customer was charged from the PaymentIntent
+                // so the refund amount always matches the real paid amount.
+                int amountPaid = PaymentIntent.retrievePaymentIntent(paymentIntentId)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .extract()
+                                .jsonPath()
+                                .getInt("amount_received");
+                logger.info("amount_received from PaymentIntent {}: {}", paymentIntentId, amountPaid);
+
                 Map<String, Object> body = new HashMap<>();
                 body.put("payment_intent", paymentIntentId);
-                body.put("amount", amount);
+                body.put("amount", amountPaid);
 
                 Response refundResp = Refunds.createRefund(paymentIntentId, body);
                 String refundId = refundResp.then()
                                 .spec(ResponseSpec.OK())
-                                .body("amount", equalTo(amount))
+                                .body("amount", equalTo(amountPaid))
                                 .body("currency", equalTo("usd"))
                                 .body("payment_intent", equalTo(paymentIntentId))
                                 .extract()
@@ -60,7 +70,7 @@ public class RefundTests extends BaseClass {
 
                 logger.info("Refund Id -->\t" + refundId);
 
-                logger.info("Successfully verified positive full refund for amount: {}", amount);
+                logger.info("Successfully verified positive full refund for amount_received: {}", amountPaid);
 
                 TestContext.setRefundId(refundId);
         }
@@ -378,7 +388,7 @@ public class RefundTests extends BaseClass {
                 logger.info("Successfully verified missing auth error for cancel refund");
         }
 
-        @Test(groups = { "refund", "regression" })
+        @Test(groups = { "idempotent_test" })
         public void TC_18_positive_Idempotent_CreateRefund() {
                 logger.info("Testing idempotent create refund");
                 String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);

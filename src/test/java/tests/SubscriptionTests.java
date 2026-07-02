@@ -35,7 +35,7 @@ public class SubscriptionTests extends BaseClass {
     // ██ PRODUCT TESTS
     // ═══════════════════════════════════════════════════════════════
 
-    @Test(groups = { "subscription", "regression","crate_retrieve_delete_product","create_product_create_price_create_update_retrieve_cancel_subscription" })
+    @Test(groups = { "subscription", "regression", "crate_retrieve_delete_product", "subscription_e2e" })
     public void TC_01_positive_Create_Product() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -65,7 +65,8 @@ public class SubscriptionTests extends BaseClass {
     }
 
     @Test(groups = { "subscription",
-            "regression","crate_retrieve_delete_product" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true)
+            "regression",
+            "crate_retrieve_delete_product" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true)
     public void TC_02_positive_Retrieve_Product() {
         logger.info("Testing retrieve product");
         String productId = TestContext.getProductId();
@@ -85,7 +86,7 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Product retrieved successfully: {}", productId);
     }
 
-    @Test(groups = { "subscription", "regression","crate_retrieve_delete_product" })
+    @Test(groups = { "subscription", "regression", "crate_retrieve_delete_product" })
     public void TC_03_positive_Delete_Product() {
         logger.info("Testing delete product");
         String productId = TestContext.getProductId();
@@ -126,7 +127,8 @@ public class SubscriptionTests extends BaseClass {
     // ═══════════════════════════════════════════════════════════════
 
     @Test(groups = { "subscription",
-            "regression","create_product_create_price_create_update_retrieve_cancel_subscription" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true)
+            "regression",
+            "subscription_e2e" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true)
     public void TC_05_positive_Create_Price() {
         logger.info("Testing positive create price");
         String productId = TestContext.getProductId();
@@ -239,7 +241,7 @@ public class SubscriptionTests extends BaseClass {
     // ██ SUBSCRIPTION TESTS
     // ═══════════════════════════════════════════════════════════════
 
-    @Test(groups = { "subscription", "regression","create_product_create_price_create_update_retrieve_cancel_subscription" })
+    @Test(groups = { "subscription", "regression", "subscription_e2e" })
     public void TC_09_positive_Create_Subscription() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("Testing positive create subscription");
@@ -285,7 +287,8 @@ public class SubscriptionTests extends BaseClass {
     }
 
     @Test(groups = { "subscription",
-            "regression","create_product_create_price_create_update_retrieve_cancel_subscription" }, dependsOnMethods = "TC_09_positive_Create_Subscription", ignoreMissingDependencies = true)
+            "regression",
+            "subscription_e2e" }, dependsOnMethods = "TC_09_positive_Create_Subscription", ignoreMissingDependencies = true)
     public void TC_10_positive_Retrieve_Subscription() {
         logger.info("Testing retrieve subscription");
         String subId = TestContext.getSubscriptionId();
@@ -309,7 +312,8 @@ public class SubscriptionTests extends BaseClass {
     }
 
     @Test(groups = { "subscription",
-            "regression","create_product_create_price_create_update_retrieve_cancel_subscription" }, dataProvider = "subscriptionMetadataUpdates", dataProviderClass = SubscriptionDataProvider.class)
+            "regression",
+            "subscription_e2e" }, dataProvider = "subscriptionMetadataUpdates", dataProviderClass = SubscriptionDataProvider.class)
     public void TC_11_positive_Update_Subscription_Metadata(String key, String value) {
         logger.info("Testing update subscription metadata: {}={}", key, value);
         String subId = TestContext.getSubscriptionId();
@@ -355,7 +359,7 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Subscriptions listed successfully");
     }
 
-    @Test(groups = { "subscription", "regression","create_product_create_price_create_update_retrieve_cancel_subscription" })
+    @Test(groups = { "subscription", "regression", "subscription_e2e" })
     public void TC_13_positive_Cancel_Subscription() {
         logger.info("Testing cancel subscription");
         String subId = TestContext.getSubscriptionId();
@@ -487,7 +491,7 @@ public class SubscriptionTests extends BaseClass {
     // ██ E2E FLOW TESTS
     // ═══════════════════════════════════════════════════════════════
 
-    @Test(groups = { "subscription", "regression" })
+    @Test(groups = { "subscription", "regression", "subscription_e2e" })
     public void TC_19_flow_E2E_Subscription_Lifecycle() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("🔄 Starting E2E Subscription Lifecycle Flow");
@@ -634,7 +638,8 @@ public class SubscriptionTests extends BaseClass {
         }
         productIdsToCleanup.clear();
 
-        // NOTE: TestContext values (subscriptionId, productId, priceId, customerId, etc.)
+        // NOTE: TestContext values (subscriptionId, productId, priceId, customerId,
+        // etc.)
         // are intentionally NOT cleared here. Shared context must remain intact for
         // any downstream test class that runs after this one in the same suite.
         logger.info("✅ SubscriptionTests cleanup complete.");

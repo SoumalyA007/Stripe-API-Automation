@@ -33,8 +33,8 @@ public class SetupIntentTests extends BaseClass {
         // ██ SETUP INTENT — CREATE
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "setup_intent", "regression", "create_update_confirm_retrieve_cancel_setup_intent",
-                        "marketplace_e2e" }, priority = 1)
+        @Test(groups = { "setup_intent", "regression",
+                        "marketplace_e2e", "saved_card_e2e" }, priority = 1)
         public void TC_01_positive_Create_Setup_Intent() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -120,7 +120,7 @@ public class SetupIntentTests extends BaseClass {
 
         // confirming setup intent
         @Test(groups = { "setup_intent", "regression",
-                        "create_update_confirm_retrieve_cancel_setup_intent" }, priority = 3)
+                        "saved_card_e2e" }, priority = 3)
         public void TC_04_positive_Confirm_Setup_Intent() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
                 logger.info("Testing positive confirmation of SetupIntent");
@@ -286,7 +286,7 @@ public class SetupIntentTests extends BaseClass {
         // ═══════════════════════════════════════════════════════════════
 
         @Test(groups = { "setup_intent", "regression",
-                        "create_update_confirm_retrieve_cacnel_setup_intent" }, priority = 4)
+                        "saved_card_e2e" }, priority = 4)
         public void TC_08_positive_Retrieve_Setup_Intent() {
                 logger.info("Testing retrieve SetupIntent");
                 String setupIntentId = TestContext.getSetupIntentId();
@@ -328,7 +328,7 @@ public class SetupIntentTests extends BaseClass {
 
         @Test(groups = { "setup_intent",
                         "regression",
-                        "create_update_confirm_retrieve_cancel_setup_intent" }, priority = 3, dataProvider = "setupIntentMetadataUpdates", dataProviderClass = SetupIntentDataProvider.class)
+                        "saved_card_e2e" }, priority = 3, dataProvider = "setupIntentMetadataUpdates", dataProviderClass = SetupIntentDataProvider.class)
         public void TC_10_positive_Update_Setup_Intent_Metadata(String key, String value) {
                 logger.info("Testing update SetupIntent metadata: {}={}", key, value);
                 String setupIntentId = TestContext.getSetupIntentId();
@@ -372,7 +372,7 @@ public class SetupIntentTests extends BaseClass {
 
         @Test(groups = { "setup_intent",
                         "regression",
-                        "create_update_confirm_retrieve_cancel_setup_intent" }, priority = 5, dataProvider = "cancellationReasons", dataProviderClass = SetupIntentDataProvider.class)
+                        "saved_card_e2e" }, priority = 5, dataProvider = "cancellationReasons", dataProviderClass = SetupIntentDataProvider.class)
         public void TC_12_positive_Cancel_Setup_Intent(String reason) {
                 logger.info("Testing cancel SetupIntent with reason: {}", reason);
                 // Each cancellation iteration needs a fresh SI (a canceled SI cannot be
@@ -447,7 +447,7 @@ public class SetupIntentTests extends BaseClass {
         // ██ SAVED CARD + FUTURE PAYMENT — E2E FLOW
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "setup_intent", "regression" })
+        @Test(groups = { "setup_intent", "regression", "saved_card_e2e" })
         public void TC_15_flow_Saved_Card_Future_OffSession_Payment() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
                 logger.info("🔄 Starting E2E: SetupIntent → Saved Card → Off-Session Payment");
@@ -559,7 +559,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("🎉 E2E Flow Complete: SetupIntent → Saved Card → Future Payment");
         }
 
-        @Test(groups = { "setup_intent", "regression" })
+        @Test(groups = { "idempotent_test" })
         public void TC_16_positive_Idempotent_Confirm_Setup_Intent() {
                 logger.info("Testing idempotent confirmation of SetupIntent");
                 // Idempotency test needs a fresh unconfirmed SI each run — do not reuse

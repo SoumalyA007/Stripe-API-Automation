@@ -26,7 +26,7 @@ public class DisputesTest extends BaseClass {
 
     // ***************CREATE DISPUTE – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "regression", "create_update_retrieve_close_dispute" }, priority = 1)
+    @Test(groups = { "dispute", "regression", "dispute_e2e" }, priority = 1)
     public void TC_00_Create_Dispute() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("Creating a dispute via payment intent with tok_createDispute");
@@ -43,7 +43,7 @@ public class DisputesTest extends BaseClass {
 
     // ***************RETRIEVE DISPUTE – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "regression", "create_update_retrieve_close_dispute" }, priority = 3)
+    @Test(groups = { "dispute", "regression", "dispute_e2e" }, priority = 3)
     public void TC_01_Retrieve_Dispute() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -70,7 +70,7 @@ public class DisputesTest extends BaseClass {
 
     // ***************UPDATE DISPUTE EVIDENCE – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "regression", "create_update_retrieve_close_dispute" }, priority = 2)
+    @Test(groups = { "dispute", "regression", "dispute_e2e" }, priority = 2)
     public void TC_02_Update_Dispute_Evidence() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -103,7 +103,7 @@ public class DisputesTest extends BaseClass {
 
     // ***************CLOSE DISPUTE – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "regression", "create_update_retrieve_close_dispute" }, priority = 4)
+    @Test(groups = { "dispute", "regression", "dispute_e2e" }, priority = 4)
     public void TC_03_Close_Dispute() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -259,7 +259,7 @@ public class DisputesTest extends BaseClass {
         logger.info("Successfully verified unauthorized response for close dispute missing auth");
     }
 
-    @Test(groups = { "dispute", "regression" })
+    @Test(groups = { "idempotent_test" })
     public void TC_14_positive_Idempotent_UpdateDispute_Evidence() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 

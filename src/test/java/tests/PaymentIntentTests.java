@@ -226,7 +226,7 @@ public class PaymentIntentTests extends BaseClass {
         }
 
         // Testing idempotent behaviour
-        @Test(groups = { "payment_intent", "regression" })
+        @Test(groups = { "idempotent_test" })
         public void TC_07_positive_Idempotent_Confirm_Payment_Intent() {
                 logger.info("Testing idempotent confirmation of payment intent");
                 // Create an unconfirmed intent

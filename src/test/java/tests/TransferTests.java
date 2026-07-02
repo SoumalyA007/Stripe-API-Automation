@@ -54,7 +54,7 @@ public class TransferTests extends BaseClass {
         Response resp = Transfers.createTransfer(body);
         String transferId = resp.then()
                 .spec(ResponseSpec.OK())
-                .body("amount", equalTo(amount / 2))
+                .body("amount", equalTo(amountPaid))
                 .body("currency", equalTo("usd"))
                 .body("destination", equalTo(connectAccountId))
                 .extract()

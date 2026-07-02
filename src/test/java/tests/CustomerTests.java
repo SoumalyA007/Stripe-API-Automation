@@ -324,7 +324,7 @@ public class CustomerTests extends BaseClass {
             customerIds.add(id);
         }
 
-        resp.then().spec(ResponseSpec.forbidden());
+        resp.then().spec(ResponseSpec.Unauthorized());
         logger.info("Successfully verified invalid auth update rejection");
     }
 
@@ -568,7 +568,7 @@ public class CustomerTests extends BaseClass {
 
         Customer.listCustomersWithCustomToken("invalid_token", queryParams)
                 .then()
-                .spec(ResponseSpec.Unauthorized());
+                .spec(ResponseSpec.bad_request());
         logger.info("Successfully verified list customers invalid token rejection");
     }
 

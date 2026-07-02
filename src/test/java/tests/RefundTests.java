@@ -88,14 +88,25 @@ public class RefundTests extends BaseClass {
                         TestContext.setPaymentIntentId(paymentIntentId);
                 }
 
+                // Fetch the real paid amount so the partial refund is always valid
+                int amountReceived = PaymentIntent.retrievePaymentIntent(paymentIntentId)
+                                .then()
+                                .spec(ResponseSpec.OK())
+                                .extract()
+                                .jsonPath()
+                                .getInt("amount_received");
+                int partialAmount = amountReceived / 2;
+                logger.info("amount_received from PaymentIntent {}: {} → partial refund: {}",
+                                paymentIntentId, amountReceived, partialAmount);
+
                 Map<String, Object> body = new HashMap<>();
                 body.put("payment_intent", paymentIntentId);
-                body.put("amount", amount / 2);
+                body.put("amount", partialAmount);
 
                 String refundId = Refunds.createRefund(paymentIntentId, body)
                                 .then()
                                 .spec(ResponseSpec.OK())
-                                .body("amount", equalTo(amount / 2))
+                                .body("amount", equalTo(partialAmount))
                                 .body("currency", equalTo("usd"))
                                 .body("payment_intent", equalTo(paymentIntentId))
                                 .extract()
@@ -103,8 +114,7 @@ public class RefundTests extends BaseClass {
                                 .getString("id");
 
                 logger.info("Refund Id -->\t" + refundId);
-
-                logger.info("Successfully verified positive full refund for amount: {}", amount / 2);
+                logger.info("Successfully verified positive partial refund for amount: {}", partialAmount);
 
                 TestContext.setRefundId(refundId);
         }

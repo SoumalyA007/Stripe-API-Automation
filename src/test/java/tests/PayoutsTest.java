@@ -32,14 +32,9 @@ public class PayoutsTest extends BaseClass {
 
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("amount", amount / 2);
-        body.put("currency", "usd");
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Stripe-Account", p.getProperty("merchant_account_id"));
-        String paymentIntentId = TestContext.getPaymentIntentId();
+        // Resolve the actual paid amount first, before building the request body
         int amountPaid = amount / 2;
+        String paymentIntentId = TestContext.getPaymentIntentId();
         if (paymentIntentId != null) {
             amountPaid = PaymentIntent.retrievePaymentIntent(paymentIntentId)
                     .then()
@@ -49,6 +44,14 @@ public class PayoutsTest extends BaseClass {
                     .getInt("amount_received");
             logger.info("amount_received from PaymentIntent {}: {}", paymentIntentId, amountPaid);
         }
+
+        // Build the body with the resolved amount
+        Map<String, Object> body = new HashMap<>();
+        body.put("amount", amountPaid);
+        body.put("currency", "usd");
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Stripe-Account", p.getProperty("merchant_account_id"));
 
         Response resp = Payouts.createPayout(body, headers);
         String payoutId = resp.then()

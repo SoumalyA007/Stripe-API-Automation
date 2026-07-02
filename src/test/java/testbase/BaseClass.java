@@ -1,5 +1,6 @@
 package testbase;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Properties;
 
@@ -21,15 +22,36 @@ public class BaseClass {
     public static Properties p = new Properties();
     public Logger logger = LogManager.getLogger(this.getClass());
     public static Faker faker = new Faker();
-    public static final int amount;
+    public static int amount;
 
     static {
         try {
             FileReader fr = new FileReader("src/test/resources/config.properties");
             p.load(fr);
-            amount = Integer.parseInt(p.getProperty("amount"));
+            amount = Integer.parseInt(p.getProperty("amount", "2000"));
+        } catch (FileNotFoundException e) {
+            // ── CI / Jenkins path ─────────────────────────────────────────────
+            // config.properties is gitignored and won't exist on CI agents.
+            // Credentials are injected as environment variables instead.
+            String baseURI = System.getenv("STRIPE_BASE_URI");
+            String authKey = System.getenv("STRIPE_AUTH_KEY");
+            String amountEnv = System.getenv("STRIPE_AMOUNT");
+            String merchantId = System.getenv("STRIPE_MERCHANT_ACCOUNT_ID");
+
+            if (authKey == null || authKey.isBlank()) {
+                throw new RuntimeException(
+                        "❌ config.properties not found and STRIPE_AUTH_KEY env var is not set. " +
+                                "Set Jenkins credentials or create config.properties locally.");
+            }
+
+            p.setProperty("baseURI", baseURI != null ? baseURI : "https://api.stripe.com");
+            p.setProperty("authKey", authKey);
+            p.setProperty("amount", amountEnv != null ? amountEnv : "2000");
+            p.setProperty("merchant_account_id", merchantId != null ? merchantId : "");
+
+            amount = Integer.parseInt(p.getProperty("amount", "2000"));
         } catch (Exception e) {
-            throw new RuntimeException("❌ Failed to load config.properties", e);
+            throw new RuntimeException("❌ Failed to load config: " + e.getMessage(), e);
         }
     }
 

@@ -13,7 +13,7 @@ public class PaymentMethodsDataProvider {
 
                 Map<String, Object> validCard = new HashMap<>();
                 validCard.put("type", "card");
-                validCard.put("card[token]", "tok_visa");
+                validCard.put("card[token]", "tok_bypassPending");
 
                 return new Object[][] {
                                 { "card", validCard }

@@ -14,6 +14,8 @@ import endpoints.Payouts;
 import helpers.PayoutsHelper;
 import helpers.PojoValidator;
 import helpers.TestContext;
+import helpers.TransfersHelper;
+import helpers.PaymentIntentHelper;
 import io.restassured.response.Response;
 import models.response.PayoutResponse;
 
@@ -43,6 +45,12 @@ public class PayoutsTest extends BaseClass {
                     .jsonPath()
                     .getInt("amount_received");
             logger.info("amount_received from PaymentIntent {}: {}", paymentIntentId, amountPaid);
+        } else {
+            // Standalone run: connected account has 0 balance. We must fund it first
+            // via a fallback transfer, which uses source_transaction and succeeds.
+            logger.info("No PaymentIntent in context. Funding connected account via fallback transfer...");
+            TransfersHelper.createFallbackTransfer();
+            logger.info("Connected account successfully funded.");
         }
 
         // Build the body with the resolved amount
@@ -270,6 +278,12 @@ public class PayoutsTest extends BaseClass {
     @Test(groups = { "idempotent_test" })
     public void TC_16_positive_Idempotent_CreatePayout() {
         logger.info("Testing idempotent create payout");
+
+        // Fund the platform's available balance first so the payout has sufficient funds
+        logger.info("Funding platform account available balance...");
+        PaymentIntentHelper.createFallbackPaymentIntent(true);
+        logger.info("Platform account balance successfully funded.");
+
         Map<String, Object> body = new HashMap<>();
         body.put("amount", amount / 2);
         body.put("currency", "usd");

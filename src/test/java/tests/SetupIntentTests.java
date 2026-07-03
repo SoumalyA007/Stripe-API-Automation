@@ -478,7 +478,7 @@ public class SetupIntentTests extends BaseClass {
                 if (paymentMethodId == null) {
                         Map<String, Object> pmBody = new HashMap<>();
                         pmBody.put("type", "card");
-                        pmBody.put("card[token]", "tok_visa");
+                        pmBody.put("card[token]", "tok_bypassPending");
                         pmBody.put("billing_details[email]", email);
                         pmBody.put("billing_details[name]", name);
                         paymentMethodId = paymentMethods.createPaymentMethod(pmBody)

@@ -13,6 +13,7 @@ import endpoints.ConnectAccounts;
 import endpoints.PaymentIntent;
 import endpoints.Transfers;
 import helpers.ConnectedAccountHelper;
+import helpers.PaymentIntentHelper;
 import helpers.PojoValidator;
 import helpers.TransfersHelper;
 import io.restassured.response.Response;
@@ -27,29 +28,48 @@ public class TransferTests extends BaseClass {
 
     List<String> fallbackConnectAccountIds = new ArrayList<>();
     List<String> fallbackTransferIds = new ArrayList<>();
+    List<String> fallbackPaymentIntentIds = new ArrayList<>();
 
     // ***************CREATE TRANSFER – POSITIVE*******************\\
 
     @Test(groups = { "transfer", "regression", "create_retrieve_reverse_transfer", "marketplace_e2e" })
     public void TC_01_Create_Valid_Transfer() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
+
         String paymentIntentId = TestContext.getPaymentIntentId();
-        int amountPaid = amount / 2;
-        if (paymentIntentId != null) {
-            amountPaid = PaymentIntent.retrievePaymentIntent(paymentIntentId)
-                    .then()
-                    .spec(ResponseSpec.OK())
-                    .extract()
-                    .jsonPath()
-                    .getInt("amount_received");
-            logger.info("amount_received from PaymentIntent {}: {}", paymentIntentId, amountPaid);
+
+        // If no confirmed PI in context, create one now so we have a charge to reference
+        if (paymentIntentId == null) {
+            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+            fallbackPaymentIntentIds.add(paymentIntentId);
+            logger.info("No PaymentIntent in context – created fallback: {}", paymentIntentId);
         }
+
+        // Retrieve the charge ID and amount from the confirmed PaymentIntent.
+        // Using source_transaction means Stripe funds the transfer directly from
+        // that charge — no platform balance required, avoiding balance_insufficient.
+        io.restassured.path.json.JsonPath piJson = PaymentIntent.retrievePaymentIntent(paymentIntentId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .extract()
+                .jsonPath();
+
+        int amountPaid   = piJson.getInt("amount_received");
+        String chargeId  = piJson.getString("latest_charge");
+        logger.info("PaymentIntent {} → amount_received: {}, latest_charge: {}",
+                paymentIntentId, amountPaid, chargeId);
 
         String connectAccountId = p.getProperty("merchant_account_id");
         Map<String, Object> body = new HashMap<>();
         body.put("amount", amountPaid);
         body.put("currency", "usd");
         body.put("destination", connectAccountId);
+        // source_transaction ties the transfer to the specific charge,
+        // bypassing the need for available platform balance
+        if (chargeId != null) {
+            body.put("source_transaction", chargeId);
+            logger.info("Using source_transaction: {}", chargeId);
+        }
 
         Response resp = Transfers.createTransfer(body);
         String transferId = resp.then()

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Invoice Suite" verbose="2">
+    <listeners>
+        <listener class-name="listeners.SuiteCleanupListener"/>
+    </listeners>
+    <test name="Invoice Tests" preserve-order="true">
+        <groups>
+            <run>
+                <include name="invoice"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="tests.InvoicesTest"/>
+        </classes>
+    </test>
+</suite>

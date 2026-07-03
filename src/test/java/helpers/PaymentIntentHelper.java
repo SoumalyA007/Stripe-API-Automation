@@ -23,7 +23,7 @@ public class PaymentIntentHelper {
         body.put("payment_method", paymentMethodId);
 
         String customerId = TestContext.getCustomerId();
-        if (customerId != null) {
+        if (customerId == null) {
             customerId = CustomersHelper.createCustomer();
         }
         body.put("customer", customerId);

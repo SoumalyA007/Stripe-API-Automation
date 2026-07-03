@@ -40,6 +40,7 @@
             <class name="tests.SubscriptionTests"/>
             <class name="tests.TransferTests"/>
             <class name="tests.PayoutsTest"/>
+            <class name="tests.InvoicesTest"/>
             <class name="tests.RadarTest"/>
             <class name="tests.DisputesTest"/>
         </classes>

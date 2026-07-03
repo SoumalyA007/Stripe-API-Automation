@@ -137,6 +137,14 @@ public class TestContext {
         return payoutId.get();
     }
 
+    public static void setInvoiceId(String invoiceId) {
+        TestContext.invoiceId.set(invoiceId);
+    }
+
+    public static String getInvoiceId() {
+        return invoiceId.get();
+    }
+
     public static void setDisputeId(String disputeId) {
         TestContext.disputeId.set(disputeId);
     }
@@ -234,6 +242,7 @@ public class TestContext {
         connectAccountId.remove();
         transferId.remove();
         payoutId.remove();
+        invoiceId.remove();
         disputeId.remove();
         earlyFraudWarningId.remove();
         confirmPaymentIntent.remove();
@@ -262,6 +271,7 @@ public class TestContext {
     private static final ThreadLocal<String> connectAccountId = new ThreadLocal<>();
     private static final ThreadLocal<String> transferId = new ThreadLocal<>();
     private static final ThreadLocal<String> payoutId = new ThreadLocal<>();
+    private static final ThreadLocal<String> invoiceId = new ThreadLocal<>();
     private static final ThreadLocal<String> disputeId = new ThreadLocal<>();
     private static final ThreadLocal<String> earlyFraudWarningId = new ThreadLocal<>();
     private static final ThreadLocal<String> confirmPaymentIntent = new ThreadLocal<>();

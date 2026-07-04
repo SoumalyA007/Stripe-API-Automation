@@ -35,7 +35,7 @@ public class SubscriptionTests extends BaseClass {
     // ██ PRODUCT TESTS
     // ═══════════════════════════════════════════════════════════════
 
-    @Test(groups = { "subscription", "regression", "crate_retrieve_delete_product", "subscription_e2e" })
+    @Test(groups = { "subscription", "regression", "crate_retrieve_delete_product", "subscription_e2e", "smoke" })
     public void TC_01_positive_Create_Product() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -241,7 +241,7 @@ public class SubscriptionTests extends BaseClass {
     // ██ SUBSCRIPTION TESTS
     // ═══════════════════════════════════════════════════════════════
 
-    @Test(groups = { "subscription", "regression", "subscription_e2e" })
+    @Test(groups = { "subscription", "regression", "subscription_e2e", "smoke" })
     public void TC_09_positive_Create_Subscription() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("Testing positive create subscription");
@@ -335,7 +335,7 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Subscription metadata updated successfully: {}={}", key, value);
     }
 
-    @Test(groups = { "subscription", "regression" })
+    @Test(groups = { "subscription", "regression", "sanity" })
     public void TC_12_positive_List_Subscriptions() {
         logger.info("Testing list subscriptions");
         String subId = TestContext.getSubscriptionId();
@@ -491,7 +491,7 @@ public class SubscriptionTests extends BaseClass {
     // ██ E2E FLOW TESTS
     // ═══════════════════════════════════════════════════════════════
 
-    @Test(groups = { "subscription", "regression", "subscription_e2e" })
+    @Test(groups = { "subscription", "regression", "subscription_e2e", "e2e" })
     public void TC_19_flow_E2E_Subscription_Lifecycle() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("🔄 Starting E2E Subscription Lifecycle Flow");
@@ -595,7 +595,7 @@ public class SubscriptionTests extends BaseClass {
     @AfterClass(alwaysRun = true)
     public void cleanup() {
         logger.info("Running cleanup for SubscriptionTests");
-        boolean isFlow = Arrays.asList(currentGroups).contains("flow");
+        boolean isFlow = Arrays.asList(currentGroups).contains("e2e");
         if (isFlow) {
             logger.info("In flow mode, bypassing SubscriptionTests cleanup (delegated to suite cleanup)");
             return; // Skip cleanup in flow runs to allow dependent classes/suite to clean up or

@@ -28,7 +28,7 @@ public class PaymentIntentTests extends BaseClass {
 
         // Creating paymentIntent
         @Test(groups = { "payment_intent", "regression", "create_cancel_paymentIntent",
-                        "create_confirm_paymentIntent", "marketplace_e2e" })
+                        "create_confirm_paymentIntent", "marketplace_e2e", "smoke" })
         public void TC_01_positive_Create_Payment_Intent() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -199,7 +199,7 @@ public class PaymentIntentTests extends BaseClass {
         }
 
         // Confirming paymentIntent using the confirm endpoint
-        @Test(groups = { "payment_intent", "regression", "create_confirm_paymentIntent", "marketplace_e2e" })
+        @Test(groups = { "payment_intent", "regression", "create_confirm_paymentIntent", "marketplace_e2e", "smoke" })
         public void TC_06_positive_Confirm_Payment_Intent() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 

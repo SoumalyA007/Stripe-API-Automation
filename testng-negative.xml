@@ -24,6 +24,7 @@
             <class name="tests.PayoutsTest"/>
             <class name="tests.RadarTest"/>
             <class name="tests.DisputesTest"/>
+            <class name="tests.InvoicesTest"/>
         </classes>
     </test>
 </suite>

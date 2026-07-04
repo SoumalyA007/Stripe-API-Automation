@@ -31,7 +31,7 @@ public class PaymentMethodTests extends BaseClass {
 
     // Creating payment method and setting to context only if already not present
     @Test(groups = { "payment_method", "regression",
-            "create_attach_retrieve_detach", "marketplace_e2e", "subscription_e2e", "saved_card_e2e" }, dataProvider = "createPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
+            "create_attach_retrieve_detach", "marketplace_e2e", "subscription_e2e", "saved_card_e2e", "smoke" }, dataProvider = "createPaymentMethod", dataProviderClass = PaymentMethodsDataProvider.class)
     public void TC_01_Create_Valid_Payment_Method(String type, Map<String, Object> method) {
         logger.info("Testing create valid payment method of type: {}", type);
         String email = TestContext.getBillingEmail();
@@ -141,7 +141,7 @@ public class PaymentMethodTests extends BaseClass {
 
     // Retrieving payment method from context and creating one if not present
     @Test(groups = { "payment_method",
-            "regression" }, dependsOnMethods = "TC_01_Create_Valid_Payment_Method", ignoreMissingDependencies = true)
+            "regression", "sanity" }, dependsOnMethods = "TC_01_Create_Valid_Payment_Method", ignoreMissingDependencies = true)
     public void TC_05_Retrieve_Payment_Method() {
         logger.info("Testing retrieve valid payment method");
         String paymentMethodId = TestContext.getPaymentMethodId();

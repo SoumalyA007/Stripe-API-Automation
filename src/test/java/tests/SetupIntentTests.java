@@ -34,7 +34,7 @@ public class SetupIntentTests extends BaseClass {
         // ═══════════════════════════════════════════════════════════════
 
         @Test(groups = { "setup_intent", "regression",
-                        "marketplace_e2e", "saved_card_e2e" }, priority = 1)
+                        "marketplace_e2e", "saved_card_e2e", "smoke" }, priority = 1)
         public void TC_01_positive_Create_Setup_Intent() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -447,7 +447,7 @@ public class SetupIntentTests extends BaseClass {
         // ██ SAVED CARD + FUTURE PAYMENT — E2E FLOW
         // ═══════════════════════════════════════════════════════════════
 
-        @Test(groups = { "setup_intent", "regression", "saved_card_e2e" })
+        @Test(groups = { "setup_intent", "regression", "saved_card_e2e", "e2e" })
         public void TC_15_flow_Saved_Card_Future_OffSession_Payment() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
                 logger.info("🔄 Starting E2E: SetupIntent → Saved Card → Off-Session Payment");
@@ -624,7 +624,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("✅ Idempotent confirm verified for SetupIntent: {}", setupIntentId);
         }
 
-        @Test(groups = { "setup_intent", "regression" })
+        @Test(groups = { "setup_intent", "regression", "sanity" })
         public void TC_17_positive_List_Setup_Intents() {
                 logger.info("Testing list SetupIntents");
                 // Reuse context SI if available; only create one if nothing exists yet
@@ -657,7 +657,7 @@ public class SetupIntentTests extends BaseClass {
         @AfterClass(alwaysRun = true)
         public void cleanup() {
                 logger.info("Running cleanup for SetupIntentTests");
-                boolean isFlow = Arrays.asList(currentGroups).contains("flow");
+                boolean isFlow = Arrays.asList(currentGroups).contains("e2e");
                 if (isFlow) {
                         logger.info("In flow mode, bypassing SetupIntentTests cleanup (delegated to suite cleanup)");
                         return; // Skip cleanup in flow runs to allow dependent classes/suite to clean up or

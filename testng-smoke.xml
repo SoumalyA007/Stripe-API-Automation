@@ -23,6 +23,8 @@
             <class name="tests.PayoutsTest"/>
             <class name="tests.RadarTest"/>
             <class name="tests.DisputesTest"/>
+            <class name="tests.InvoicesTest"/>
+            <class name="tests.WebhookEventTests"/>
         </classes>
     </test>
 </suite>

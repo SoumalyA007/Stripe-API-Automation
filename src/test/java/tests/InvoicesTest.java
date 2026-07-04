@@ -33,7 +33,7 @@ public class InvoicesTest extends BaseClass {
 
     // ***************CREATE INVOICE (DRAFT) – POSITIVE*******************\\
 
-    @Test(groups = { "invoice", "regression", "create_finalize_pay_invoice" })
+    @Test(groups = { "invoice", "regression", "create_finalize_pay_invoice", "smoke" })
     public void TC_01_Create_Draft_Invoice() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -144,7 +144,7 @@ public class InvoicesTest extends BaseClass {
 
     // ***************RETRIEVE INVOICE – POSITIVE*******************\\
 
-    @Test(groups = { "invoice", "regression", "retrieve_invoice" })
+    @Test(groups = { "invoice", "regression", "retrieve_invoice", "sanity" })
     public void TC_04_Retrieve_Invoice() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 

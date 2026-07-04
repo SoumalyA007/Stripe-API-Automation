@@ -27,7 +27,7 @@ public class AccountTests extends BaseClass {
         // ***************CREATE ACCOUNT – POSITIVE*******************\\
 
         // Create a valid account with all fields populated
-        @Test(groups = { "accounts", "create_retrieve_close_account", "regression" })
+        @Test(groups = { "accounts", "create_retrieve_close_account", "regression", "smoke" })
         public void TC_01_CreateAccount_ValidData() {
                 logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
                 logger.info("Testing create valid account with all fields");

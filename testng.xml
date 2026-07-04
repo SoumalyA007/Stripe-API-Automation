@@ -4,11 +4,11 @@
     <listeners>
         <listener class-name="listeners.SuiteCleanupListener"/>
     </listeners>
-    <!-- E2E/flow tests first -->
+    <!-- E2E tests first -->
     <test name="User Flow" preserve-order="true">
         <groups>
             <run>
-                <include name="flow"/>
+                <include name="e2e"/>
             </run>
         </groups>
         <classes>

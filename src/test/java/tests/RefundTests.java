@@ -29,7 +29,7 @@ public class RefundTests extends BaseClass {
         // ***************CREATE REFUND – POSITIVE*******************\\
 
         // Full refund of paid amount
-        @Test(groups = { "refund", "regression", "create_retrieve_refund", "marketplace_e2e" })
+        @Test(groups = { "refund", "regression", "create_retrieve_refund", "marketplace_e2e", "smoke" })
         public void TC_01_positive_Full_Refund() {
                 logger.info("Testing positive full refund");
                 String paymentIntentId = TestContext.getPaymentIntentId();

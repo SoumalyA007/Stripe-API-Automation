@@ -128,7 +128,7 @@ public class DisputesTest extends BaseClass {
 
     // ***************LIST DISPUTES – POSITIVE*******************\\
 
-    @Test(groups = { "dispute", "regression" })
+    @Test(groups = { "dispute", "regression", "smoke" })
     public void TC_04_List_Disputes() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Map<String, Object> query = new HashMap<>();
@@ -259,7 +259,7 @@ public class DisputesTest extends BaseClass {
         logger.info("Successfully verified unauthorized response for close dispute missing auth");
     }
 
-    @Test(groups = { "idempotent_test" })
+    @Test(groups = { "idempotent_test", "sanity" })
     public void TC_14_positive_Idempotent_UpdateDispute_Evidence() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 

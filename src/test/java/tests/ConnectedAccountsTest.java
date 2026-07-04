@@ -29,7 +29,7 @@ public class ConnectedAccountsTest extends BaseClass {
 
     List<String> connectAccountIdToCleanup = new ArrayList<>();
 
-    @Test(groups = { "connect_account", "regression" })
+    @Test(groups = { "connect_account", "regression", "smoke" })
     public void TC_01_positive_Create_ConnectAccount() {
         logger.info("Testing create connect account");
         Map<String, Object> body = new HashMap<>();

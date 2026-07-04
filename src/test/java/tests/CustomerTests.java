@@ -42,7 +42,7 @@ public class CustomerTests extends BaseClass {
 
     // Create a Valid Customer
     // Set in context
-    @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete", "marketplace_e2e", "subscription_e2e", "saved_card_e2e", "dispute_e2e" })
+    @Test(groups = { "customer", "regression", "create_update_search_retrieve_delete", "marketplace_e2e", "subscription_e2e", "saved_card_e2e", "dispute_e2e", "smoke" })
     public void TC_01_CreateCustomer_ValidData() {
 
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
@@ -489,7 +489,7 @@ public class CustomerTests extends BaseClass {
 
     // default customer list
     // Not set to context
-    @Test(groups = { "customer", "regression" })
+    @Test(groups = { "customer", "regression", "sanity" })
     public void TC_01_ListCustomers_Default() {
         logger.info("Testing list customers default");
         Map<String, Object> queryParams = new HashMap<>();

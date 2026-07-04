@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="User Flow Suite" verbose="2">
+<suite name="Sanity Test Suite" verbose="2">
     <listeners>
         <listener class-name="listeners.SuiteCleanupListener"/>
     </listeners>
-    <test name="End-to-End User Flow" preserve-order="true" thread-count="1">
+    <test name="Sanity Tests">
         <groups>
             <run>
-                <include name="flow"/>
+                <include name="sanity"/>
             </run>
         </groups>
         <classes>
             <class name="tests.CustomerTests"/>
             <class name="tests.PaymentMethodTests"/>
-            <class name="tests.PaymentIntentTests"/>
-            <class name="tests.RefundTests"/>
             <class name="tests.SetupIntentTests"/>
             <class name="tests.SubscriptionTests"/>
+            <class name="tests.InvoicesTest"/>
+            <class name="tests.DisputesTest"/>
+            <class name="tests.RadarTest"/>
         </classes>
     </test>
 </suite>

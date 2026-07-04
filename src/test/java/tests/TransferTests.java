@@ -32,7 +32,7 @@ public class TransferTests extends BaseClass {
 
     // ***************CREATE TRANSFER – POSITIVE*******************\\
 
-    @Test(groups = { "transfer", "regression", "create_retrieve_reverse_transfer", "marketplace_e2e" })
+    @Test(groups = { "transfer", "regression", "create_retrieve_reverse_transfer", "marketplace_e2e", "smoke" })
     public void TC_01_Create_Valid_Transfer() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 

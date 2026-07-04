@@ -67,7 +67,7 @@ public class WebhookEventTests extends BaseClass {
         return null;
     }
 
-    @Test(groups = { "webhook", "regression", "marketplace_e2e" })
+    @Test(groups = { "webhook", "regression", "marketplace_e2e", "smoke" })
     public void TC_01_Verify_CustomerCreated_Event() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 

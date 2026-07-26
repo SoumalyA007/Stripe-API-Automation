@@ -17,12 +17,6 @@ public class SubscriptionHelper {
 
     private static final Faker faker = new Faker();
 
-    /**
-     * Creates a Product in Stripe for use in subscription tests.
-     *
-     * @param saveToContext whether to save the product ID to TestContext
-     * @return the created product ID
-     */
     public static String createProduct(boolean saveToContext) {
         Map<String, Object> body = new HashMap<>();
         body.put("name", "Automation Test Product - " + System.currentTimeMillis());
@@ -41,16 +35,6 @@ public class SubscriptionHelper {
         return productId;
     }
 
-    /**
-     * Creates a recurring Price for a given product.
-     *
-     * @param productId     the product to create the price for
-     * @param unitAmount    the amount in cents
-     * @param currency      the currency code (e.g. "usd")
-     * @param interval      the billing interval (e.g. "month", "year")
-     * @param saveToContext whether to save the price ID to TestContext
-     * @return the created price ID
-     */
     public static String createRecurringPrice(String productId, int unitAmount, String currency,
             String interval, boolean saveToContext) {
         Map<String, Object> body = new HashMap<>();
@@ -72,17 +56,6 @@ public class SubscriptionHelper {
         return priceId;
     }
 
-    /**
-     * Creates a customer with a default payment method set, ready for
-     * subscriptions.
-     * This handles:
-     * 1. Create customer
-     * 2. Create payment method
-     * 3. Attach payment method to customer
-     * 4. Set the payment method as the default for invoices
-     *
-     * @return the customer ID
-     */
     public static String createSubscriptionReadyCustomer() {
         // 1. Create customer
         String name = faker.name().fullName();
@@ -110,12 +83,6 @@ public class SubscriptionHelper {
         return customerId;
     }
 
-    /**
-     * Full helper: creates product, price, subscription-ready customer, and the
-     * subscription itself.
-     *
-     * @return the created subscription ID
-     */
     public static String createFullSubscription() {
         String productId = createProduct(true);
         String priceId = createRecurringPrice(productId, 1500, "usd", "month", true);

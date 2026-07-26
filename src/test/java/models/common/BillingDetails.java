@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Represents Stripe billing_details object, used in PaymentMethod and SetupIntent.
+ * Represents Stripe billing_details object, used in PaymentMethod and
+ * SetupIntent.
  */
 @Data
 @NoArgsConstructor

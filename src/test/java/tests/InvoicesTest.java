@@ -1,12 +1,18 @@
 package tests;
 
-import static org.hamcrest.Matchers.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.Test;
 
 import dataprovider.InvoicesDataProvider;
 import endpoints.Invoices;
@@ -17,8 +23,6 @@ import helpers.PojoValidator;
 import helpers.TestContext;
 import io.restassured.response.Response;
 import models.response.InvoiceResponse;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;
 
@@ -52,17 +56,42 @@ public class InvoicesTest extends BaseClass {
 
         Map<String, Object> body = new HashMap<>();
         body.put("customer", customerId);
+        body.put("pending_invoice_items_behavior", "include");
 
         Response resp = Invoices.createInvoice(body);
         String invoiceId = resp.then()
-                .spec(ResponseSpec.OK())
-                .body("object", equalTo("invoice"))
-                .body("status", equalTo("draft"))
-                .body("customer", equalTo(customerId))
-                .body("currency", equalTo("usd"))
-                .extract()
-                .jsonPath()
-                .getString("id");
+        .spec(ResponseSpec.OK())
+        .body("object", equalTo("invoice"))
+        .body("status", equalTo("draft"))
+        .body("customer", equalTo(customerId))
+        .body("currency", equalTo("usd"))
+
+        .body("lines.total_count", equalTo(1))
+        .body("lines.data[0].amount", equalTo(amount))
+        .body("subtotal", equalTo(amount))
+        .body("total", equalTo(amount))
+        .body("amount_due", equalTo(amount))
+        .body("amount_remaining", equalTo(amount))
+        .body("amount_paid", equalTo(0))
+
+        // --- draft-state invariants ---
+        .body("attempted", equalTo(false))
+        .body("auto_advance", equalTo(false))
+        .body("status_transitions.finalized_at", nullValue())
+        .body("hosted_invoice_url", nullValue())
+        .body("invoice_pdf", nullValue())
+        .body("number", nullValue()) // invoice number isn't assigned until finalized
+
+        // --- customer snapshot fields (Stripe copies these onto the invoice) ---
+        .body("customer_email", equalTo(TestContext.getBillingEmail())) // if you track this
+        .body("customer_name", notNullValue())
+
+        // --- id sanity ---
+        .body("id", startsWith("in_"))
+
+        .extract()
+        .jsonPath()
+        .getString("id");
 
         InvoiceResponse invoiceResponse = resp.as(InvoiceResponse.class);
         PojoValidator.validate(invoiceResponse);
@@ -74,8 +103,8 @@ public class InvoicesTest extends BaseClass {
 
     // ***************FINALIZE INVOICE – POSITIVE*******************\\
 
-    @Test(groups = { "invoice", "regression", "create_finalize_pay_invoice" },
-          dependsOnMethods = "TC_01_Create_Draft_Invoice")
+    @Test(groups = { "invoice", "regression",
+            "create_finalize_pay_invoice" })
     public void TC_02_Finalize_Invoice() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -104,8 +133,8 @@ public class InvoicesTest extends BaseClass {
 
     // ***************PAY INVOICE – POSITIVE*******************\\
 
-    @Test(groups = { "invoice", "regression", "create_finalize_pay_invoice" },
-          dependsOnMethods = "TC_02_Finalize_Invoice")
+    @Test(groups = { "invoice", "regression",
+            "create_finalize_pay_invoice" }, dependsOnMethods = "TC_02_Finalize_Invoice")
     public void TC_03_Pay_Invoice() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -287,9 +316,8 @@ public class InvoicesTest extends BaseClass {
 
     // ***************CREATE INVOICE – NEGATIVE*******************\\
 
-    @Test(groups = { "invoice", "negative", "regression" },
-          dataProvider = "invalidInvoicePayloads",
-          dataProviderClass = InvoicesDataProvider.class)
+    @Test(groups = { "invoice", "negative",
+            "regression" }, dataProvider = "invalidInvoicePayloads", dataProviderClass = InvoicesDataProvider.class)
     public void TC_10_Create_Invoice_Invalid_Payloads(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid invoice creation case: {}", testCaseName);
         Invoices.createInvoice(body)
@@ -300,9 +328,8 @@ public class InvoicesTest extends BaseClass {
 
     // ***************RETRIEVE INVOICE – NEGATIVE*******************\\
 
-    @Test(groups = { "invoice", "negative", "regression" },
-          dataProvider = "invalidInvoiceIds",
-          dataProviderClass = InvoicesDataProvider.class)
+    @Test(groups = { "invoice", "negative",
+            "regression" }, dataProvider = "invalidInvoiceIds", dataProviderClass = InvoicesDataProvider.class)
     public void TC_11_Retrieve_Invoice_Invalid_Id(String testCaseName, String invoiceId, String expectedError) {
         logger.info("Running invalid retrieve case: {} for ID: {}", testCaseName, invoiceId);
         Invoices.retrieveInvoice(invoiceId)
@@ -414,9 +441,7 @@ public class InvoicesTest extends BaseClass {
         Map<String, Object> body = new HashMap<>();
         body.put("customer", customerId);
 
-        String idempotencyKey = "invoice_key_" + System.currentTimeMillis();
-
-        String firstId = Invoices.createInvoice(body)  // Note: idempotency key header handled via spec
+        String firstId = Invoices.createInvoice(body) // Note: idempotency key header handled via spec
                 .then()
                 .spec(ResponseSpec.OK())
                 .extract()
@@ -424,7 +449,8 @@ public class InvoicesTest extends BaseClass {
                 .getString("id");
         fallbackInvoiceIds.add(firstId);
 
-        // Re-send same request — Stripe idempotency is enforced by the key on the API gateway,
+        // Re-send same request — Stripe idempotency is enforced by the key on the API
+        // gateway,
         // so here we validate the object itself is consistent on re-retrieval.
         String retrievedId = Invoices.retrieveInvoice(firstId)
                 .then()
@@ -448,15 +474,21 @@ public class InvoicesTest extends BaseClass {
         logger.info("Running cleanup for InvoicesTest");
         logger.info("Cleaning up {} fallback invoice(s)", fallbackInvoiceIds.size());
         for (String invoiceId : fallbackInvoiceIds) {
-            try {
-                // Can only delete draft invoices — others are already finalized/voided/paid
-                // so we just attempt and swallow failures silently
+        try {
+            Response getResp = Invoices.retrieveInvoice(invoiceId);
+            String status = getResp.jsonPath().getString("status");
+
+            if ("draft".equals(status)) {
                 Invoices.deleteInvoice(invoiceId);
-                logger.info("Deleted fallback invoice: {}", invoiceId);
-            } catch (Exception e) {
-                logger.warn("Could not delete invoice {} (may be finalized/paid/voided) — skipping cleanup", invoiceId);
+                logger.info("Deleted draft invoice: {}", invoiceId);
+            } else {
+                Invoices.voidInvoice(invoiceId); // POST /v1/invoices/{id}/void
+                logger.info("Voided non-draft invoice ({}): {}", status, invoiceId);
             }
+        } catch (Exception e) {
+            logger.warn("Cleanup failed for invoice {}: {}", invoiceId, e.getMessage());
         }
+    }
         fallbackInvoiceIds.clear();
         fallbackCustomerIds.clear();
     }

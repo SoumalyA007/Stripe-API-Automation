@@ -2,7 +2,6 @@ package enums;
 
 public enum Include {
 
-
     CONFIGURATION_CUSTOMER("configuration.customer"),
     CONFIGURATION_MERCHANT("configuration.merchant"),
     CONFIGURATION_RECIPIENT("configuration.recipient"),

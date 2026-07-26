@@ -1,22 +1,23 @@
 package tests;
 
-import static org.hamcrest.Matchers.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.Test;
+
 import dataprovider.DisputesDataProvider;
 import endpoints.Disputes;
 import helpers.DisputesHelper;
 import helpers.PojoValidator;
 import helpers.TestContext;
-import io.restassured.response.Response;
 import models.response.DisputeResponse;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;
 
@@ -35,7 +36,7 @@ public class DisputesTest extends BaseClass {
         logger.info("Created dispute ID: {}", disputeId);
 
         org.testng.Assert.assertNotNull(disputeId, "Dispute ID should not be null");
-        org.testng.Assert.assertTrue(disputeId.startsWith("dp_"), "Dispute ID should start with 'dp_'");
+        org.testng.Assert.assertTrue(disputeId.startsWith("du_"), "Dispute ID should start with 'du_'");
 
         // Save in TestContext and fallbackDisputeIds for subsequent tests
         TestContext.setDisputeId(disputeId);
@@ -121,7 +122,8 @@ public class DisputesTest extends BaseClass {
                 .then()
                 .spec(ResponseSpec.OK())
                 .body("id", equalTo(disputeId))
-                .body("status", equalTo("lost")); // Closing a dispute in test mode sets status to 'lost'
+                .body("status", equalTo("lost"));
+        // Closing a dispute in test mode sets status to 'lost'
 
         logger.info("Successfully closed dispute with ID: {}", disputeId);
     }
@@ -319,10 +321,6 @@ public class DisputesTest extends BaseClass {
                 logger.info("   - Dispute ID: {}", id);
             }
         }
-
-        // NOTE: TestContext.disputeId is intentionally NOT cleared here.
-        // Shared context must remain intact for any downstream class in the same suite.
-
         logger.info("✅ Cleanup complete for DisputesTest.");
     }
 }

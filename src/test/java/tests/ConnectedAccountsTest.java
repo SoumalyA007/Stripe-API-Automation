@@ -1,27 +1,29 @@
 package tests;
 
-import dataprovider.ConnectedAccountsDataProvider;
-import endpoints.ConnectAccounts;
-import helpers.ConnectedAccountHelper;
-import helpers.PojoValidator;
-import helpers.TestContext;
-import io.restassured.response.Response;
-import models.response.ConnectedAccountResponse;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.Test;
-import static io.restassured.RestAssured.given;
-
-import com.github.javafaker.Faker;
-
-import specification.ResponseSpec;
-import testbase.BaseClass;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.Test;
+
+import com.github.javafaker.Faker;
+
+import dataprovider.ConnectedAccountsDataProvider;
+import endpoints.ConnectAccounts;
+import helpers.ConnectedAccountHelper;
+import helpers.PojoValidator;
+import helpers.TestContext;
+import static io.restassured.RestAssured.given;
+import io.restassured.response.Response;
+import io.restassured.specification.ResponseSpecification;
+import models.response.ConnectedAccountResponse;
+import specification.ResponseSpec;
+import testbase.BaseClass;
 
 public class ConnectedAccountsTest extends BaseClass {
 
@@ -33,7 +35,7 @@ public class ConnectedAccountsTest extends BaseClass {
     public void TC_01_positive_Create_ConnectAccount() {
         logger.info("Testing create connect account");
         Map<String, Object> body = new HashMap<>();
-        body.put("type", "express");
+        // body.put("type", "express");
         if (TestContext.getServiceProviderEmail() == null) {
             TestContext.setServiceProviderEmail(faker.internet().safeEmailAddress());
         }
@@ -102,7 +104,7 @@ public class ConnectedAccountsTest extends BaseClass {
                 .then()
                 .body("id", equalTo(connectAccountId));
         logger.info("Successfully deleted connect account");
-        // Account is already deleted — no cleanup needed regardless of flow
+        TestContext.setConnectAccountId(null);
     }
 
     @Test(groups = { "connect_account", "regression" })
@@ -133,7 +135,7 @@ public class ConnectedAccountsTest extends BaseClass {
 
     @Test(groups = { "connect_account", "negative",
             "regression" }, dataProvider = "invalidConnectAccountPayloads", dataProviderClass = ConnectedAccountsDataProvider.class)
-    public void TC_05_negative_Create_ConnectAccount_Invalid(String testCaseName, Map<String, Object> body) {
+    public void TC_05_negative_Create_ConnectAccount_Invalid(String testCaseName, Map<String, Object> body,String errorParam) {
         logger.info("Running invalid connect account payload case: {}", testCaseName);
 
         Response response = ConnectAccounts.createConnectAccount(body);
@@ -147,7 +149,8 @@ public class ConnectedAccountsTest extends BaseClass {
         response.then()
                 .spec(ResponseSpec.bad_request())
                 .body("error.type", equalTo("invalid_request_error"))
-                .body("error.message", notNullValue());
+                .body("error.message", notNullValue())
+                .body("error.param",equalTo(errorParam));
 
         logger.info("✅ Correctly rejected invalid connect account payload: {}", testCaseName);
     }
@@ -156,14 +159,15 @@ public class ConnectedAccountsTest extends BaseClass {
 
     @Test(groups = { "connect_account", "negative",
             "regression" }, dataProvider = "invalidAccountIds", dataProviderClass = ConnectedAccountsDataProvider.class)
-    public void TC_06_negative_Retrieve_ConnectAccount_InvalidId(String invalidAccountId) {
+    public void TC_06_negative_Retrieve_ConnectAccount_InvalidId(String invalidAccountId,ResponseSpecification errorcode) {
         logger.info("Retrieving invalid connect account ID: {}", invalidAccountId);
 
         ConnectAccounts.retrieveConnectAccount(invalidAccountId)
                 .then()
-                .spec(ResponseSpec.not_found())
+                .spec(errorcode)
                 .body("error.type", equalTo("invalid_request_error"))
-                .body("error.message", containsString("No such account"));
+                .body("error.code", equalTo("account_invalid"))
+                .body("error.message", containsString("does not have access to account"));
 
         logger.info("✅ Correctly rejected retrieval of invalid connect account ID: {}", invalidAccountId);
     }
@@ -179,9 +183,10 @@ public class ConnectedAccountsTest extends BaseClass {
 
         ConnectAccounts.updateConnectAccount("acct_invalid_12345", body)
                 .then()
-                .spec(ResponseSpec.not_found())
+                .spec(ResponseSpec.forbidden())
                 .body("error.type", equalTo("invalid_request_error"))
-                .body("error.message", containsString("No such account"));
+                .body("error.message", containsString("does not have access to account 'acct_invalid_12345' (or that account does not exist). Application access may have been revoked.\r\n" + //
+                                        ""));
 
         logger.info("✅ Correctly rejected updating nonexistent connect account");
     }
@@ -193,8 +198,6 @@ public class ConnectedAccountsTest extends BaseClass {
 
         String connectAccountId = TestContext.getConnectAccountId();
         if (connectAccountId == null) {
-            // Each data-provider row gets its own isolated fallback account so rows
-            // don't share state; all are queued for @AfterClass cleanup.
             connectAccountId = ConnectedAccountHelper.createConnectAccount(false);
             connectAccountIdToCleanup.add(connectAccountId);
             logger.info("Created fallback connect account ID: {}", connectAccountId);
@@ -215,12 +218,12 @@ public class ConnectedAccountsTest extends BaseClass {
 
     @Test(groups = { "connect_account", "negative",
             "regression" }, dataProvider = "invalidAccountIds", dataProviderClass = ConnectedAccountsDataProvider.class)
-    public void TC_09_negative_Delete_ConnectAccount_InvalidId(String invalidAccountId) {
+    public void TC_09_negative_Delete_ConnectAccount_InvalidId(String invalidAccountId,ResponseSpecification errorcode) {
         logger.info("Deleting invalid connect account ID: {}", invalidAccountId);
 
         ConnectAccounts.deleteConnectAccount(invalidAccountId)
                 .then()
-                .spec(ResponseSpec.not_found())
+                .spec(errorcode)
                 .body("error.type", equalTo("invalid_request_error"))
                 .body("error.message", containsString("No such account"));
 
@@ -245,9 +248,10 @@ public class ConnectedAccountsTest extends BaseClass {
         logger.info("Performing second deletion of ID: {}", connectAccountId);
         ConnectAccounts.deleteConnectAccount(connectAccountId)
                 .then()
-                .spec(ResponseSpec.not_found())
-                .body("error.type", equalTo("invalid_request_error"))
-                .body("error.message", containsString("No such account"));
+                .spec(ResponseSpec.forbidden())
+                .body("error.type", equalTo("api_error"))
+                .body("error.code", equalTo("account_invalid"))
+                .body("error.message", containsString("account does not exist"));
 
         logger.info("✅ Correctly rejected deleting already deleted connect account");
     }

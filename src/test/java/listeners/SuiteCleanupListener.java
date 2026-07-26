@@ -6,24 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
-
 import java.util.HashMap;
-import java.util.List;
 
-/**
- * Suite-level cleanup listener.
- *
- * <p>Fires once per {@code <suite>} tag (i.e. once per XML run). For every
- * resource stored in {@link TestContext} it calls the appropriate Stripe API
- * to cancel / delete / reverse the object, then clears the in-memory context.
- *
- * <p>Register in every testng XML:
- * <pre>
- * &lt;listeners&gt;
- *     &lt;listener class-name="listeners.SuiteCleanupListener"/&gt;
- * &lt;/listeners&gt;
- * </pre>
- */
 public class SuiteCleanupListener implements ISuiteListener {
 
     private static final Logger log = LogManager.getLogger(SuiteCleanupListener.class);
@@ -40,53 +24,46 @@ public class SuiteCleanupListener implements ISuiteListener {
         log.info("╚══════════════════════════════════════════════════════════╝");
 
         // ── 1. Payment Intents ────────────────────────────────────────────────
-        cancelPaymentIntent("paymentIntentId",       TestContext.getPaymentIntentId());
-        cancelPaymentIntent("confirmPaymentIntent",  TestContext.getConfirmPaymentIntent());
+        cancelPaymentIntent("paymentIntentId", TestContext.getPaymentIntentId());
+        cancelPaymentIntent("confirmPaymentIntent", TestContext.getConfirmPaymentIntent());
         // canceledPaymentIntent is already terminal – skip API call, just clear
 
         // ── 2. Setup Intents ─────────────────────────────────────────────────
-        cancelSetupIntent("setupIntentId",           TestContext.getSetupIntentId());
+        cancelSetupIntent("setupIntentId", TestContext.getSetupIntentId());
         // confirmedSetupIntentId is already succeeded (terminal) – skip API call
 
         // ── 3. Subscriptions ─────────────────────────────────────────────────
-        cancelSubscription("subscriptionId",         TestContext.getSubscriptionId());
+        cancelSubscription("subscriptionId", TestContext.getSubscriptionId());
         // cancelledSubscriptionId is already cancelled – skip API call
 
         // ── 4. Transfers – must be reversed (cannot be deleted) ───────────────
-        reverseTransfer("transferId",                TestContext.getTransferId());
+        reverseTransfer("transferId", TestContext.getTransferId());
 
         // ── 5. Payouts – cancel only while still in 'pending' state ──────────
-        cancelPayout("payoutId",                     TestContext.getPayoutId());
+        cancelPayout("payoutId", TestContext.getPayoutId());
 
         // ── 6. Connected Accounts ─────────────────────────────────────────────
-        deleteConnectAccount("connectAccountId",     TestContext.getConnectAccountId());
+        deleteConnectAccount("connectAccountId", TestContext.getConnectAccountId());
 
         // ── 7. Products ───────────────────────────────────────────────────────
-        //    Must cancel active subscription first (done above) so the product
-        //    has no active price attached before deletion.
-        deleteProduct("productId",                   TestContext.getProductId());
+        // Must cancel active subscription first (done above) so the product
+        // has no active price attached before deletion.
+        deleteProduct("productId", TestContext.getProductId());
 
         // ── 8. Customers (individual fields) ─────────────────────────────────
-        deleteCustomer("customerId",                 TestContext.getCustomerId());
-        deleteCustomer("subscriptionCustomerId",     TestContext.getSubscriptionCustomerId());
+        deleteCustomer("customerId", TestContext.getCustomerId());
+        deleteCustomer("subscriptionCustomerId", TestContext.getSubscriptionCustomerId());
 
         // ── 9. customerIdList (batch) ─────────────────────────────────────────
         deleteCustomerList();
 
         // ── 10. Payment Methods – detach ──────────────────────────────────────
-        detachPaymentMethod("paymentMethodId",               TestContext.getPaymentMethodId());
-        detachPaymentMethod("subscriptionPaymentMethodId",   TestContext.getSubscriptionPaymentMethodId());
+        detachPaymentMethod("paymentMethodId", TestContext.getPaymentMethodId());
+        detachPaymentMethod("subscriptionPaymentMethodId", TestContext.getSubscriptionPaymentMethodId());
 
         // ── 11. V2 Accounts (accounts.java / /v2/core/accounts) ──────────────
-        closeAccount("accountId",                    TestContext.getAccountId());
+        closeAccount("accountId", TestContext.getAccountId());
 
-        // ── 12. Read-only / non-deletable resources – clear only ─────────────
-        //    refundId, canceledRefundId   – Stripe doesn't allow deletion of refunds
-        //    chargeId                     – read-only
-        //    priceId                      – cannot delete prices via API
-        //    disputeId                    – read-only
-        //    earlyFraudWarningId          – read-only
-        //    billingName, billingEmail, serviceProviderEmail – plain strings
         log.info("ℹ️  Skipping API calls for read-only/non-deletable context fields " +
                 "(refundId, chargeId, priceId, disputeId, earlyFraudWarningId, billing*, email)");
 
@@ -104,7 +81,8 @@ public class SuiteCleanupListener implements ISuiteListener {
     // ─────────────────────────────────────────────────────────────────────────
 
     private void cancelPaymentIntent(String label, String id) {
-        if (id == null) return;
+        if (id == null)
+            return;
         log.info("🧹 Cancelling PaymentIntent [{}]: {}", label, id);
         try {
             int status = PaymentIntent.cancelPaymentIntent(id, new HashMap<>()).getStatusCode();
@@ -120,7 +98,8 @@ public class SuiteCleanupListener implements ISuiteListener {
     }
 
     private void cancelSetupIntent(String label, String id) {
-        if (id == null) return;
+        if (id == null)
+            return;
         log.info("🧹 Cancelling SetupIntent [{}]: {}", label, id);
         try {
             int status = SetupIntent.cancelSetupIntent(id).getStatusCode();
@@ -135,7 +114,8 @@ public class SuiteCleanupListener implements ISuiteListener {
     }
 
     private void cancelSubscription(String label, String id) {
-        if (id == null) return;
+        if (id == null)
+            return;
         log.info("🧹 Cancelling Subscription [{}]: {}", label, id);
         try {
             int status = Subscription.cancelSubscription(id).getStatusCode();
@@ -150,7 +130,8 @@ public class SuiteCleanupListener implements ISuiteListener {
     }
 
     private void reverseTransfer(String label, String id) {
-        if (id == null) return;
+        if (id == null)
+            return;
         log.info("🧹 Reversing Transfer [{}]: {}", label, id);
         try {
             // Empty body = reverse the full remaining amount
@@ -166,7 +147,8 @@ public class SuiteCleanupListener implements ISuiteListener {
     }
 
     private void cancelPayout(String label, String id) {
-        if (id == null) return;
+        if (id == null)
+            return;
         log.info("🧹 Cancelling Payout [{}]: {}", label, id);
         try {
             int status = Payouts.cancelPayout(id).getStatusCode();
@@ -182,7 +164,8 @@ public class SuiteCleanupListener implements ISuiteListener {
     }
 
     private void deleteConnectAccount(String label, String id) {
-        if (id == null) return;
+        if (id == null)
+            return;
         log.info("🧹 Deleting ConnectAccount [{}]: {}", label, id);
         try {
             int status = ConnectAccounts.deleteConnectAccount(id).getStatusCode();
@@ -197,7 +180,8 @@ public class SuiteCleanupListener implements ISuiteListener {
     }
 
     private void deleteProduct(String label, String id) {
-        if (id == null) return;
+        if (id == null)
+            return;
         log.info("🧹 Deleting Product [{}]: {}", label, id);
         try {
             int status = Product.deleteProduct(id).getStatusCode();
@@ -212,7 +196,8 @@ public class SuiteCleanupListener implements ISuiteListener {
     }
 
     private void deleteCustomer(String label, String id) {
-        if (id == null) return;
+        if (id == null)
+            return;
         log.info("🧹 Deleting Customer [{}]: {}", label, id);
         try {
             int status = Customer.deleteCustomer(id).getStatusCode();
@@ -227,9 +212,6 @@ public class SuiteCleanupListener implements ISuiteListener {
     }
 
     private void deleteCustomerList() {
-        // customerIdList stores a List<String> behind a ThreadLocal; read via
-        // getCustomerIdList() which pops the last element – so we drain the list
-        // by reading until null.
         String id;
         int count = 0;
         while ((id = TestContext.getCustomerIdList()) != null) {
@@ -247,7 +229,8 @@ public class SuiteCleanupListener implements ISuiteListener {
     }
 
     private void detachPaymentMethod(String label, String id) {
-        if (id == null) return;
+        if (id == null)
+            return;
         log.info("🧹 Detaching PaymentMethod [{}]: {}", label, id);
         try {
             int status = paymentMethods.detachPaymentMethod(id).getStatusCode();
@@ -262,7 +245,8 @@ public class SuiteCleanupListener implements ISuiteListener {
     }
 
     private void closeAccount(String label, String id) {
-        if (id == null) return;
+        if (id == null)
+            return;
         log.info("🧹 Closing V2 Account [{}]: {}", label, id);
         try {
             int status = accounts.closeAccount(id).getStatusCode();

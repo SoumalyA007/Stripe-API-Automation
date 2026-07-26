@@ -115,16 +115,12 @@ public class RadarTest extends BaseClass {
         // Early fraud warnings cannot be deleted via the API — log them for reference
         if (!fallbackEarlyFraudWarningIds.isEmpty()) {
             logger.info(
-                    "ℹ️ {} fallback early fraud warning(s) were created during the test run (cannot be deleted via API):",
+                    " {} fallback early fraud warning(s) were created during the test run (cannot be deleted via API):",
                     fallbackEarlyFraudWarningIds.size());
             for (String id : fallbackEarlyFraudWarningIds) {
                 logger.info("   - Early Fraud Warning ID: {}", id);
             }
         }
-
-        // NOTE: TestContext.earlyFraudWarningId is intentionally NOT cleared here.
-        // Shared context must remain intact for any downstream class in the same suite.
-
         logger.info("✅ Cleanup complete for RadarTest.");
     }
 }

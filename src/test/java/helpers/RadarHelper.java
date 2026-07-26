@@ -9,13 +9,6 @@ import java.util.Map;
 
 public class RadarHelper {
 
-    /**
-     * Creates a payment intent using the Stripe special test token
-     * "tok_createEarlyFraudWarning"
-     * which automatically triggers an early fraud warning in Stripe.
-     * 
-     * @return the created charge ID
-     */
     public static String createFraudWarningCharge() {
         Map<String, Object> body = new HashMap<>();
         body.put("amount", testbase.BaseClass.amount);
@@ -31,12 +24,6 @@ public class RadarHelper {
                 .getString("latest_charge");
     }
 
-    /**
-     * Creates a fallback early fraud warning ID by generating a charge and querying
-     * its warning.
-     * 
-     * @return the early fraud warning ID
-     */
     public static String createFallbackEarlyFraudWarning() {
         String warningId = TestContext.getEarlyFraudWarningId();
         if (warningId == null) {

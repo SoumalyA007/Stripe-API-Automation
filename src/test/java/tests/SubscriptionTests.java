@@ -21,8 +21,6 @@ import specification.ResponseSpec;
 import testbase.BaseClass;
 
 import java.util.*;
-
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class SubscriptionTests extends BaseClass {
@@ -32,7 +30,7 @@ public class SubscriptionTests extends BaseClass {
     private List<String> subscriptionIdsToCleanup = new ArrayList<>();
 
     // ═══════════════════════════════════════════════════════════════
-    // ██ PRODUCT TESTS
+    // PRODUCT TESTS
     // ═══════════════════════════════════════════════════════════════
 
     @Test(groups = { "subscription", "regression", "crate_retrieve_delete_product", "subscription_e2e", "smoke" })
@@ -123,7 +121,7 @@ public class SubscriptionTests extends BaseClass {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // ██ PRICE TESTS
+    // PRICE TESTS
     // ═══════════════════════════════════════════════════════════════
 
     @Test(groups = { "subscription",
@@ -238,7 +236,7 @@ public class SubscriptionTests extends BaseClass {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // ██ SUBSCRIPTION TESTS
+    // SUBSCRIPTION TESTS
     // ═══════════════════════════════════════════════════════════════
 
     @Test(groups = { "subscription", "regression", "subscription_e2e", "smoke" })
@@ -488,7 +486,7 @@ public class SubscriptionTests extends BaseClass {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // ██ E2E FLOW TESTS
+    // E2E FLOW TESTS
     // ═══════════════════════════════════════════════════════════════
 
     @Test(groups = { "subscription", "regression", "subscription_e2e", "e2e" })
@@ -496,7 +494,7 @@ public class SubscriptionTests extends BaseClass {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("🔄 Starting E2E Subscription Lifecycle Flow");
 
-        // 1️⃣ Create customer
+        // Create customer
         String name = CustomersHelper.getName();
         String email = faker.internet().safeEmailAddress();
         Response custResp = Customer.createCustomer(name, email, null);
@@ -504,11 +502,11 @@ public class SubscriptionTests extends BaseClass {
         customerIdsToCleanup.add(customerId);
         logger.info("  Step 1: Customer created → {}", customerId);
 
-        // 2️⃣ Create valid payment method
+        // Create valid payment method
         String paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
         logger.info("  Step 2: Payment method created → {}", paymentMethodId);
 
-        // 3️⃣ Attach payment method to customer
+        // Attach payment method to customer
         Map<String, Object> attachBody = new HashMap<>();
         attachBody.put("customer", customerId);
         paymentMethods.attachPaymentMethod(paymentMethodId, attachBody)
@@ -516,7 +514,7 @@ public class SubscriptionTests extends BaseClass {
                 .spec(ResponseSpec.OK());
         logger.info("  Step 3: Attached payment method to customer");
 
-        // 4️⃣ Update customer default payment method for invoices
+        // Update customer default payment method for invoices
         Customer.updateCustomer(customerId,
                 "invoice_settings[default_payment_method]", paymentMethodId, null)
                 .then()
@@ -524,7 +522,7 @@ public class SubscriptionTests extends BaseClass {
                 .body("invoice_settings.default_payment_method", equalTo(paymentMethodId));
         logger.info("  Step 4: Default payment method set for invoices");
 
-        // 5️⃣ Create Product
+        // Create Product
         Map<String, Object> prodBody = new HashMap<>();
         String prodName = "E2E Premium Suite - " + System.currentTimeMillis();
         prodBody.put("name", prodName);
@@ -538,7 +536,7 @@ public class SubscriptionTests extends BaseClass {
         productIdsToCleanup.add(productId);
         logger.info("  Step 5: Product created → {}", productId);
 
-        // 6️⃣ Create Recurring Price
+        // Create Recurring Price
         Map<String, Object> priceBody = new HashMap<>();
         priceBody.put("product", productId);
         priceBody.put("unit_amount", 9900); // $99.00
@@ -552,7 +550,7 @@ public class SubscriptionTests extends BaseClass {
                 .getString("id");
         logger.info("  Step 6: Price created → {}", priceId);
 
-        // 7️⃣ Create Subscription
+        // Create Subscription
         Map<String, Object> subBody = new HashMap<>();
         subBody.put("customer", customerId);
         subBody.put("items[0][price]", priceId);
@@ -568,7 +566,7 @@ public class SubscriptionTests extends BaseClass {
         subscriptionIdsToCleanup.add(subId);
         logger.info("  Step 7: Subscription created & active → {}", subId);
 
-        // 8️⃣ Retrieve Subscription to verify details
+        // Retrieve Subscription to verify details
         Subscription.retrieveSubscription(subId)
                 .then()
                 .spec(ResponseSpec.OK())
@@ -577,7 +575,7 @@ public class SubscriptionTests extends BaseClass {
                 .body("latest_invoice", notNullValue());
         logger.info("  Step 8: Subscription retrieval verified ✅");
 
-        // 9️⃣ Cancel Subscription
+        // Cancel Subscription
         Subscription.cancelSubscription(subId)
                 .then()
                 .spec(ResponseSpec.OK())
@@ -589,7 +587,7 @@ public class SubscriptionTests extends BaseClass {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // ██ CLEANUP
+    // CLEANUP
     // ═══════════════════════════════════════════════════════════════
 
     @AfterClass(alwaysRun = true)
@@ -602,7 +600,7 @@ public class SubscriptionTests extends BaseClass {
                     // proceed
         }
 
-        // 1️⃣ Cancel all tracked subscriptions (must happen before customer deletion)
+        // Cancel all tracked subscriptions (must happen before customer deletion)
         logger.info("Canceling {} subscriptions", subscriptionIdsToCleanup.size());
         for (String subId : subscriptionIdsToCleanup) {
             try {
@@ -614,7 +612,7 @@ public class SubscriptionTests extends BaseClass {
         }
         subscriptionIdsToCleanup.clear();
 
-        // 2️⃣ Delete all locally tracked customers (e.g., E2E flow customers)
+        // Delete all locally tracked customers (e.g., E2E flow customers)
         logger.info("Deleting {} locally tracked customers", customerIdsToCleanup.size());
         for (String custId : customerIdsToCleanup) {
             try {
@@ -626,7 +624,7 @@ public class SubscriptionTests extends BaseClass {
         }
         customerIdsToCleanup.clear();
 
-        // 3️⃣ Delete all locally tracked products
+        // Delete all locally tracked products
         logger.info("Deleting {} products", productIdsToCleanup.size());
         for (String prodId : productIdsToCleanup) {
             try {
@@ -637,11 +635,6 @@ public class SubscriptionTests extends BaseClass {
             }
         }
         productIdsToCleanup.clear();
-
-        // NOTE: TestContext values (subscriptionId, productId, priceId, customerId,
-        // etc.)
-        // are intentionally NOT cleared here. Shared context must remain intact for
-        // any downstream test class that runs after this one in the same suite.
         logger.info("✅ SubscriptionTests cleanup complete.");
     }
 }

@@ -2,6 +2,7 @@ package models.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -28,7 +29,7 @@ public class AccountResponse {
 
     @NotNull(message = "Account 'created' timestamp must not be null")
     @JsonProperty("created")
-    private Long created;
+    private String created;
 
     @JsonProperty("display_name")
     private String displayName;

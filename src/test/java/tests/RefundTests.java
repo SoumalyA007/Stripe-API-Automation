@@ -453,11 +453,6 @@ public class RefundTests extends BaseClass {
                 }
                 fallbackRefundIds.clear();
 
-                // ── PaymentIntent cleanup ──────────────────────────────────────────────
-                // Only cancels PIs created locally by this class (negativeRefundPaymentIntetnId
-                // shared across TC_06/07/08, and TC_18's one-off PI).
-                // PIs stored in TestContext (TC_01/TC_02 fallbacks) are excluded – they are
-                // shared resources whose lifecycle is managed separately.
                 logger.info("Cancelling {} PaymentIntent(s) created during RefundTests",
                                 createdPaymentIntentIds.size());
                 for (String piId : createdPaymentIntentIds) {

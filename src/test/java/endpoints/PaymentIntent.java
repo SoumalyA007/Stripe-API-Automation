@@ -45,12 +45,6 @@ public class PaymentIntent {
                 .post();
     }
 
-    /**
-     * Retrieves a PaymentIntent by its ID.
-     *
-     * @param paymentIntentId the PaymentIntent ID (pi_xxx)
-     * @return the full PaymentIntent response
-     */
     public static Response retrievePaymentIntent(String paymentIntentId) {
         return given()
                 .spec(RequestSpec.setupv1())
@@ -60,12 +54,6 @@ public class PaymentIntent {
                 .get();
     }
 
-    /**
-     * Retrieves a Charge by its ID using the Stripe /v1/charges endpoint.
-     *
-     * @param chargeId the Charge ID (ch_xxx)
-     * @return the full Charge response
-     */
     public static Response retrieveCharge(String chargeId) {
         return given()
                 .spec(RequestSpec.setupv1())

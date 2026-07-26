@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * Top-level wrapper for a Stripe error response body.
+ * 
  * <pre>
  * {
  *   "error": { "type": "invalid_request_error", "message": "...", ... }

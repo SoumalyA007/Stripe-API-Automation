@@ -7,9 +7,6 @@ import java.util.Map;
 
 public class InvoicesDataProvider {
 
-    /**
-     * Provides invalid/missing-field invoice creation payloads for negative tests.
-     */
     @DataProvider(name = "invalidInvoicePayloads")
     public Object[][] invalidInvoicePayloads() {
         // Missing required 'customer'
@@ -30,9 +27,6 @@ public class InvoicesDataProvider {
         };
     }
 
-    /**
-     * Provides invalid invoice IDs for negative retrieve tests.
-     */
     @DataProvider(name = "invalidInvoiceIds")
     public Object[][] invalidInvoiceIds() {
         return new Object[][] {

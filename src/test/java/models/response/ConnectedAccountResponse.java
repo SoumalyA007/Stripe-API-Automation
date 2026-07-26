@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * POJO representing the Stripe ConnectedAccount (Express/Custom) API response.
- * The 'object' value is "account" — same as a platform account.
  */
 @Data
 @NoArgsConstructor

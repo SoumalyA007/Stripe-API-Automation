@@ -9,17 +9,6 @@ import java.util.Map;
 
 public class TransfersHelper {
 
-    /**
-     * Creates a fallback transfer to the configured merchant account.
-     *
-     * <p>
-     * Uses {@code source_transaction} so the transfer is funded directly from the
-     * charge on a freshly confirmed PaymentIntent — this avoids
-     * {@code balance_insufficient}
-     * errors regardless of the platform account's available balance.
-     *
-     * @return the created transfer ID
-     */
     public static String createFallbackTransfer() {
         // Create + confirm a fresh PaymentIntent to obtain a real charge
         String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);

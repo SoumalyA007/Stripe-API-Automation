@@ -5,11 +5,6 @@ import specification.ResponseSpec;
 
 public class SetupIntentDataProvider {
 
-    /**
-     * Provides different declined card tokens for SetupIntent confirmation negative
-     * tests.
-     * Each row: testCaseName, cardToken, expectedErrorCode
-     */
     @DataProvider(name = "declinedCardTokensForSetupIntent")
     public static Object[][] declinedCardTokensForSetupIntent() {
         return new Object[][] {
@@ -20,10 +15,6 @@ public class SetupIntentDataProvider {
         };
     }
 
-    /**
-     * Provides metadata update scenarios for SetupIntent update tests.
-     * Each row: key, value
-     */
     @DataProvider(name = "setupIntentMetadataUpdates")
     public static Object[][] setupIntentMetadataUpdates() {
         return new Object[][] {
@@ -33,10 +24,6 @@ public class SetupIntentDataProvider {
         };
     }
 
-    /**
-     * Provides invalid SetupIntent IDs for negative retrieve/cancel tests.
-     * Each row: invalidId, expectedResponseSpec
-     */
     @DataProvider(name = "invalidSetupIntentIds")
     public static Object[][] invalidSetupIntentIds() {
         return new Object[][] {
@@ -46,10 +33,6 @@ public class SetupIntentDataProvider {
         };
     }
 
-    /**
-     * Provides cancellation reason scenarios.
-     * Each row: cancellation_reason
-     */
     @DataProvider(name = "cancellationReasons")
     public static Object[][] cancellationReasons() {
         return new Object[][] {

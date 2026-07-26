@@ -1,24 +1,28 @@
 package tests;
 
-import models.common.CreateAccountRequestPayload;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.Test;
+
 import dataprovider.AccountDataProvider;
 import endpoints.accounts;
 import helpers.AccountsHelper;
 import helpers.PojoValidator;
 import helpers.TestContext;
 import io.restassured.response.Response;
+import models.common.CreateAccountRequestPayload;
 import models.response.AccountResponse;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 public class AccountTests extends BaseClass {
 
@@ -150,7 +154,7 @@ public class AccountTests extends BaseClass {
                         String expectedErrorFragment) {
                 logger.info("Testing create account invalid country code: {} -> {}", testCaseName, countryCode);
 
-                CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
+                CreateAccountRequestPayload requestPayload = AccountsHelper.minimalValidAccount();
                 requestPayload.getIdentity().setCountry(countryCode);
 
                 Response resp = accounts.createAccount(requestPayload);
@@ -216,7 +220,8 @@ public class AccountTests extends BaseClass {
                 Response resp = accounts.createAccountWithCustomAuth("sk_test_invalid_key_12345", requestPayload);
 
                 resp.then().spec(ResponseSpec.Unauthorized())
-                                .body("error.message", containsString("Invalid API Key provided"));
+                                .body("error.message", containsString(
+                                                "You provided a malformed API Key, ensure you provided the full key in the Authorization header"));
                 logger.info("Successfully verified invalid auth rejection");
         }
 
@@ -258,7 +263,7 @@ public class AccountTests extends BaseClass {
         public void TC_13_CreateAccount_LongDisplayName() {
                 logger.info("Testing create account with long display name");
                 CreateAccountRequestPayload requestPayload = AccountsHelper.validAccountCreationHelper();
-                requestPayload.setDisplay_name("a".repeat(550));
+                requestPayload.setDisplay_name("a".repeat(10000));
 
                 Response resp = accounts.createAccount(requestPayload);
 
@@ -317,7 +322,6 @@ public class AccountTests extends BaseClass {
                 logger.info("Successfully verified missing country rejection");
         }
 
-
         // ***************RETRIEVE ACCOUNT – POSITIVE*******************\\
 
         // Retrieve a valid account by its ID
@@ -350,16 +354,15 @@ public class AccountTests extends BaseClass {
                 logger.info("Successfully retrieved account");
         }
 
-
         // ***************RETRIEVE ACCOUNT – NEGATIVE*******************\\
 
         // Retrieve account with an invalid ID
         @Test(groups = { "accounts", "negative", "regression" })
-        public void TC_18_RetrieveAccount_InvalidId() {
+        public void TC_18_RetrieveAccount_Unauthorized_Id() {
                 logger.info("Testing retrieve account with invalid ID");
-                Response resp = accounts.retrieveAccount("acct_invalid_id_12345");
+                Response resp = accounts.retrieveAccount("acct_1234567890abcdef");
 
-                resp.then().spec(ResponseSpec.not_found());
+                resp.then().spec(ResponseSpec.forbidden());
                 logger.info("Successfully verified retrieve invalid ID rejection");
         }
 
@@ -369,7 +372,7 @@ public class AccountTests extends BaseClass {
                 logger.info("Testing retrieve account with garbage ID");
                 Response resp = accounts.retrieveAccount("garbage_not_an_account");
 
-                resp.then().spec(ResponseSpec.not_found());
+                resp.then().spec(ResponseSpec.bad_request());
                 logger.info("Successfully verified retrieve garbage ID rejection");
         }
 
@@ -391,7 +394,7 @@ public class AccountTests extends BaseClass {
                 Response resp = accounts.retrieveAccountWithCustomAuth("sk_test_invalid_key_12345", "acct_any_id");
 
                 resp.then().spec(ResponseSpec.Unauthorized())
-                                .body("error.message", containsString("Invalid API Key provided"));
+                                .body("error.message", containsString("You provided a malformed API Key, ensure you provided the full key in the Authorization header."));
                 logger.info("Successfully verified retrieve invalid auth rejection");
         }
 
@@ -415,7 +418,9 @@ public class AccountTests extends BaseClass {
 
                 // Close it (do NOT add to fallback list since it's already being closed)
                 logger.info("Closing account ID: {}", accountId);
-                Response resp = accounts.closeAccount(accountId);
+                // validAccountCreationHelper() creates accounts with both customer + merchant
+                // configs
+                Response resp = accounts.closeAccount(accountId, AccountsHelper.closePayloadBothConfigs());
 
                 resp.then().spec(ResponseSpec.OK());
                 logger.info("Successfully closed account");
@@ -431,7 +436,7 @@ public class AccountTests extends BaseClass {
                 logger.info("Testing close account with invalid ID");
                 Response resp = accounts.closeAccount("acct_invalid_id_12345");
 
-                resp.then().spec(ResponseSpec.not_found());
+                resp.then().spec(ResponseSpec.bad_request());
                 logger.info("Successfully verified close invalid ID rejection");
         }
 
@@ -448,16 +453,17 @@ public class AccountTests extends BaseClass {
 
                 // First close succeeds
                 logger.info("Performing first close on ID: {}", accountId);
-                accounts.closeAccount(accountId)
+                accounts.closeAccount(accountId, AccountsHelper.closePayloadBothConfigs())
                                 .then()
                                 .spec(ResponseSpec.OK());
                 logger.info("First close succeeded");
 
                 // Second close should fail
                 logger.info("Performing second close on ID: {}", accountId);
-                Response resp = accounts.closeAccount(accountId);
+                Response resp = accounts.closeAccount(accountId, AccountsHelper.closePayloadBothConfigs());
 
-                resp.then().spec(ResponseSpec.bad_request());
+                resp.then().spec(ResponseSpec.forbidden())
+                .body("error.code", equalTo("forbidden"));
                 logger.info("Successfully verified double-close rejection");
         }
 
@@ -474,7 +480,7 @@ public class AccountTests extends BaseClass {
 
                 // Close it
                 logger.info("Closing account ID: {}", accountId);
-                accounts.closeAccount(accountId)
+                accounts.closeAccount(accountId, AccountsHelper.closePayloadBothConfigs())
                                 .then()
                                 .spec(ResponseSpec.OK());
                 logger.info("Account closed successfully");
@@ -498,7 +504,7 @@ public class AccountTests extends BaseClass {
                 Response resp = accounts.closeAccountWithCustomAuth(null, "acct_any_id");
 
                 resp.then().spec(ResponseSpec.Unauthorized())
-                                .body("error.message", containsString("You did not provide an API key"));
+                                .body("error.message", containsString("You did not provide an API key. You need to provide your API key in the Authorization header, using Bearer auth"));
                 logger.info("Successfully verified close missing auth rejection");
         }
 
@@ -509,7 +515,7 @@ public class AccountTests extends BaseClass {
                 Response resp = accounts.closeAccountWithCustomAuth("sk_test_invalid_key_12345", "acct_any_id");
 
                 resp.then().spec(ResponseSpec.Unauthorized())
-                                .body("error.message", containsString("Invalid API Key provided"));
+                                .body("error.message", containsString("You provided a malformed API Key, ensure you provided the full key in the Authorization header."));
                 logger.info("Successfully verified close invalid auth rejection");
         }
 
@@ -522,15 +528,12 @@ public class AccountTests extends BaseClass {
                 logger.info("ℹ️ {} fallback account(s) to close:", fallbackAccountIds.size());
                 for (String id : fallbackAccountIds) {
                         try {
-                                accounts.closeAccount(id);
+                                accounts.closeAccount(id, AccountsHelper.closePayloadBothConfigs());
                                 logger.info("🧹 Closed fallback account: {}", id);
                         } catch (Exception e) {
                                 logger.warn("⚠️ Failed to close fallback account {}: {}", id, e.getMessage());
                         }
                 }
-
-                // NOTE: TestContext.accountId is intentionally NOT cleared here.
-                // Shared context must remain intact for any downstream class in the same suite.
 
                 logger.info("✅ Cleanup complete for AccountTests.");
         }

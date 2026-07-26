@@ -1,0 +1,14 @@
+2026-07-26 15:44:40 INFO  DisputesTest:60 - Suite Start Now :) 
+2026-07-26 15:44:40 INFO  DisputesTest:61 - Base URI: https://api.stripe.com
+2026-07-26 15:44:40 INFO  ExtentReportListener:140 - Archiving old report: ExtentReport_2026-07-26_15-39-43.html
+2026-07-26 15:44:40 INFO  ExtentReportListener:155 - ✅ Archived 1 old report(s) → ExtentReports_archive_2026-07-26_15-44-40.zip
+2026-07-26 15:44:40 INFO  DisputesTest:71 - ▶ Running: [TC_03_Close_Dispute] | Groups: [dispute, regression, dispute_e2e]
+2026-07-26 15:44:40 INFO  DisputesTest:109 - Test running under groups: [dispute, regression, dispute_e2e]
+2026-07-26 15:44:45 INFO  DisputesTest:115 - Created fallback dispute ID --> du_1TxP4wCawgxS6rsgjX7kOLNi
+2026-07-26 15:44:45 INFO  DisputesTest:120 - Closing dispute with ID: du_1TxP4wCawgxS6rsgjX7kOLNi
+2026-07-26 15:44:46 INFO  DisputesTest:128 - Successfully closed dispute with ID: du_1TxP4wCawgxS6rsgjX7kOLNi
+2026-07-26 15:44:46 INFO  DisputesTest:314 - 🧹 Starting cleanup for DisputesTest...
+2026-07-26 15:44:46 INFO  DisputesTest:318 - ℹ️ 1 fallback dispute(s) were created during the test run (cannot be deleted via API):
+2026-07-26 15:44:46 INFO  DisputesTest:321 -    - Dispute ID: du_1TxP4wCawgxS6rsgjX7kOLNi
+2026-07-26 15:44:46 INFO  DisputesTest:324 - ✅ Cleanup complete for DisputesTest.
+2026-07-26 15:44:46 INFO  DisputesTest:85 - Suite End Now :) 

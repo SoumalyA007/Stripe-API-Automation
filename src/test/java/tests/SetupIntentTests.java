@@ -30,7 +30,7 @@ public class SetupIntentTests extends BaseClass {
         static String confirmedIntentId = null;
 
         // ═══════════════════════════════════════════════════════════════
-        // ██ SETUP INTENT — CREATE
+        // SETUP INTENT — CREATE
         // ═══════════════════════════════════════════════════════════════
 
         @Test(groups = { "setup_intent", "regression",
@@ -115,7 +115,7 @@ public class SetupIntentTests extends BaseClass {
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ██ SETUP INTENT — CONFIRM
+        // SETUP INTENT — CONFIRM
         // ═══════════════════════════════════════════════════════════════
 
         // confirming setup intent
@@ -282,7 +282,7 @@ public class SetupIntentTests extends BaseClass {
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ██ SETUP INTENT — RETRIEVE
+        // SETUP INTENT — RETRIEVE
         // ═══════════════════════════════════════════════════════════════
 
         @Test(groups = { "setup_intent", "regression",
@@ -323,7 +323,7 @@ public class SetupIntentTests extends BaseClass {
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ██ SETUP INTENT — UPDATE
+        // SETUP INTENT — UPDATE
         // ═══════════════════════════════════════════════════════════════
 
         @Test(groups = { "setup_intent",
@@ -367,7 +367,7 @@ public class SetupIntentTests extends BaseClass {
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ██ SETUP INTENT — CANCEL
+        // SETUP INTENT — CANCEL
         // ═══════════════════════════════════════════════════════════════
 
         @Test(groups = { "setup_intent",
@@ -444,7 +444,7 @@ public class SetupIntentTests extends BaseClass {
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ██ SAVED CARD + FUTURE PAYMENT — E2E FLOW
+        // SAVED CARD + FUTURE PAYMENT — E2E FLOW
         // ═══════════════════════════════════════════════════════════════
 
         @Test(groups = { "setup_intent", "regression", "saved_card_e2e", "e2e" })
@@ -651,7 +651,7 @@ public class SetupIntentTests extends BaseClass {
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ██ CLEANUP
+        // CLEANUP
         // ═══════════════════════════════════════════════════════════════
 
         @AfterClass(alwaysRun = true)

@@ -1,11 +1,28 @@
 package helpers;
 
-import models.common.*;
-import com.github.javafaker.Faker;
-import datafactory.CreateAccountDataFactory;
-import enums.*;
-
 import java.util.List;
+
+import com.github.javafaker.Faker;
+
+import datafactory.CreateAccountDataFactory;
+import enums.Dashboard;
+import enums.DefaultsResponsibilitiesFeesCollector;
+import enums.DefaultsResponsibilitiesLossesCollector;
+import enums.IdentityEntity;
+import enums.Include;
+import models.common.Automatic_indirect_tax;
+import models.common.Business_Details;
+import models.common.Card_Payments;
+import models.common.CloseAccountRequestPayload;
+import models.common.Configuration;
+import models.common.CreateAccountRequestPayload;
+import models.common.Customer;
+import models.common.CustomerCapabilities;
+import models.common.Defaults;
+import models.common.Identity;
+import models.common.Merchant;
+import models.common.MerchantCapabilities;
+import models.common.Responsibilities;
 
 public class AccountsHelper {
 
@@ -37,6 +54,25 @@ public class AccountsHelper {
                 dashboard, include
         );
     }
+
+    public static CreateAccountRequestPayload minimalValidAccount() {
+    String email = faker.internet().emailAddress();
+    String name = faker.name().firstName();
+
+    return CreateAccountRequestPayload.builder()
+            .contact_email(email)
+            .display_name(name)
+            .identity(
+                    Identity.builder()
+                            .country("us")
+                            .entity_type(IdentityEntity.company)
+                            .business_details(
+                                    Business_Details.builder()
+                                            .registered_name(name)
+                                            .build())
+                            .build())
+            .build();
+}
 
     // ============== ENTITY TYPE VARIANT ==============
 
@@ -116,7 +152,6 @@ public class AccountsHelper {
                                                 .losses_collector(DefaultsResponsibilitiesLossesCollector.stripe)
                                                 .build())
                                 .build())
-                .dashboard(Dashboard.full)
                 .include(List.of(
                         Include.CONFIGURATION_CUSTOMER.getValue(),
                         Include.IDENTITY.getValue(),
@@ -208,6 +243,29 @@ public class AccountsHelper {
                                                 .build())
                                 .build())
                 .dashboard(Dashboard.full)
+                .build();
+    }
+
+    // ============== CLOSE ACCOUNT PAYLOADS ==============
+
+    /** For accounts created with both customer + merchant configurations. */
+    public static CloseAccountRequestPayload closePayloadBothConfigs() {
+        return CloseAccountRequestPayload.builder()
+                .applied_configurations(List.of("customer", "merchant"))
+                .build();
+    }
+
+    /** For accounts created with customer configuration only. */
+    public static CloseAccountRequestPayload closePayloadCustomerOnly() {
+        return CloseAccountRequestPayload.builder()
+                .applied_configurations(List.of("customer"))
+                .build();
+    }
+
+    /** For accounts created with merchant configuration only. */
+    public static CloseAccountRequestPayload closePayloadMerchantOnly() {
+        return CloseAccountRequestPayload.builder()
+                .applied_configurations(List.of("merchant"))
                 .build();
     }
 

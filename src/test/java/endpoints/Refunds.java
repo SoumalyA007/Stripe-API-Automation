@@ -47,7 +47,6 @@ public class Refunds {
                 .post();
     }
 
-
     // ============== RETRIEVE ==============
 
     public static Response retrieveRefund(String refundId) {
@@ -76,7 +75,6 @@ public class Refunds {
                 .when()
                 .get();
     }
-
 
     // ============== CANCEL ==============
 

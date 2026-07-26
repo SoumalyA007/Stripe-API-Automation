@@ -38,7 +38,8 @@ public class TransferTests extends BaseClass {
 
         String paymentIntentId = TestContext.getPaymentIntentId();
 
-        // If no confirmed PI in context, create one now so we have a charge to reference
+        // If no confirmed PI in context, create one now so we have a charge to
+        // reference
         if (paymentIntentId == null) {
             paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
             fallbackPaymentIntentIds.add(paymentIntentId);
@@ -54,8 +55,8 @@ public class TransferTests extends BaseClass {
                 .extract()
                 .jsonPath();
 
-        int amountPaid   = piJson.getInt("amount_received");
-        String chargeId  = piJson.getString("latest_charge");
+        int amountPaid = piJson.getInt("amount_received");
+        String chargeId = piJson.getString("latest_charge");
         logger.info("PaymentIntent {} → amount_received: {}, latest_charge: {}",
                 paymentIntentId, amountPaid, chargeId);
 
@@ -417,6 +418,6 @@ public class TransferTests extends BaseClass {
         // are intentionally NOT cleared here. Shared context must remain intact for
         // any downstream test class that runs after this one in the same suite.
 
-        logger.info("✅ Cleanup complete for TransferTests.");
+        logger.info(" Cleanup complete for TransferTests.");
     }
 }

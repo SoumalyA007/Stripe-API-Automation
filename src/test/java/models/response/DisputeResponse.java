@@ -9,11 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
-/**
- * POJO representing the Stripe Dispute API response.
- * Note: Dispute IDs can begin with 'dp_' or 'du_' depending on the API version,
- * so a prefix pattern is not enforced here.
- */
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)

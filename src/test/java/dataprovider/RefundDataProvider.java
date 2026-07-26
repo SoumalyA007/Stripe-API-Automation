@@ -6,7 +6,6 @@ public class RefundDataProvider {
 
     // ============== NEGATIVE: Invalid Refund Reasons ==============
 
-    // Stripe only accepts: duplicate | fraudulent | requested_by_customer
     @DataProvider(name = "invalidRefundReasons")
     public Object[][] invalidRefundReasons() {
         return new Object[][] {

@@ -279,7 +279,8 @@ public class PayoutsTest extends BaseClass {
     public void TC_16_positive_Idempotent_CreatePayout() {
         logger.info("Testing idempotent create payout");
 
-        // Fund the platform's available balance first so the payout has sufficient funds
+        // Fund the platform's available balance first so the payout has sufficient
+        // funds
         logger.info("Funding platform account available balance...");
         PaymentIntentHelper.createFallbackPaymentIntent(true);
         logger.info("Platform account balance successfully funded.");

@@ -1,12 +1,12 @@
 package helpers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import endpoints.Disputes;
 import endpoints.PaymentIntent;
 import specification.ResponseSpec;
 import testbase.BaseClass;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class DisputesHelper {
 
@@ -14,8 +14,10 @@ public class DisputesHelper {
         Map<String, Object> body = new HashMap<>();
         body.put("amount", BaseClass.amount / 2);
         body.put("currency", "usd");
-        body.put("payment_method", "tok_createDispute");
+        body.put("payment_method", "pm_card_createAutoRepresentmentEligibleDispute");
         body.put("confirm", true);
+        body.put("automatic_payment_methods[allow_redirects]", "never");
+        body.put("automatic_payment_methods[enabled]", true);
 
         // 1. Create and confirm the PaymentIntent
         String chargeId = PaymentIntent.createPaymentIntent(body)
@@ -37,11 +39,6 @@ public class DisputesHelper {
                 .getString("data[0].id");
     }
 
-    /**
-     * Retrieves the dispute ID from TestContext, or creates a fallback dispute.
-     * 
-     * @return the dispute ID
-     */
     public static String createFallbackDispute() {
         String disputeId = TestContext.getDisputeId();
         if (disputeId == null) {

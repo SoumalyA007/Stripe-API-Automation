@@ -115,10 +115,6 @@ public class WebhookEventTests extends BaseClass {
         String paymentIntentId = TestContext.getPaymentIntentId();
 
         if (refundId != null) {
-            // ── E2E path ──────────────────────────────────────────────────────
-            // RefundTests.TC_01 already refunded this PaymentIntent (Step 10).
-            // We just verify that Stripe fired the charge.refunded / refund.created
-            // event for that action — no new refund needed.
             logger.info("Reusing refund from context → refundId: {}, paymentIntentId: {}",
                     refundId, paymentIntentId);
         } else {
@@ -203,11 +199,6 @@ public class WebhookEventTests extends BaseClass {
                 logger.info("   - PaymentIntent ID: {}", id);
             }
         }
-
-        // NOTE: TestContext values (customerId, paymentIntentId, etc.)
-        // are intentionally NOT cleared here. Shared context must remain intact for
-        // any downstream test class that runs after this one in the same suite.
-
-        logger.info("✅ Cleanup complete for WebhookEventTests.");
+        logger.info(" Cleanup complete for WebhookEventTests.");
     }
 }

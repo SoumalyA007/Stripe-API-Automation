@@ -62,18 +62,6 @@ public class BaseClass {
 
     }
 
-    // @BeforeMethod(onlyForGroups = "requiresCustomer")
-    // public void createCustomer(){
-    // // ✅ Create customer ONCE for the entire regression suite
-    // String email = "regression+" + System.currentTimeMillis() + "@test.com";
-    // Response resp = Customer.createCustomer("Regression User", email, null);
-    //
-    // String customerId = resp.jsonPath().getString("id");
-    // TestContext.setCustomerId(customerId);
-    //
-    // System.out.println("✅ Suite customer created: " + customerId);
-    // }
-
     public String[] currentGroups = {};
 
     @BeforeMethod(alwaysRun = true)

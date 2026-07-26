@@ -40,7 +40,6 @@ public class GenerateOnboardingLink {
         System.out.println("Connected Account : " + accountId);
         System.out.println("=======================================\n");
 
-
         // ============================
         // STEP 2 : Generate Onboarding Link
         // ============================

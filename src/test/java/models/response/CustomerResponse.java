@@ -2,6 +2,7 @@ package models.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -27,7 +28,7 @@ public class CustomerResponse {
 
     @NotNull(message = "Customer 'created' timestamp must not be null")
     @JsonProperty("created")
-    private Long created;
+    private String created;
 
     @NotNull(message = "Customer 'livemode' must not be null")
     @JsonProperty("livemode")

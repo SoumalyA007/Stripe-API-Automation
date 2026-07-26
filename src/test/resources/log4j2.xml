@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="INFO">
+    <Properties>
+        <Property name="log-path">./logs</Property>
+        <Property name="log-pattern">%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n</Property>
+    </Properties>
+    
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <PatternLayout pattern="${log-pattern}"/>
         </Console>
 
-        <!--
-            RollingFile appender: a new log file is created on every JVM startup.
-            The fileName attribute is the "current" symlink-like name that log4j2
-            uses while writing. OnStartupTriggeringPolicy triggers an immediate
-            rollover at launch, so each run gets its own timestamped archive file:
-              target/logs/archive/test_execution_<timestamp>.log
-        -->
-        <RollingFile name="File"
-                     fileName="target/logs/test_execution.log"
-                     filePattern="target/logs/archive/test_execution_%d{yyyy-MM-dd_HH-mm-ss}.log">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        <RollingFile name="File" fileName="${log-path}/automation.log"
+                     filePattern="${log-path}/stripe-automation-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout pattern="${log-pattern}"/>
             <Policies>
-                <!-- Roll immediately on JVM start → new file every test run -->
-                <OnStartupTriggeringPolicy />
+                <OnStartupTriggeringPolicy/>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="1MB"/>
             </Policies>
+            <DefaultRolloverStrategy max="10"/>
         </RollingFile>
     </Appenders>
+
     <Loggers>
-        <Root level="info">
-            <AppenderRef ref="Console"/>
+        <Root level="INFO">
+            <!--<AppenderRef ref="Console"/>-->
             <AppenderRef ref="File"/>
         </Root>
     </Loggers>

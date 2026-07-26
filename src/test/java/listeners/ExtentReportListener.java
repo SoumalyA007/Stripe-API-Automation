@@ -1,17 +1,5 @@
 package listeners;
 
-import com.aventstack.extentreports.ExtentReports;
-import com.aventstack.extentreports.ExtentTest;
-import com.aventstack.extentreports.Status;
-import com.aventstack.extentreports.reporter.ExtentSparkReporter;
-import com.aventstack.extentreports.reporter.configuration.Theme;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.testng.ITestContext;
-import org.testng.ITestListener;
-import org.testng.ITestResult;
-import org.testng.annotations.Test;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -21,6 +9,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.testng.ITestContext;
+import org.testng.ITestListener;
+import org.testng.ITestResult;
+import org.testng.annotations.Test;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
+import com.aventstack.extentreports.reporter.configuration.Theme;
 
 public class ExtentReportListener implements ITestListener {
 
@@ -114,8 +115,6 @@ public class ExtentReportListener implements ITestListener {
     // ─────────────────────────────────────────────────────────────────────────
     // Finds all *.html files in reportsDir (excluding the one we are about to
     // create) and packs them into a single zip archive named:
-    // reports/archive/ExtentReports_archive_<timestamp>.zip
-    // The original HTML files are deleted after successful compression.
     // ─────────────────────────────────────────────────────────────────────────
     private void archiveOldReports(String reportsDir, String timestamp) {
         File dir = new File(reportsDir);

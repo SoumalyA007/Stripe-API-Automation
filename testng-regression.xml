@@ -4,7 +4,7 @@
     <listeners>
         <listener class-name="listeners.SuiteCleanupListener"/>
     </listeners>
-    <test name="All Regression Tests">
+    <test name="All Regression Tests" group-by-instances="true">
         <groups>
             <run>
                 <include name="regression"/>

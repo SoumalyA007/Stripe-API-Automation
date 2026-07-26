@@ -394,7 +394,8 @@ public class AccountTests extends BaseClass {
                 Response resp = accounts.retrieveAccountWithCustomAuth("sk_test_invalid_key_12345", "acct_any_id");
 
                 resp.then().spec(ResponseSpec.Unauthorized())
-                                .body("error.message", containsString("You provided a malformed API Key, ensure you provided the full key in the Authorization header."));
+                                .body("error.message", containsString(
+                                                "You provided a malformed API Key, ensure you provided the full key in the Authorization header."));
                 logger.info("Successfully verified retrieve invalid auth rejection");
         }
 
@@ -463,7 +464,7 @@ public class AccountTests extends BaseClass {
                 Response resp = accounts.closeAccount(accountId, AccountsHelper.closePayloadBothConfigs());
 
                 resp.then().spec(ResponseSpec.forbidden())
-                .body("error.code", equalTo("forbidden"));
+                                .body("error.code", equalTo("forbidden"));
                 logger.info("Successfully verified double-close rejection");
         }
 
@@ -504,7 +505,8 @@ public class AccountTests extends BaseClass {
                 Response resp = accounts.closeAccountWithCustomAuth(null, "acct_any_id");
 
                 resp.then().spec(ResponseSpec.Unauthorized())
-                                .body("error.message", containsString("You did not provide an API key. You need to provide your API key in the Authorization header, using Bearer auth"));
+                                .body("error.message", containsString(
+                                                "You did not provide an API key. You need to provide your API key in the Authorization header, using Bearer auth"));
                 logger.info("Successfully verified close missing auth rejection");
         }
 
@@ -515,7 +517,8 @@ public class AccountTests extends BaseClass {
                 Response resp = accounts.closeAccountWithCustomAuth("sk_test_invalid_key_12345", "acct_any_id");
 
                 resp.then().spec(ResponseSpec.Unauthorized())
-                                .body("error.message", containsString("You provided a malformed API Key, ensure you provided the full key in the Authorization header."));
+                                .body("error.message", containsString(
+                                                "You provided a malformed API Key, ensure you provided the full key in the Authorization header."));
                 logger.info("Successfully verified close invalid auth rejection");
         }
 

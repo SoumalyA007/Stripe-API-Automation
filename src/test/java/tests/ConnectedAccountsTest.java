@@ -185,8 +185,7 @@ public class ConnectedAccountsTest extends BaseClass {
                 .then()
                 .spec(ResponseSpec.forbidden())
                 .body("error.type", equalTo("invalid_request_error"))
-                .body("error.message", containsString("does not have access to account 'acct_invalid_12345' (or that account does not exist). Application access may have been revoked.\r\n" + //
-                                        ""));
+                .body("error.message", containsString("does not have access to account 'acct_invalid_12345' (or that account does not exist). Application access may have been revoked."));
 
         logger.info("✅ Correctly rejected updating nonexistent connect account");
     }
@@ -225,7 +224,7 @@ public class ConnectedAccountsTest extends BaseClass {
                 .then()
                 .spec(errorcode)
                 .body("error.type", equalTo("invalid_request_error"))
-                .body("error.message", containsString("No such account"));
+                .body("error.message", containsString("(or that account does not exist)"));
 
         logger.info("✅ Correctly rejected deleting invalid connect account ID: {}", invalidAccountId);
     }

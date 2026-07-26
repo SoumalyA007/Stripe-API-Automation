@@ -41,6 +41,29 @@ public class InvoicesHelper {
                 .getString("id");
     }
 
+       public static String createFallbackSendInvoice() {
+        String customerId = TestContext.getCustomerId();
+        if (customerId == null) {
+            customerId = CustomersHelper.createCustomer();
+        }
+
+        // An invoice must have at least one line item before it can be created
+        addInvoiceItem(customerId, BaseClass.amount);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("customer", customerId);
+        body.put("pending_invoice_items_behavior", "include");
+        body.put("collection_method", "send_invoice");
+        body.put("days_until_due", 30);
+
+        return Invoices.createInvoice(body)
+                .then()
+                .spec(ResponseSpec.OK())
+                .extract()
+                .jsonPath()
+                .getString("id");
+    }
+
     public static String createFallbackPaidInvoice() {
         String paymentMethodId = TestContext.getPaymentMethodId();
         if (paymentMethodId == null) {

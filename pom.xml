@@ -33,7 +33,7 @@
                 <version>3.5.4</version>
                 <configuration>
                     <suiteXmlFiles>
-                        <suiteXmlFile>test-testng.xml</suiteXmlFile>
+                        <suiteXmlFile>testng-regression.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
             </plugin>

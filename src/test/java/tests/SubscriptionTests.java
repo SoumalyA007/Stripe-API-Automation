@@ -1,9 +1,22 @@
 package tests;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.notNullValue;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.Test;
+
 import dataprovider.SubscriptionDataProvider;
 import endpoints.Customer;
-import endpoints.Product;
 import endpoints.Price;
+import endpoints.Product;
 import endpoints.Subscription;
 import endpoints.paymentMethods;
 import helpers.CustomersHelper;
@@ -15,13 +28,8 @@ import io.restassured.response.Response;
 import models.response.PriceResponse;
 import models.response.ProductResponse;
 import models.response.SubscriptionResponse;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.Test;
 import specification.ResponseSpec;
 import testbase.BaseClass;
-
-import java.util.*;
-import static org.hamcrest.Matchers.*;
 
 public class SubscriptionTests extends BaseClass {
 

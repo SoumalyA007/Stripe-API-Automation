@@ -296,7 +296,7 @@ public class InvoicesTest extends BaseClass {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
         // Must be open to send
-        String invoiceId = InvoicesHelper.createFallbackOpenInvoice();
+        String invoiceId = InvoicesHelper.createFallbackSendInvoice();
         fallbackInvoiceIds.add(invoiceId);
         logger.info("Created open invoice to send: {}", invoiceId);
 

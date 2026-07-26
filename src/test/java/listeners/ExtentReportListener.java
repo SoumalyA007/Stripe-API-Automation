@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -23,6 +24,8 @@ import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
 
+import logfilter.RequestResponseLoggingBuffer;
+
 public class ExtentReportListener implements ITestListener {
 
     private static final Logger log = LogManager.getLogger(ExtentReportListener.class);
@@ -30,6 +33,7 @@ public class ExtentReportListener implements ITestListener {
 
     private static ExtentReports extent;
     private static ThreadLocal<ExtentTest> test = new ThreadLocal<>();
+    
 
     @Override
     public void onStart(ITestContext context) {
@@ -81,13 +85,31 @@ public class ExtentReportListener implements ITestListener {
     @Override
     public void onTestSuccess(ITestResult result) {
         test.get().log(Status.PASS, "✔ Test passed successfully.");
+        // Discard buffered request/response data – test passed, nothing to log
+        RequestResponseLoggingBuffer.clear();
     }
 
     @Override
     public void onTestFailure(ITestResult result) {
         test.get().log(Status.FAIL, "❌ Test failed.");
+
         if (result.getThrowable() != null) {
             test.get().fail(result.getThrowable());
+        }
+
+        // Flush the buffered request/response data to the Log4j file
+        String testName = result.getMethod().getMethodName();
+        List<String> buffered = RequestResponseLoggingBuffer.drainAndClear();
+        if (!buffered.isEmpty()) {
+            log.error("\n╔══════════════════════════════════════════════════════════╗");
+            log.error("║  REQUEST/RESPONSE LOG FOR FAILED TEST: {}  ", testName);
+            log.error("╚══════════════════════════════════════════════════════════╝");
+            for (String entry : buffered) {
+                log.error(entry);
+            }
+            log.error("╔══════════════════════════════════════════════════════════╗");
+            log.error("║  END OF REQUEST/RESPONSE LOG                             ║");
+            log.error("╚══════════════════════════════════════════════════════════╝");
         }
     }
 
@@ -97,6 +119,8 @@ public class ExtentReportListener implements ITestListener {
         if (result.getThrowable() != null) {
             test.get().skip(result.getThrowable());
         }
+        // Discard buffered data – skipped tests don't need request/response logs
+        RequestResponseLoggingBuffer.clear();
     }
 
     @Override

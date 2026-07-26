@@ -1,5 +1,10 @@
 package helpers;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.github.javafaker.Faker;
+
 import endpoints.Customer;
 import endpoints.Price;
 import endpoints.Product;
@@ -7,11 +12,6 @@ import endpoints.Subscription;
 import endpoints.paymentMethods;
 import io.restassured.response.Response;
 import specification.ResponseSpec;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import com.github.javafaker.Faker;
 
 public class SubscriptionHelper {
 
@@ -79,6 +79,7 @@ public class SubscriptionHelper {
         Customer.updateCustomer(customerId,
                 "invoice_settings[default_payment_method]", paymentMethodId, metadata);
 
+        TestContext.setSubscriptionPaymentMethodId(paymentMethodId);
         TestContext.setSubscriptionPaymentMethodId(paymentMethodId);
         return customerId;
     }

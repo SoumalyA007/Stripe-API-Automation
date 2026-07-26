@@ -92,7 +92,10 @@ public class accounts {
 
     }
 
-    /** Convenience overload — sends an empty body (only for accounts with no applied configs). */
+    /**
+     * Convenience overload — sends an empty body (only for accounts with no applied
+     * configs).
+     */
     public static Response closeAccount(String id) {
 
         return given()
@@ -126,7 +129,10 @@ public class accounts {
 
     }
 
-    /** Convenience overload with empty body — for auth-failure tests where configs don't matter. */
+    /**
+     * Convenience overload with empty body — for auth-failure tests where configs
+     * don't matter.
+     */
     public static Response closeAccountWithCustomAuth(String token, String id) {
 
         var request = given()

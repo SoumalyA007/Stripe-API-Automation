@@ -26,8 +26,7 @@ public class DisputesTest extends BaseClass {
     List<String> fallbackDisputeIds = new ArrayList<>();
 
     // ***************CREATE DISPUTE – POSITIVE*******************\\
-
-    @Test(groups = { "dispute", "regression", "dispute_e2e" }, priority = 1)
+    @Test(groups = {"dispute", "regression", "dispute_e2e"}, priority = 1)
     public void TC_00_Create_Dispute() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("Creating a dispute via payment intent with tok_createDispute");
@@ -43,8 +42,7 @@ public class DisputesTest extends BaseClass {
     }
 
     // ***************RETRIEVE DISPUTE – POSITIVE*******************\\
-
-    @Test(groups = { "dispute", "regression", "dispute_e2e" }, priority = 3)
+    @Test(groups = {"dispute", "regression", "dispute_e2e"}, priority = 3)
     public void TC_01_Retrieve_Dispute() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -70,8 +68,7 @@ public class DisputesTest extends BaseClass {
     }
 
     // ***************UPDATE DISPUTE EVIDENCE – POSITIVE*******************\\
-
-    @Test(groups = { "dispute", "regression", "dispute_e2e" }, priority = 2)
+    @Test(groups = {"dispute", "regression", "dispute_e2e"}, priority = 2)
     public void TC_02_Update_Dispute_Evidence() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -103,20 +100,13 @@ public class DisputesTest extends BaseClass {
     }
 
     // ***************CLOSE DISPUTE – POSITIVE*******************\\
-
-    @Test(groups = { "dispute", "regression", "dispute_e2e" }, priority = 4)
+    @Test(groups = {"dispute", "regression", "dispute_e2e"}, priority = 4)
     public void TC_03_Close_Dispute() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
-        String disputeId = TestContext.getDisputeId();
-        if (disputeId == null) {
-            disputeId = DisputesHelper.createFallbackDispute();
-            fallbackDisputeIds.add(disputeId);
-            logger.info("Created fallback dispute ID --> {}", disputeId);
-        } else {
-            logger.info("Fetched dispute ID from context --> {}", disputeId);
-        }
-
+        String disputeId = DisputesHelper.createDisputedCharge();
+        fallbackDisputeIds.add(disputeId);
+        logger.info("Created fresh dispute ID for closing --> {}", disputeId);
         logger.info("Closing dispute with ID: {}", disputeId);
         Disputes.closeDispute(disputeId)
                 .then()
@@ -129,8 +119,7 @@ public class DisputesTest extends BaseClass {
     }
 
     // ***************LIST DISPUTES – POSITIVE*******************\\
-
-    @Test(groups = { "dispute", "regression", "smoke" })
+    @Test(groups = {"dispute", "regression", "smoke"})
     public void TC_04_List_Disputes() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Map<String, Object> query = new HashMap<>();
@@ -146,9 +135,8 @@ public class DisputesTest extends BaseClass {
     }
 
     // ***************RETRIEVE DISPUTE – NEGATIVE*******************\\
-
-    @Test(groups = { "dispute", "negative",
-            "regression" }, dataProvider = "invalidDisputeIds", dataProviderClass = DisputesDataProvider.class)
+    @Test(groups = {"dispute", "negative",
+        "regression"}, dataProvider = "invalidDisputeIds", dataProviderClass = DisputesDataProvider.class)
     public void TC_05_RetrieveDispute_InvalidId(String testCaseName, String disputeId, String expectedErrorFragment) {
         logger.info("Running retrieve dispute invalid case: {} for dispute ID: {}", testCaseName, disputeId);
 
@@ -160,7 +148,7 @@ public class DisputesTest extends BaseClass {
         logger.info("Successfully verified retrieve dispute invalid ID failure: {}", expectedErrorFragment);
     }
 
-    @Test(groups = { "dispute", "negative", "auth", "regression" })
+    @Test(groups = {"dispute", "negative", "auth", "regression"})
     public void TC_06_RetrieveDispute_InvalidAuth() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Disputes.retrieveDisputeWithCustomAuth("sk_test_invalid_key_12345", "dp_any_id")
@@ -171,7 +159,7 @@ public class DisputesTest extends BaseClass {
         logger.info("Successfully verified unauthorized response for retrieve dispute invalid auth");
     }
 
-    @Test(groups = { "dispute", "negative", "auth", "regression" })
+    @Test(groups = {"dispute", "negative", "auth", "regression"})
     public void TC_07_RetrieveDispute_MissingAuth() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Disputes.retrieveDisputeWithCustomAuth(null, "dp_any_id")
@@ -183,8 +171,7 @@ public class DisputesTest extends BaseClass {
     }
 
     // ***************UPDATE DISPUTE – NEGATIVE*******************\\
-
-    @Test(groups = { "dispute", "negative", "regression" })
+    @Test(groups = {"dispute", "negative", "regression"})
     public void TC_08_UpdateDispute_InvalidId() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Map<String, Object> body = new HashMap<>();
@@ -198,7 +185,7 @@ public class DisputesTest extends BaseClass {
         logger.info("Successfully verified update dispute invalid ID failure");
     }
 
-    @Test(groups = { "dispute", "negative", "auth", "regression" })
+    @Test(groups = {"dispute", "negative", "auth", "regression"})
     public void TC_09_UpdateDispute_InvalidAuth() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Map<String, Object> body = new HashMap<>();
@@ -212,7 +199,7 @@ public class DisputesTest extends BaseClass {
         logger.info("Successfully verified unauthorized response for update dispute invalid auth");
     }
 
-    @Test(groups = { "dispute", "negative", "auth", "regression" })
+    @Test(groups = {"dispute", "negative", "auth", "regression"})
     public void TC_10_UpdateDispute_MissingAuth() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Map<String, Object> body = new HashMap<>();
@@ -227,8 +214,7 @@ public class DisputesTest extends BaseClass {
     }
 
     // ***************CLOSE DISPUTE – NEGATIVE*******************\\
-
-    @Test(groups = { "dispute", "negative", "regression" })
+    @Test(groups = {"dispute", "negative", "regression"})
     public void TC_11_CloseDispute_InvalidId() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Disputes.closeDispute("dp_invalid_id_12345")
@@ -239,7 +225,7 @@ public class DisputesTest extends BaseClass {
         logger.info("Successfully verified close dispute invalid ID failure");
     }
 
-    @Test(groups = { "dispute", "negative", "auth", "regression" })
+    @Test(groups = {"dispute", "negative", "auth", "regression"})
     public void TC_12_CloseDispute_InvalidAuth() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Disputes.closeDisputeWithCustomAuth("sk_test_invalid_key_12345", "dp_any_id")
@@ -250,7 +236,7 @@ public class DisputesTest extends BaseClass {
         logger.info("Successfully verified unauthorized response for close dispute invalid auth");
     }
 
-    @Test(groups = { "dispute", "negative", "auth", "regression" })
+    @Test(groups = {"dispute", "negative", "auth", "regression"})
     public void TC_13_CloseDispute_MissingAuth() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         Disputes.closeDisputeWithCustomAuth(null, "dp_any_id")
@@ -261,7 +247,7 @@ public class DisputesTest extends BaseClass {
         logger.info("Successfully verified unauthorized response for close dispute missing auth");
     }
 
-    @Test(groups = { "idempotent_test", "sanity" })
+    @Test(groups = {"idempotent_test", "sanity"})
     public void TC_14_positive_Idempotent_UpdateDispute_Evidence() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -308,7 +294,6 @@ public class DisputesTest extends BaseClass {
     }
 
     // ***************CLEANUP*******************\\
-
     @AfterClass(alwaysRun = true)
     public void cleanup() {
         logger.info("🧹 Starting cleanup for DisputesTest...");

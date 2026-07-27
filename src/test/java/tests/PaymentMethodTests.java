@@ -247,11 +247,8 @@ public class PaymentMethodTests extends BaseClass {
 
         // Create a payment method to detach
         // usable for full flow
-        String paymentMethodId = TestContext.getPaymentMethodId();
-        if (paymentMethodId == null) {
-            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
-            logger.info("Created temporary payment method ID: {}", paymentMethodId);
-        }
+        String paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(false);
+        logger.info("Created temporary payment method ID: {}", paymentMethodId);
 
         Map<String, Object> attachBody = new HashMap<>();
         attachBody.put("customer", customerId);

@@ -7,7 +7,7 @@ import endpoints.Refunds;
 import specification.ResponseSpec;
 import testbase.BaseClass;
 
-public class RefundHelper {
+public class RefundHelper extends BaseClass {
 
     public static String createFallbackRefund() {
 
@@ -46,6 +46,7 @@ public class RefundHelper {
 
         return Refunds.createRefund(paymentIntentId, body)
                 .then()
+                .spec(ResponseSpec.OK())
                 .extract()
                 .jsonPath()
                 .getString("id");

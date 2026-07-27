@@ -1,9 +1,12 @@
 package helpers;
 
 import endpoints.paymentMethods;
+import specification.ResponseSpec;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.hamcrest.Matchers.equalTo;
 
 public class PaymentMethodsHelper {
 
@@ -54,6 +57,30 @@ public class PaymentMethodsHelper {
                 .getString("id");
 
         return paymentId;
+    }
+
+    public static String createAndAttachValidPaymentMethod(String customerId,boolean saveToContext) {
+        Map<String, Object> method = new HashMap<>();
+        method.put("type", "card");
+        method.put("card[token]", "tok_bypassPending");
+        method.put("billing_details[email]", TestContext.getBillingEmail());
+        method.put("billing_details[name]", TestContext.getBillingName());
+        String paymentMethodId = paymentMethods.createPaymentMethod(method)
+                .then()
+                .extract()
+                .jsonPath()
+                .getString("id");
+
+        if (saveToContext) {
+            TestContext.setPaymentMethodId(paymentMethodId);
+        }
+        Map<String, Object> body = new HashMap<>();
+        body.put("customer", customerId);
+        paymentMethods.attachPaymentMethod(paymentMethodId, body)
+                .then()
+                .spec(ResponseSpec.OK())
+                .body("customer", equalTo(customerId));
+        return paymentMethodId;
     }
 
 }

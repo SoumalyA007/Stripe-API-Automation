@@ -144,6 +144,7 @@ public class PaymentIntentTests extends BaseClass {
                 .body("cancellation_reason", equalTo("requested_by_customer"));
         logger.info("Successfully canceled payment intent");
         TestContext.setCanceledPaymentIntent(paymentIntentId);
+        TestContext.setPaymentIntentId(null);
     }
 
     // Canceling succeeded paymentIntents with valid payment methods
@@ -168,7 +169,7 @@ public class PaymentIntentTests extends BaseClass {
         logger.info("Attempting to cancel succeeded payment intent: {}", paymentIntentId);
         PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
                 .then()
-                .spec(ResponseSpec.request_failed())
+                .spec(ResponseSpec.bad_request())
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
         logger.info("Successfully verified cancel succeeded payment intent rejection");
     }
@@ -196,7 +197,7 @@ public class PaymentIntentTests extends BaseClass {
         logger.info("Performing second cancellation on ID: {}", paymentIntentId);
         PaymentIntent.cancelPaymentIntent(paymentIntentId, cancelBody)
                 .then()
-                .spec(ResponseSpec.request_failed())
+                .spec(ResponseSpec.bad_request())
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
         logger.info("Successfully verified double cancellation rejection");
         TestContext.setCanceledPaymentIntent(paymentIntentId);
@@ -295,7 +296,7 @@ public class PaymentIntentTests extends BaseClass {
         logger.info("Attempting to confirm canceled payment intent: {}", paymentIntentId);
         PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
                 .then()
-                .spec(ResponseSpec.request_failed())
+                .spec(ResponseSpec.bad_request())
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
         logger.info("Successfully verified confirmation of canceled payment intent is rejected");
     }
@@ -356,7 +357,7 @@ public class PaymentIntentTests extends BaseClass {
         logger.info("Attempting to confirm already succeeded payment intent: {}", paymentIntentId);
         PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
                 .then()
-                .spec(ResponseSpec.request_failed())
+                .spec(ResponseSpec.bad_request())
                 .body("error.code", equalTo("payment_intent_unexpected_state"));
         logger.info("Successfully verified confirmation of succeeded payment intent is rejected");
     }
@@ -385,10 +386,10 @@ public class PaymentIntentTests extends BaseClass {
         logger.info("Attempting to confirm payment intent: {}", paymentIntentId);
         PaymentIntent.confirmPaymentIntent(paymentIntentId, confirmBody)
                 .then()
-                .spec(ResponseSpec.request_failed())
+                .spec(ResponseSpec.bad_request())
                 // In Stripe, you cannot confirm a PI if there's no payment method attached
                 .body("error.code", equalTo("payment_intent_unexpected_state"))
-                .body("error.message", containsString("payment_method"));
+                .body("error.message", containsString("You cannot confirm this PaymentIntent because it's missing a payment method. You can either update the PaymentIntent with a payment method and then confirm it again, or confirm it again directly with a payment method or ConfirmationToken."));
         logger.info("Successfully verified confirmation without payment method is rejected");
     }
 

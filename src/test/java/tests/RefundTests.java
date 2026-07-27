@@ -79,15 +79,8 @@ public class RefundTests extends BaseClass {
         @Test(groups = { "refund", "regression", "partialrefund_retrieve" })
         public void TC_02_positive_Partial_Refund() {
                 logger.info("Testing positive partial refund");
-                String paymentIntentId = TestContext.getPaymentIntentId();
-                logger.info("Fetched PaymentIntentId from context -->\t" + paymentIntentId);
-
-                if (paymentIntentId == null) {
-                        paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
-                        logger.info("Created new paymentIntentId -->\t" + paymentIntentId);
-                        TestContext.setPaymentIntentId(paymentIntentId);
-                }
-
+                String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                logger.info("Created new paymentIntentId -->\t" + paymentIntentId);
                 // Fetch the real paid amount so the partial refund is always valid
                 int amountReceived = PaymentIntent.retrievePaymentIntent(paymentIntentId)
                                 .then()
@@ -115,8 +108,8 @@ public class RefundTests extends BaseClass {
 
                 logger.info("Refund Id -->\t" + refundId);
                 logger.info("Successfully verified positive partial refund for amount: {}", partialAmount);
+                fallbackRefundIds.add(refundId);
 
-                TestContext.setRefundId(refundId);
         }
 
         @Test(groups = { "refund", "regression", "create_retrieve_refund", "partialrefund_retrieve" })

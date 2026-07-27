@@ -31,4 +31,15 @@ public class CustomersHelper {
 
     }
 
+    public static String createCustomer(String email) {
+        Faker faker = new Faker();
+        String name = faker.name().fullName();
+        return createCustomer(name, email);
+    }
+
+    private static String createCustomer(String name, String email) {
+        Response resp = Customer.createCustomer(name, email, null);
+        return resp.jsonPath().getString("id");
+    }
+
 }

@@ -1,360 +1,124 @@
-2026-07-27 17:55:07 INFO  RefundTests:60 - Suite Start Now :) 
-2026-07-27 17:55:07 INFO  RefundTests:61 - Base URI: https://api.stripe.com
-2026-07-27 17:55:07 INFO  ExtentReportListener:165 - Archiving old report: ExtentReport_2026-07-27_15-14-19.html
-2026-07-27 17:55:07 INFO  ExtentReportListener:180 - ✅ Archived 1 old report(s) → ExtentReports_archive_2026-07-27_17-55-07.zip
-2026-07-27 17:55:08 INFO  RefundTests:71 - ▶ Running: [TC_03_positive_CancelRefund] | Groups: [refund, regression, cancel_refund]
-2026-07-27 17:55:08 INFO  RefundTests:140 - Testing positive cancel refund (requires_action flow)
-2026-07-27 17:55:15 ERROR ExtentReportListener:104 - 
-╔══════════════════════════════════════════════════════════╗
-2026-07-27 17:55:15 ERROR ExtentReportListener:105 - ║  REQUEST/RESPONSE LOG FOR FAILED TEST: TC_03_positive_CancelRefund  
-2026-07-27 17:55:15 ERROR ExtentReportListener:106 - ╚══════════════════════════════════════════════════════════╝
-2026-07-27 17:55:15 ERROR ExtentReportListener:108 - 
-========== API REQUEST ==========
-Method  : POST
-URI     : https://api.stripe.com/v1/customers
-Headers :
-Accept=*/*
-Content-Type=application/x-www-form-urlencoded; charset=ISO-8859-1
-========== API RESPONSE ==========
-Status  : 200
-Headers :
-Server=nginx
-Date=Mon, 27 Jul 2026 12:25:10 GMT
-Content-Type=application/json
-Content-Length=676
-Connection=keep-alive
-Access-Control-Allow-Credentials=true
-Access-Control-Allow-Methods=GET, HEAD, PUT, PATCH, POST, DELETE
-Access-Control-Allow-Origin=*
-Access-Control-Expose-Headers=Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required, X-Stripe-Privileged-Session-Required
-Access-Control-Max-Age=300
-Cache-Control=no-cache, no-store
-Content-Security-Policy=base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src 'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=hXaMOFL7amDGglzWbDW0U51mATqTv4hm69j4u5gZ9m-HxtZfEajIKO3rrFQ9KbDbesGEgtsPrS9vmh--; report-to csp
-Idempotency-Key=8c718a2c-7d69-4825-94bd-106de2769efe
-Original-Request=req_a42LjU7oEpH9tB
-Report-To={"group":"csp","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/csp-report-v2?q=hXaMOFL7amDGglzWbDW0U51mATqTv4hm69j4u5gZ9m-HxtZfEajIKO3rrFQ9KbDbesGEgtsPrS9vmh--&t=1"}],"include_subdomains":true}
-Reporting-Endpoints=csp="https://q.stripe.com/csp-report-v2?q=hXaMOFL7amDGglzWbDW0U51mATqTv4hm69j4u5gZ9m-HxtZfEajIKO3rrFQ9KbDbesGEgtsPrS9vmh--&t=1"
-Request-Id=req_a42LjU7oEpH9tB
-Stripe-Should-Retry=false
-Stripe-Version=2026-03-25.dahlia
-Vary=Origin
-X-Stripe-Priority-Routing-Enabled=true
-X-Stripe-Routing-Context-Priority-Tier=api-testmode
-X-Wc=3c3
-Strict-Transport-Security=max-age=63072000; includeSubDomains; preload
-Body    :
-{
-    "id": "cus_Uxj2B6dd6kTbGh",
-    "object": "customer",
-    "address": null,
-    "balance": 0,
-    "created": 1785155110,
-    "currency": null,
-    "customer_account": null,
-    "default_source": null,
-    "delinquent": false,
-    "description": null,
-    "discount": null,
-    "email": "ChesterAbshire@test.com",
-    "invoice_prefix": "WTSQJAHB",
-    "invoice_settings": {
-        "custom_fields": null,
-        "default_payment_method": null,
-        "footer": null,
-        "rendering_options": null
-    },
-    "livemode": false,
-    "metadata": {
-        
-    },
-    "name": "Chester Abshire",
-    "next_invoice_sequence": 1,
-    "phone": null,
-    "preferred_locales": [
-        
-    ],
-    "shipping": null,
-    "tax_exempt": "none",
-    "test_clock": null
-}
-==================================
-2026-07-27 17:55:15 ERROR ExtentReportListener:108 - 
-========== API REQUEST ==========
-Method  : POST
-URI     : https://api.stripe.com/v1/payment_intents
-Headers :
-Authorization=Bearer
-Accept=*/*
-Content-Type=application/x-www-form-urlencoded; charset=ISO-8859-1
-========== API RESPONSE ==========
-Status  : 200
-Headers :
-Server=nginx
-Date=Mon, 27 Jul 2026 12:25:12 GMT
-Content-Type=application/json
-Content-Length=3839
-Connection=keep-alive
-Access-Control-Allow-Credentials=true
-Access-Control-Allow-Methods=GET, HEAD, PUT, PATCH, POST, DELETE
-Access-Control-Allow-Origin=*
-Access-Control-Expose-Headers=Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required, X-Stripe-Privileged-Session-Required
-Access-Control-Max-Age=300
-Cache-Control=no-cache, no-store
-Content-Security-Policy=base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src 'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=RKc--JWWiiDLZxnj6XbuzfbuZ8uFbI_mNcJZUqOjrmEwBnd2PlOvgB0HC0KK3eFKarGNKJzWUUxn1oEE; report-to csp
-Idempotency-Key=6c4b28e7-26c1-4e32-a21f-3ab8747a969d
-Original-Request=req_Ypk0NJNhnednth
-Report-To={"group":"csp","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/csp-report-v2?q=RKc--JWWiiDLZxnj6XbuzfbuZ8uFbI_mNcJZUqOjrmEwBnd2PlOvgB0HC0KK3eFKarGNKJzWUUxn1oEE&t=1"}],"include_subdomains":true}
-Reporting-Endpoints=csp="https://q.stripe.com/csp-report-v2?q=RKc--JWWiiDLZxnj6XbuzfbuZ8uFbI_mNcJZUqOjrmEwBnd2PlOvgB0HC0KK3eFKarGNKJzWUUxn1oEE&t=1"
-Request-Id=req_Ypk0NJNhnednth
-Stripe-Should-Retry=false
-Stripe-Version=2026-03-25.dahlia
-Vary=Origin
-X-Stripe-Priority-Routing-Enabled=true
-X-Stripe-Routing-Context-Priority-Tier=api-testmode
-X-Wc=3c3
-Strict-Transport-Security=max-age=63072000; includeSubDomains; preload
-Body    :
-{
-    "id": "pi_3TxnalCawgxS6rsg0S1UR8vX",
-    "object": "payment_intent",
-    "allowed_payment_method_types": null,
-    "amount": 2000,
-    "amount_capturable": 0,
-    "amount_details": {
-        "tip": {
-            
-        }
-    },
-    "amount_received": 0,
-    "application": null,
-    "application_fee_amount": null,
-    "automatic_payment_methods": null,
-    "canceled_at": null,
-    "cancellation_reason": null,
-    "capture_method": "automatic_async",
-    "client_secret": "pi_3TxnalCawgxS6rsg0S1UR8vX_secret_ZZu6OZ6oHJWEYr5t6Pk8H9bh5",
-    "confirmation_method": "automatic",
-    "created": 1785155111,
-    "currency": "usd",
-    "customer": "cus_Uxj2B6dd6kTbGh",
-    "customer_account": null,
-    "description": null,
-    "excluded_payment_method_types": null,
-    "last_payment_error": null,
-    "latest_charge": null,
-    "livemode": false,
-    "managed_payments": {
-        "enabled": false
-    },
-    "metadata": {
-        
-    },
-    "next_action": {
-        "display_bank_transfer_instructions": {
-            "amount_remaining": 2000,
-            "currency": "usd",
-            "financial_addresses": [
-                {
-                    "aba": {
-                        "account_holder_address": {
-                            "city": "South San Francisco",
-                            "country": "US",
-                            "line1": "354 Oyster Point Blvd",
-                            "line2": null,
-                            "postal_code": "94080",
-                            "state": "CA"
-                        },
-                        "account_holder_name": "Magenta Freestyle",
-                        "account_number": "11119941155660929",
-                        "account_type": "checking",
-                        "bank_address": {
-                            "city": "San Francisco",
-                            "country": "US",
-                            "line1": "420 Montgomery Street",
-                            "line2": null,
-                            "postal_code": "94104",
-                            "state": "CA"
-                        },
-                        "bank_name": "US Test Bank",
-                        "routing_number": "999999999"
-                    },
-                    "supported_networks": [
-                        "ach",
-                        "domestic_wire_us"
-                    ],
-                    "type": "aba"
-                },
-                {
-                    "supported_networks": [
-                        "swift"
-                    ],
-                    "swift": {
-                        "account_holder_address": {
-                            "city": "South San Francisco",
-                            "country": "US",
-                            "line1": "354 Oyster Point Blvd",
-                            "line2": null,
-                            "postal_code": "94080",
-                            "state": "CA"
-                        },
-                        "account_holder_name": "Magenta Freestyle",
-                        "account_number": "11119941155660929",
-                        "account_type": "checking",
-                        "bank_address": {
-                            "city": "San Francisco",
-                            "country": "US",
-                            "line1": "420 Montgomery Street",
-                            "line2": null,
-                            "postal_code": "94104",
-                            "state": "CA"
-                        },
-                        "bank_name": "US Test Bank",
-                        "swift_code": "TESTUS99XXX"
-                    },
-                    "type": "swift"
-                }
-            ],
-            "hosted_instructions_url": "https://payments.stripe.com/bank_transfers/instructions/test_YWNjdF8xVExuWFdDYXdneFM2cnNnLF9VeGoyd2NwYm5kOHVna1Yzc1h5OXdtMUpMSGJGVk1S0100kFnKYJA5",
-            "reference": "KRXY5PPYGPQF",
-            "type": "us_bank_transfer"
-        },
-        "type": "display_bank_transfer_instructions"
-    },
-    "on_behalf_of": null,
-    "payment_method": "pm_1TxnalCawgxS6rsgd97ecBg7",
-    "payment_method_configuration_details": null,
-    "payment_method_options": {
-        "customer_balance": {
-            "bank_transfer": {
-                "type": "us_bank_transfer"
-            },
-            "funding_type": "bank_transfer"
-        }
-    },
-    "payment_method_types": [
-        "customer_balance"
-    ],
-    "processing": null,
-    "receipt_email": null,
-    "review": null,
-    "setup_future_usage": null,
-    "shared_payment_granted_token": null,
-    "shipping": null,
-    "source": null,
-    "statement_descriptor": null,
-    "statement_descriptor_suffix": null,
-    "status": "requires_action",
-    "transfer_data": null,
-    "transfer_group": null
-}
-==================================
-2026-07-27 17:55:15 ERROR ExtentReportListener:108 - 
-========== API REQUEST ==========
-Method  : POST
-URI     : https://api.stripe.com/v1/test_helpers/customers/cus_Uxj2B6dd6kTbGh/fund_cash_balance
-Headers :
-Authorization=Bearer
-Accept=*/*
-Content-Type=application/x-www-form-urlencoded; charset=ISO-8859-1
-========== API RESPONSE ==========
-Status  : 200
-Headers :
-Server=nginx
-Date=Mon, 27 Jul 2026 12:25:14 GMT
-Content-Type=application/json
-Content-Length=487
-Connection=keep-alive
-Access-Control-Allow-Credentials=true
-Access-Control-Allow-Methods=GET, HEAD, PUT, PATCH, POST, DELETE
-Access-Control-Allow-Origin=*
-Access-Control-Expose-Headers=Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required, X-Stripe-Privileged-Session-Required
-Access-Control-Max-Age=300
-Cache-Control=no-cache, no-store
-Content-Security-Policy=base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src 'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=3oLGgjXElat1cFfmDql4hT45xf_BYTd3bpqAJC66NK_HtjXF5Lphirzj2L9ddXqSbLbQ-on19Ni9LP4q; report-to csp
-Idempotency-Key=74d69446-ee6d-41d7-ae16-c33f6f055bae
-Original-Request=req_h9KjEKalbZxKGm
-Report-To={"group":"csp","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/csp-report-v2?q=3oLGgjXElat1cFfmDql4hT45xf_BYTd3bpqAJC66NK_HtjXF5Lphirzj2L9ddXqSbLbQ-on19Ni9LP4q&t=1"}],"include_subdomains":true}
-Reporting-Endpoints=csp="https://q.stripe.com/csp-report-v2?q=3oLGgjXElat1cFfmDql4hT45xf_BYTd3bpqAJC66NK_HtjXF5Lphirzj2L9ddXqSbLbQ-on19Ni9LP4q&t=1"
-Request-Id=req_h9KjEKalbZxKGm
-Stripe-Should-Retry=false
-Stripe-Version=2026-03-25.dahlia
-Vary=Origin
-X-Stripe-Priority-Routing-Enabled=true
-X-Stripe-Routing-Context-Priority-Tier=api-testmode
-X-Wc=3c3
-Strict-Transport-Security=max-age=63072000; includeSubDomains; preload
-Body    :
-{
-    "id": "ccsbtxn_1TxnanCawgxS6rsg9spSrKBm",
-    "object": "customer_cash_balance_transaction",
-    "created": 1785155113,
-    "currency": "usd",
-    "customer": "cus_Uxj2B6dd6kTbGh",
-    "customer_account": null,
-    "ending_balance": 2000,
-    "funded": {
-        "bank_transfer": {
-            "reference": "",
-            "type": "us_bank_transfer",
-            "us_bank_transfer": {
-                "network": "ach",
-                "sender_name": ""
-            }
-        }
-    },
-    "livemode": false,
-    "net_amount": 2000,
-    "type": "funded"
-}
-==================================
-2026-07-27 17:55:15 ERROR ExtentReportListener:108 - 
-========== API REQUEST ==========
-Method  : POST
-URI     : https://api.stripe.com/v1/refunds
-Headers :
-Authorization=Bearer
-Accept=*/*
-Content-Type=application/x-www-form-urlencoded; charset=ISO-8859-1
-========== API RESPONSE ==========
-Status  : 400
-Headers :
-Server=nginx
-Date=Mon, 27 Jul 2026 12:25:15 GMT
-Content-Type=application/json
-Content-Length=467
-Connection=keep-alive
-Access-Control-Allow-Credentials=true
-Access-Control-Allow-Methods=GET, HEAD, PUT, PATCH, POST, DELETE
-Access-Control-Allow-Origin=*
-Access-Control-Expose-Headers=Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required, X-Stripe-Privileged-Session-Required
-Access-Control-Max-Age=300
-Cache-Control=no-cache, no-store
-Content-Security-Policy=base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src 'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=lJTrouktkQSb3QTElK9Riq21L87eHrN9Tzc7BtRWcbTmcrRsfDfCCGcF9NHS58Pjg_gGKuuPY66_qt46; report-to csp
-Idempotency-Key=0f3ced21-5132-4de7-88a6-7bfb8ddebecd
-Original-Request=req_YHXmSWEAobWQRm
-Report-To={"group":"csp","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/csp-report-v2?q=lJTrouktkQSb3QTElK9Riq21L87eHrN9Tzc7BtRWcbTmcrRsfDfCCGcF9NHS58Pjg_gGKuuPY66_qt46&t=1"}],"include_subdomains":true}
-Reporting-Endpoints=csp="https://q.stripe.com/csp-report-v2?q=lJTrouktkQSb3QTElK9Riq21L87eHrN9Tzc7BtRWcbTmcrRsfDfCCGcF9NHS58Pjg_gGKuuPY66_qt46&t=1"
-Request-Id=req_YHXmSWEAobWQRm
-Stripe-Should-Retry=false
-Stripe-Version=2026-03-25.dahlia
-Vary=Origin
-X-Stripe-Priority-Routing-Enabled=true
-X-Stripe-Routing-Context-Priority-Tier=api-testmode
-X-Wc=3c3
-Strict-Transport-Security=max-age=63072000; includeSubDomains; preload
-Body    :
-{
-    "error": {
-        "message": "Cannot send email. In order to complete this refund, we must collect refund details through email. To send email to the email address registered with your account, verify the email address first. To send email to other email addresses, submit your account application.",
-        "request_log_url": "https://dashboard.stripe.com/acct_1TLnXWCawgxS6rsg/test/workbench/logs?object=req_YHXmSWEAobWQRm",
-        "type": "invalid_request_error"
-    }
-}
-
-==================================
-2026-07-27 17:55:15 ERROR ExtentReportListener:110 - ╔══════════════════════════════════════════════════════════╗
-2026-07-27 17:55:15 ERROR ExtentReportListener:111 - ║  END OF REQUEST/RESPONSE LOG                             ║
-2026-07-27 17:55:15 ERROR ExtentReportListener:112 - ╚══════════════════════════════════════════════════════════╝
-2026-07-27 17:55:15 INFO  RefundTests:435 - Cleaning up 0 fallback refund(s) created during standalone negative test runs
-2026-07-27 17:55:15 INFO  RefundTests:449 - Cancelling 0 PaymentIntent(s) created during RefundTests
-2026-07-27 17:55:15 INFO  RefundTests:85 - Suite End Now :) 
+2026-07-28 02:20:45 INFO  SubscriptionTests:60 - Suite Start Now :) 
+2026-07-28 02:20:45 INFO  SubscriptionTests:61 - Base URI: https://api.stripe.com
+2026-07-28 02:20:45 INFO  ExtentReportListener:165 - Archiving old report: ExtentReport_2026-07-28_02-18-36.html
+2026-07-28 02:20:45 INFO  ExtentReportListener:180 - ✅ Archived 1 old report(s) → ExtentReports_archive_2026-07-28_02-20-45.zip
+2026-07-28 02:20:45 INFO  SubscriptionTests:71 - ▶ Running: [TC_01_positive_Create_Product] | Groups: [subscription, regression, crate_retrieve_delete_product, subscription_e2e, smoke]
+2026-07-28 02:20:45 INFO  SubscriptionTests:48 - Test running under groups: [subscription, regression, crate_retrieve_delete_product, subscription_e2e, smoke]
+2026-07-28 02:20:47 INFO  Version:21 - HV000001: Hibernate Validator 8.0.2.Final
+2026-07-28 02:20:47 INFO  SubscriptionTests:68 - POJO validation passed for product: prod_UxrC0CCwTh0bzS
+2026-07-28 02:20:47 INFO  SubscriptionTests:72 - ✅ Product created successfully: prod_UxrC0CCwTh0bzS
+2026-07-28 02:20:47 INFO  SubscriptionTests:71 - ▶ Running: [TC_02_positive_Retrieve_Product] | Groups: [subscription, regression, crate_retrieve_delete_product]
+2026-07-28 02:20:47 INFO  SubscriptionTests:79 - Testing retrieve product
+2026-07-28 02:20:47 INFO  SubscriptionTests:87 - Retrieving product ID: prod_UxrC0CCwTh0bzS
+2026-07-28 02:20:47 INFO  SubscriptionTests:94 - ✅ Product retrieved successfully: prod_UxrC0CCwTh0bzS
+2026-07-28 02:20:47 INFO  SubscriptionTests:71 - ▶ Running: [TC_05_positive_Create_Price] | Groups: [subscription, regression, subscription_e2e]
+2026-07-28 02:20:47 INFO  SubscriptionTests:142 - Testing positive create price
+2026-07-28 02:20:47 INFO  SubscriptionTests:156 - Creating price for product: prod_UxrC0CCwTh0bzS
+2026-07-28 02:20:48 INFO  SubscriptionTests:171 - POJO validation passed for price: price_1TxvU4CawgxS6rsg8aPVwn9n
+2026-07-28 02:20:48 INFO  SubscriptionTests:174 - ✅ Price created successfully: price_1TxvU4CawgxS6rsg8aPVwn9n
+2026-07-28 02:20:48 INFO  SubscriptionTests:71 - ▶ Running: [TC_06_positive_Create_Price_Intervals] | Groups: [subscription, regression]
+2026-07-28 02:20:48 INFO  SubscriptionTests:180 - Creating price for: Monthly Plan
+2026-07-28 02:20:49 INFO  SubscriptionTests:202 - ✅ Successfully created price with interval: month
+2026-07-28 02:20:49 INFO  SubscriptionTests:71 - ▶ Running: [TC_06_positive_Create_Price_Intervals] | Groups: [subscription, regression]
+2026-07-28 02:20:49 INFO  SubscriptionTests:180 - Creating price for: Yearly Plan
+2026-07-28 02:20:49 INFO  SubscriptionTests:202 - ✅ Successfully created price with interval: year
+2026-07-28 02:20:49 INFO  SubscriptionTests:71 - ▶ Running: [TC_06_positive_Create_Price_Intervals] | Groups: [subscription, regression]
+2026-07-28 02:20:49 INFO  SubscriptionTests:180 - Creating price for: Weekly Plan
+2026-07-28 02:20:50 INFO  SubscriptionTests:202 - ✅ Successfully created price with interval: week
+2026-07-28 02:20:50 INFO  SubscriptionTests:71 - ▶ Running: [TC_07_positive_Retrieve_Price] | Groups: [subscription, regression]
+2026-07-28 02:20:50 INFO  SubscriptionTests:208 - Testing retrieve price
+2026-07-28 02:20:50 INFO  SubscriptionTests:217 - Retrieving price ID: price_1TxvU4CawgxS6rsg8aPVwn9n
+2026-07-28 02:20:50 INFO  SubscriptionTests:223 - ✅ Price retrieved successfully: price_1TxvU4CawgxS6rsg8aPVwn9n
+2026-07-28 02:20:50 INFO  SubscriptionTests:71 - ▶ Running: [TC_08_negative_Create_Price_Invalid] | Groups: [subscription, negative, regression]
+2026-07-28 02:20:50 INFO  SubscriptionTests:229 - Running invalid price body case: Missing Product
+2026-07-28 02:20:51 INFO  SubscriptionTests:246 - ✅ Correctly rejected invalid price body: Missing Product
+2026-07-28 02:20:51 INFO  SubscriptionTests:71 - ▶ Running: [TC_08_negative_Create_Price_Invalid] | Groups: [subscription, negative, regression]
+2026-07-28 02:20:51 INFO  SubscriptionTests:229 - Running invalid price body case: Negative Amount
+2026-07-28 02:20:52 INFO  SubscriptionTests:246 - ✅ Correctly rejected invalid price body: Negative Amount
+2026-07-28 02:20:52 INFO  SubscriptionTests:71 - ▶ Running: [TC_08_negative_Create_Price_Invalid] | Groups: [subscription, negative, regression]
+2026-07-28 02:20:52 INFO  SubscriptionTests:229 - Running invalid price body case: Invalid Currency
+2026-07-28 02:20:52 INFO  SubscriptionTests:246 - ✅ Correctly rejected invalid price body: Invalid Currency
+2026-07-28 02:20:52 INFO  SubscriptionTests:71 - ▶ Running: [TC_04_negative_Create_Product_Invalid] | Groups: [subscription, negative, regression]
+2026-07-28 02:20:52 INFO  SubscriptionTests:124 - Running invalid product body case: Missing Name
+2026-07-28 02:20:53 INFO  SubscriptionTests:131 - ✅ Correctly rejected invalid product body: Missing Name
+2026-07-28 02:20:53 INFO  SubscriptionTests:71 - ▶ Running: [TC_04_negative_Create_Product_Invalid] | Groups: [subscription, negative, regression]
+2026-07-28 02:20:53 INFO  SubscriptionTests:124 - Running invalid product body case: Empty Name
+2026-07-28 02:20:53 INFO  SubscriptionTests:131 - ✅ Correctly rejected invalid product body: Empty Name
+2026-07-28 02:20:53 INFO  SubscriptionTests:71 - ▶ Running: [TC_03_positive_Delete_Product] | Groups: [subscription, regression, crate_retrieve_delete_product]
+2026-07-28 02:20:53 INFO  SubscriptionTests:99 - Testing delete product
+2026-07-28 02:20:54 INFO  SubscriptionTests:106 - Context product missing or already priced — created dedicated product for deletion: prod_UxrCcAwrAECnMU
+2026-07-28 02:20:54 INFO  SubscriptionTests:111 - Deleting product ID: prod_UxrCcAwrAECnMU
+2026-07-28 02:20:55 INFO  SubscriptionTests:118 - ✅ Product deleted successfully: prod_UxrCcAwrAECnMU
+2026-07-28 02:20:55 INFO  SubscriptionTests:71 - ▶ Running: [TC_09_positive_Create_Subscription] | Groups: [subscription, regression, subscription_e2e, smoke]
+2026-07-28 02:20:55 INFO  SubscriptionTests:255 - Test running under groups: [subscription, regression, subscription_e2e, smoke]
+2026-07-28 02:20:55 INFO  SubscriptionTests:256 - Testing positive create subscription
+2026-07-28 02:20:58 INFO  SubscriptionTests:262 - Created subscription ready customer ID: cus_UxrCvqlTHvXCoY
+2026-07-28 02:20:58 INFO  SubscriptionTests:277 - Creating subscription for customer: cus_UxrCvqlTHvXCoY with price: price_1TxvU4CawgxS6rsg8aPVwn9n
+2026-07-28 02:21:01 INFO  SubscriptionTests:291 - POJO validation passed for subscription: sub_1TxvUECawgxS6rsgx5kTogJV
+2026-07-28 02:21:01 INFO  SubscriptionTests:295 - ✅ Subscription created successfully: sub_1TxvUECawgxS6rsgx5kTogJV
+2026-07-28 02:21:01 INFO  SubscriptionTests:71 - ▶ Running: [TC_10_positive_Retrieve_Subscription] | Groups: [subscription, regression, subscription_e2e]
+2026-07-28 02:21:01 INFO  SubscriptionTests:302 - Testing retrieve subscription
+2026-07-28 02:21:01 INFO  SubscriptionTests:310 - Retrieving subscription ID: sub_1TxvUECawgxS6rsgx5kTogJV
+2026-07-28 02:21:02 INFO  SubscriptionTests:319 - POJO validation passed for retrieved subscription: sub_1TxvUECawgxS6rsgx5kTogJV
+2026-07-28 02:21:02 INFO  SubscriptionTests:320 - ✅ Subscription retrieved successfully: sub_1TxvUECawgxS6rsgx5kTogJV
+2026-07-28 02:21:02 INFO  SubscriptionTests:71 - ▶ Running: [TC_11_positive_Update_Subscription_Metadata] | Groups: [subscription, regression, subscription_e2e]
+2026-07-28 02:21:02 INFO  SubscriptionTests:327 - Testing update subscription metadata: plan_type=premium
+2026-07-28 02:21:02 INFO  SubscriptionTests:338 - Updating subscription ID: sub_1TxvUECawgxS6rsgx5kTogJV
+2026-07-28 02:21:03 INFO  SubscriptionTests:344 - ✅ Subscription metadata updated successfully: plan_type=premium
+2026-07-28 02:21:03 INFO  SubscriptionTests:71 - ▶ Running: [TC_11_positive_Update_Subscription_Metadata] | Groups: [subscription, regression, subscription_e2e]
+2026-07-28 02:21:03 INFO  SubscriptionTests:327 - Testing update subscription metadata: referral_code=REF_1785185462514
+2026-07-28 02:21:03 INFO  SubscriptionTests:338 - Updating subscription ID: sub_1TxvUECawgxS6rsgx5kTogJV
+2026-07-28 02:21:04 INFO  SubscriptionTests:344 - ✅ Subscription metadata updated successfully: referral_code=REF_1785185462514
+2026-07-28 02:21:04 INFO  SubscriptionTests:71 - ▶ Running: [TC_11_positive_Update_Subscription_Metadata] | Groups: [subscription, regression, subscription_e2e]
+2026-07-28 02:21:04 INFO  SubscriptionTests:327 - Testing update subscription metadata: environment=qa_automation
+2026-07-28 02:21:04 INFO  SubscriptionTests:338 - Updating subscription ID: sub_1TxvUECawgxS6rsgx5kTogJV
+2026-07-28 02:21:05 INFO  SubscriptionTests:344 - ✅ Subscription metadata updated successfully: environment=qa_automation
+2026-07-28 02:21:05 INFO  SubscriptionTests:71 - ▶ Running: [TC_12_positive_List_Subscriptions] | Groups: [subscription, regression, sanity]
+2026-07-28 02:21:05 INFO  SubscriptionTests:349 - Testing list subscriptions
+2026-07-28 02:21:05 INFO  SubscriptionTests:360 - Listing subscriptions
+2026-07-28 02:21:05 INFO  SubscriptionTests:368 - ✅ Subscriptions listed successfully
+2026-07-28 02:21:05 INFO  SubscriptionTests:71 - ▶ Running: [TC_15_negative_Create_Subscription_Invalid_Customer] | Groups: [subscription, negative, regression]
+2026-07-28 02:21:05 INFO  SubscriptionTests:407 - Testing create subscription with invalid customer
+2026-07-28 02:21:05 INFO  SubscriptionTests:420 - Attempting to create subscription with invalid customer
+2026-07-28 02:21:06 INFO  SubscriptionTests:426 - ✅ Correctly rejected subscription creation for nonexistent customer
+2026-07-28 02:21:06 INFO  SubscriptionTests:71 - ▶ Running: [TC_16_negative_Create_Subscription_Invalid_Price] | Groups: [subscription, negative, regression]
+2026-07-28 02:21:06 INFO  SubscriptionTests:431 - Testing create subscription with invalid price
+2026-07-28 02:21:06 INFO  SubscriptionTests:443 - Attempting to create subscription with invalid price
+2026-07-28 02:21:06 INFO  SubscriptionTests:449 - ✅ Correctly rejected subscription creation for nonexistent price
+2026-07-28 02:21:06 INFO  SubscriptionTests:71 - ▶ Running: [TC_17_negative_Update_Nonexistent_Subscription] | Groups: [subscription, negative, regression]
+2026-07-28 02:21:06 INFO  SubscriptionTests:454 - Testing update nonexistent subscription
+2026-07-28 02:21:06 INFO  SubscriptionTests:458 - Attempting to update nonexistent subscription
+2026-07-28 02:21:07 INFO  SubscriptionTests:464 - ✅ Correctly rejected subscription update for nonexistent subscription
+2026-07-28 02:21:07 INFO  SubscriptionTests:71 - ▶ Running: [TC_14_negative_Retrieve_Invalid_Subscription] | Groups: [subscription, negative, regression]
+2026-07-28 02:21:07 INFO  SubscriptionTests:396 - Retrieving invalid subscription: sub_invalid_id_12345
+2026-07-28 02:21:08 INFO  SubscriptionTests:402 - ✅ Correctly rejected invalid subscription ID retrieval: sub_invalid_id_12345
+2026-07-28 02:21:08 INFO  SubscriptionTests:71 - ▶ Running: [TC_14_negative_Retrieve_Invalid_Subscription] | Groups: [subscription, negative, regression]
+2026-07-28 02:21:08 INFO  SubscriptionTests:396 - Retrieving invalid subscription: ***
+2026-07-28 02:21:08 INFO  SubscriptionTests:402 - ✅ Correctly rejected invalid subscription ID retrieval: ***
+2026-07-28 02:21:08 INFO  SubscriptionTests:71 - ▶ Running: [TC_14_negative_Retrieve_Invalid_Subscription] | Groups: [subscription, negative, regression]
+2026-07-28 02:21:08 INFO  SubscriptionTests:396 - Retrieving invalid subscription: sub_00000000000000
+2026-07-28 02:21:09 INFO  SubscriptionTests:402 - ✅ Correctly rejected invalid subscription ID retrieval: sub_00000000000000
+2026-07-28 02:21:09 INFO  SubscriptionTests:71 - ▶ Running: [TC_13_positive_Cancel_Subscription] | Groups: [subscription, regression, subscription_e2e]
+2026-07-28 02:21:09 INFO  SubscriptionTests:373 - Testing cancel subscription
+2026-07-28 02:21:09 INFO  SubscriptionTests:381 - Canceling subscription ID: sub_1TxvUECawgxS6rsgx5kTogJV
+2026-07-28 02:21:10 INFO  SubscriptionTests:390 - ✅ Subscription canceled successfully: sub_1TxvUECawgxS6rsgx5kTogJV
+2026-07-28 02:21:10 INFO  SubscriptionTests:71 - ▶ Running: [TC_18_negative_Cancel_Already_Canceled_Subscription] | Groups: [subscription, negative, regression]
+2026-07-28 02:21:10 INFO  SubscriptionTests:469 - Testing cancel already canceled subscription
+2026-07-28 02:21:10 INFO  SubscriptionTests:491 - Attempting second cancellation of subscription ID: sub_1TxvUECawgxS6rsgx5kTogJV
+2026-07-28 02:21:11 INFO  SubscriptionTests:498 - ✅ Verified redundant cancel on already canceled subscription
+2026-07-28 02:21:11 INFO  SubscriptionTests:71 - ▶ Running: [TC_19_flow_E2E_Subscription_Lifecycle] | Groups: [subscription, regression, subscription_e2e, e2e]
+2026-07-28 02:21:11 INFO  SubscriptionTests:507 - Test running under groups: [subscription, regression, subscription_e2e, e2e]
+2026-07-28 02:21:11 INFO  SubscriptionTests:508 - 🔄 Starting E2E Subscription Lifecycle Flow
+2026-07-28 02:21:11 INFO  SubscriptionTests:516 -   Step 1: Customer created → cus_UxrC6uCsKtAqVU
+2026-07-28 02:21:12 INFO  SubscriptionTests:520 -   Step 2: Payment method created → pm_1TxvURCawgxS6rsgluetytgb
+2026-07-28 02:21:13 INFO  SubscriptionTests:528 -   Step 3: Attached payment method to customer
+2026-07-28 02:21:13 INFO  SubscriptionTests:536 -   Step 4: Default payment method set for invoices
+2026-07-28 02:21:14 INFO  SubscriptionTests:550 -   Step 5: Product created → prod_UxrC2aB6QP0EyD
+2026-07-28 02:21:15 INFO  SubscriptionTests:564 -   Step 6: Price created → price_1TxvUUCawgxS6rsgAsee3JhU
+2026-07-28 02:21:18 INFO  SubscriptionTests:580 -   Step 7: Subscription created & active → sub_1TxvUVCawgxS6rsguPefyfuk
+2026-07-28 02:21:18 INFO  SubscriptionTests:589 -   Step 8: Subscription retrieval verified ✅
+2026-07-28 02:21:19 INFO  SubscriptionTests:597 -   Step 9: Subscription canceled successfully ✅
+2026-07-28 02:21:19 INFO  SubscriptionTests:599 - 🎉 E2E Subscription Lifecycle Flow complete!
+2026-07-28 02:21:19 INFO  SubscriptionTests:608 - Running cleanup for SubscriptionTests
+2026-07-28 02:21:19 INFO  SubscriptionTests:611 - In flow mode, bypassing SubscriptionTests cleanup (delegated to suite cleanup)
+2026-07-28 02:21:20 INFO  SubscriptionTests:85 - Suite End Now :) 

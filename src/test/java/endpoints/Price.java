@@ -26,4 +26,12 @@ public class Price {
                 .when()
                 .get();
     }
+
+    public static Response listPrices(Map<String, Object> queryParams) {
+        return given()
+                .spec(RequestSpec.setupv1())
+                .queryParams(queryParams)
+                .when()
+                .get("/v1/prices");
+    }
 }

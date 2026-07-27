@@ -208,13 +208,13 @@ public class SetupIntentTests extends BaseClass {
         public void TC_06_negative_Confirm_Already_Succeeded_Setup_Intent() {
                 logger.info("Testing confirm already succeeded SetupIntent");
                 // Create and confirm a SetupIntent first
-                String confirmedPaymentIntentId = TestContext.getConfirmedSetupIntentId();
-                if (confirmedPaymentIntentId == null) {
-                        String setupIntentId = SetupIntentHelper.createAndConfirmSetupIntent();
-                        logger.info("Created and confirmed SetupIntent ID: {}", setupIntentId);
-                        TestContext.setConfirmedSetupIntentId(setupIntentId);
+                String confirmedSetuoIntentId = TestContext.getConfirmedSetupIntentId();
+                if (confirmedSetuoIntentId == null) {
+                        confirmedSetuoIntentId = SetupIntentHelper.createAndConfirmSetupIntent();
+                        logger.info("Created and confirmed SetupIntent ID: {}", confirmedSetuoIntentId);
+                        TestContext.setConfirmedSetupIntentId(confirmedSetuoIntentId);
                 } else {
-                        logger.info("Using active SetupIntent ID from context: {}", confirmedPaymentIntentId);
+                        logger.info("Using active SetupIntent ID from context: {}", confirmedSetuoIntentId);
                 }
 
                 String paymentMethodId = TestContext.getPaymentMethodId();
@@ -228,8 +228,8 @@ public class SetupIntentTests extends BaseClass {
                 confirmBody.put("payment_method", paymentMethodId);
 
                 // Attempting to confirm an already succeeded SetupIntent
-                logger.info("Attempting to confirm already succeeded SetupIntent ID: {}", confirmedPaymentIntentId);
-                SetupIntent.confirmSetupIntent(confirmedPaymentIntentId, confirmBody)
+                logger.info("Attempting to confirm already succeeded SetupIntent ID: {}", confirmedSetuoIntentId);
+                SetupIntent.confirmSetupIntent(confirmedSetuoIntentId, confirmBody)
                                 .then()
                                 .spec(ResponseSpec.request_failed())
                                 .body("error.code", equalTo("setup_intent_unexpected_state"));
@@ -275,7 +275,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("Attempting to confirm canceled SetupIntent ID: {}", setupIntentId);
                 SetupIntent.confirmSetupIntent(setupIntentId, confirmBody)
                                 .then()
-                                .spec(ResponseSpec.request_failed())
+                                .spec(ResponseSpec.bad_request())
                                 .body("error.code", equalTo("setup_intent_unexpected_state"));
 
                 logger.info("✅ Correctly rejected confirmation of canceled SetupIntent");
@@ -415,7 +415,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("Performing second cancellation on ID: {}", setupIntentId);
                 SetupIntent.cancelSetupIntent(setupIntentId)
                                 .then()
-                                .spec(ResponseSpec.request_failed())
+                                .spec(ResponseSpec.bad_request())
                                 .body("error.code", equalTo("setup_intent_unexpected_state"));
 
                 logger.info("✅ Correctly rejected double-cancellation of SetupIntent");
@@ -437,7 +437,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("Attempting to cancel succeeded SetupIntent ID: {}", confirmSetupIntentId);
                 SetupIntent.cancelSetupIntent(confirmSetupIntentId)
                                 .then()
-                                .spec(ResponseSpec.request_failed())
+                                .spec(ResponseSpec.bad_request())
                                 .body("error.code", equalTo("setup_intent_unexpected_state"));
 
                 logger.info("✅ Correctly rejected cancellation of succeeded SetupIntent");

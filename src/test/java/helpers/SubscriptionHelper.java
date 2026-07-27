@@ -1,6 +1,7 @@
 package helpers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.github.javafaker.Faker;
@@ -102,5 +103,17 @@ public class SubscriptionHelper {
 
         TestContext.setSubscriptionId(subscriptionId);
         return subscriptionId;
+    }
+
+    public static boolean hasNoPrices(String productId) {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("product", productId);
+        queryParams.put("limit", 1);
+
+        Response resp = Price.listPrices(queryParams);
+        resp.then().spec(ResponseSpec.OK());
+
+        List<Map<String, Object>> prices = resp.jsonPath().getList("data");
+        return prices.isEmpty();
     }
 }

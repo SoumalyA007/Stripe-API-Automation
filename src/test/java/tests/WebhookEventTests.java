@@ -26,7 +26,7 @@ public class WebhookEventTests extends BaseClass {
 
     // Helper method to poll Stripe Events API for a specific event type and object
     // ID
-    private String pollForEvent(String eventType, String targetObjectId) {
+    private String pollForEvent(String eventType, String targetObjectId,long createdAfterEpochSeconds) {
         int maxRetries = 6;
         long delayMillis = 1500;
 
@@ -36,6 +36,7 @@ public class WebhookEventTests extends BaseClass {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("type", eventType);
             queryParams.put("limit", 10);
+            queryParams.put("created[gte]", createdAfterEpochSeconds - 2);
 
             Response response = Events.getEvents(queryParams);
             if (response.getStatusCode() == 200) {
@@ -83,11 +84,12 @@ public class WebhookEventTests extends BaseClass {
         // Retrieve customer to get name/email for event body assertions
         Response customerResponse = Customer.getCustomer(customerId)
                 .then().spec(ResponseSpec.OK()).extract().response();
+        long customerCreatedEpoch = customerResponse.jsonPath().getLong("created");
         String name = customerResponse.jsonPath().getString("name");
         String email = customerResponse.jsonPath().getString("email");
 
         // Poll for customer.created event
-        String eventId = pollForEvent("customer.created", customerId);
+        String eventId = pollForEvent("customer.created", customerId,customerCreatedEpoch);
         assertThat("Event customer.created was not found in the events log", eventId, notNullValue());
 
         // Validate the event object details
@@ -113,13 +115,16 @@ public class WebhookEventTests extends BaseClass {
 
         String refundId = TestContext.getRefundId();
         String paymentIntentId = TestContext.getPaymentIntentId();
+        long refundCreatedEpoch;
 
         if (refundId != null) {
             logger.info("Reusing refund from context → refundId: {}, paymentIntentId: {}",
                     refundId, paymentIntentId);
+            refundCreatedEpoch = Refunds.retrieveRefund(refundId)
+                    .then().spec(ResponseSpec.OK())
+                    .extract().jsonPath().getLong("created");
         } else {
             // ── Standalone / fallback path ────────────────────────────────────
-            // No prior refund in context; create our own fresh PI + refund.
             paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
             fallbackPaymentIntentIds.add(paymentIntentId);
             logger.info("No refund in context – created fresh PaymentIntent: {}", paymentIntentId);
@@ -133,19 +138,19 @@ public class WebhookEventTests extends BaseClass {
             Response refundResponse = Refunds.createRefund(paymentIntentId, body);
             refundResponse.then().spec(ResponseSpec.OK());
             refundId = refundResponse.jsonPath().getString("id");
+            refundCreatedEpoch = refundResponse.jsonPath().getLong("created");
             logger.info("Created refund for event verification: {}", refundId);
         }
 
         // Poll for the event Stripe fired when the refund was created
-        String eventId = pollForEvent("charge.refunded", paymentIntentId);
+        String eventId = pollForEvent("charge.refunded", paymentIntentId, refundCreatedEpoch);
         if (eventId == null) {
             logger.info("charge.refunded event not found yet. Polling for refund.created instead");
-            eventId = pollForEvent("refund.created", refundId);
+            eventId = pollForEvent("refund.created", refundId, refundCreatedEpoch);
         }
 
         assertThat("Refund event was not found in the events log", eventId, notNullValue());
 
-        // Validate event details
         logger.info("Retrieving event: {}", eventId);
         Response eventResponse = Events.getEvent(eventId);
         eventResponse.then().spec(ResponseSpec.OK())

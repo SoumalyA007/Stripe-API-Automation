@@ -1,6 +1,3 @@
-[ERROR]   InvoicesTest.TC_03_Pay_Invoice:160 1 expectation failed.
-Expected status code <200> but was <400>.
-
 [ERROR]   PaymentIntentTests.TC_01_positive_Create_Payment_Intent:72 1 expectation failed.
 Expected status code <200> but was <400>.
 

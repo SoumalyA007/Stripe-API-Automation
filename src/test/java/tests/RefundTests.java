@@ -182,7 +182,7 @@ public class RefundTests extends BaseClass {
 
                 Refunds.createRefund("pi_invalid_id_12345", body)
                                 .then()
-                                .spec(ResponseSpec.bad_request());
+                                .spec(ResponseSpec.not_found());
 
                 logger.info("Successfully verified invalid PaymentIntent ID refund failure");
         }

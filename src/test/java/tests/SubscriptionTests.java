@@ -10,6 +10,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
+
+import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
@@ -41,7 +43,7 @@ public class SubscriptionTests extends BaseClass {
     // PRODUCT TESTS
     // ═══════════════════════════════════════════════════════════════
 
-    @Test(groups = { "subscription", "regression", "crate_retrieve_delete_product", "subscription_e2e", "smoke" })
+    @Test(groups = { "subscription", "regression", "crate_retrieve_delete_product", "subscription_e2e", "smoke" },priority = 1)
     public void TC_01_positive_Create_Product() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
@@ -72,7 +74,7 @@ public class SubscriptionTests extends BaseClass {
 
     @Test(groups = { "subscription",
             "regression",
-            "crate_retrieve_delete_product" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true)
+            "crate_retrieve_delete_product" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true,priority =2)
     public void TC_02_positive_Retrieve_Product() {
         logger.info("Testing retrieve product");
         String productId = TestContext.getProductId();
@@ -92,16 +94,19 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Product retrieved successfully: {}", productId);
     }
 
-    @Test(groups = { "subscription", "regression", "crate_retrieve_delete_product" })
+    @Test(groups = { "subscription", "regression", "crate_retrieve_delete_product" }, priority = 8)
     public void TC_03_positive_Delete_Product() {
         logger.info("Testing delete product");
+
         String productId = TestContext.getProductId();
-        if (productId == null) {
+
+        if (productId == null || !SubscriptionHelper.hasNoPrices(productId)) {
             productId = SubscriptionHelper.createProduct(true);
             productIdsToCleanup.add(productId);
-            logger.info("Created fallback product ID: {}", productId);
+            logger.info("Context product missing or already priced — created dedicated product for deletion: {}", productId);
+        } else {
+            logger.info("Context product has no prices — reusing it for deletion: {}", productId);
         }
-        logger.info("Created product ID for deletion: {}", productId);
 
         logger.info("Deleting product ID: {}", productId);
         Product.deleteProduct(productId)
@@ -111,18 +116,16 @@ public class SubscriptionTests extends BaseClass {
                 .body("deleted", equalTo(true));
 
         logger.info("✅ Product deleted successfully: {}", productId);
-        // NOTE: productId is NOT cleared from TestContext — it was deleted from Stripe
-        // but clearing from context could break downstream reads in the same suite.
     }
 
     @Test(groups = { "subscription", "negative",
-            "regression" }, dataProvider = "invalidProductBodies", dataProviderClass = SubscriptionDataProvider.class)
+            "regression" }, dataProvider = "invalidProductBodies", dataProviderClass = SubscriptionDataProvider.class,priority =7)
     public void TC_04_negative_Create_Product_Invalid(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid product body case: {}", testCaseName);
 
         Product.createProduct(body)
                 .then()
-                .spec(ResponseSpec.request_failed())
+                .spec(ResponseSpec.bad_request())
                 .body("error.type", equalTo("invalid_request_error"));
 
         logger.info("✅ Correctly rejected invalid product body: {}", testCaseName);
@@ -134,7 +137,7 @@ public class SubscriptionTests extends BaseClass {
 
     @Test(groups = { "subscription",
             "regression",
-            "subscription_e2e" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true)
+            "subscription_e2e" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true,priority =3)
     public void TC_05_positive_Create_Price() {
         logger.info("Testing positive create price");
         String productId = TestContext.getProductId();
@@ -172,7 +175,7 @@ public class SubscriptionTests extends BaseClass {
     }
 
     @Test(groups = { "subscription",
-            "regression" }, dataProvider = "subscriptionIntervals", dataProviderClass = SubscriptionDataProvider.class)
+            "regression" }, dataProvider = "subscriptionIntervals", dataProviderClass = SubscriptionDataProvider.class,priority =4)
     public void TC_06_positive_Create_Price_Intervals(String planName, int amount, String currency, String interval) {
         logger.info("Creating price for: {}", planName);
 
@@ -200,7 +203,7 @@ public class SubscriptionTests extends BaseClass {
     }
 
     @Test(groups = { "subscription",
-            "regression" }, dependsOnMethods = "TC_05_positive_Create_Price", ignoreMissingDependencies = true)
+            "regression" }, dependsOnMethods = "TC_05_positive_Create_Price", ignoreMissingDependencies = true,priority =5)
     public void TC_07_positive_Retrieve_Price() {
         logger.info("Testing retrieve price");
         String priceId = TestContext.getPriceId();
@@ -221,7 +224,7 @@ public class SubscriptionTests extends BaseClass {
     }
 
     @Test(groups = { "subscription", "negative",
-            "regression" }, dataProvider = "invalidPriceBodies", dataProviderClass = SubscriptionDataProvider.class)
+            "regression" }, dataProvider = "invalidPriceBodies", dataProviderClass = SubscriptionDataProvider.class,priority =6)
     public void TC_08_negative_Create_Price_Invalid(String testCaseName, Map<String, Object> body) {
         logger.info("Running invalid price body case: {}", testCaseName);
 
@@ -237,7 +240,7 @@ public class SubscriptionTests extends BaseClass {
 
         Price.createPrice(body)
                 .then()
-                .spec(ResponseSpec.request_failed())
+                .spec(ResponseSpec.bad_request())
                 .body("error.type", equalTo("invalid_request_error"));
 
         logger.info("✅ Correctly rejected invalid price body: {}", testCaseName);
@@ -247,7 +250,7 @@ public class SubscriptionTests extends BaseClass {
     // SUBSCRIPTION TESTS
     // ═══════════════════════════════════════════════════════════════
 
-    @Test(groups = { "subscription", "regression", "subscription_e2e", "smoke" })
+    @Test(groups = { "subscription", "regression", "subscription_e2e", "smoke" },priority =9)
     public void TC_09_positive_Create_Subscription() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("Testing positive create subscription");
@@ -294,7 +297,7 @@ public class SubscriptionTests extends BaseClass {
 
     @Test(groups = { "subscription",
             "regression",
-            "subscription_e2e" }, dependsOnMethods = "TC_09_positive_Create_Subscription", ignoreMissingDependencies = true)
+            "subscription_e2e" }, dependsOnMethods = "TC_09_positive_Create_Subscription", ignoreMissingDependencies = true,priority =10)
     public void TC_10_positive_Retrieve_Subscription() {
         logger.info("Testing retrieve subscription");
         String subId = TestContext.getSubscriptionId();
@@ -319,7 +322,7 @@ public class SubscriptionTests extends BaseClass {
 
     @Test(groups = { "subscription",
             "regression",
-            "subscription_e2e" }, dataProvider = "subscriptionMetadataUpdates", dataProviderClass = SubscriptionDataProvider.class)
+            "subscription_e2e" }, dataProvider = "subscriptionMetadataUpdates", dataProviderClass = SubscriptionDataProvider.class,priority =11)
     public void TC_11_positive_Update_Subscription_Metadata(String key, String value) {
         logger.info("Testing update subscription metadata: {}={}", key, value);
         String subId = TestContext.getSubscriptionId();
@@ -341,7 +344,7 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Subscription metadata updated successfully: {}={}", key, value);
     }
 
-    @Test(groups = { "subscription", "regression", "sanity" })
+    @Test(groups = { "subscription", "regression", "sanity" },priority =12)
     public void TC_12_positive_List_Subscriptions() {
         logger.info("Testing list subscriptions");
         String subId = TestContext.getSubscriptionId();
@@ -365,7 +368,7 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Subscriptions listed successfully");
     }
 
-    @Test(groups = { "subscription", "regression", "subscription_e2e" })
+    @Test(groups = { "subscription", "regression", "subscription_e2e" },priority =17)
     public void TC_13_positive_Cancel_Subscription() {
         logger.info("Testing cancel subscription");
         String subId = TestContext.getSubscriptionId();
@@ -383,11 +386,12 @@ public class SubscriptionTests extends BaseClass {
                 .body("status", equalTo("canceled"));
 
         TestContext.setCancelledSubscriptionId(subId);
+        TestContext.setSubscriptionId(null);
         logger.info("✅ Subscription canceled successfully: {}", subId);
     }
 
     @Test(groups = { "subscription", "negative",
-            "regression" }, dataProvider = "invalidSubscriptionIds", dataProviderClass = SubscriptionDataProvider.class)
+            "regression" }, dataProvider = "invalidSubscriptionIds", dataProviderClass = SubscriptionDataProvider.class,priority =16)
     public void TC_14_negative_Retrieve_Invalid_Subscription(String invalidId) {
         logger.info("Retrieving invalid subscription: {}", invalidId);
 
@@ -398,7 +402,7 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Correctly rejected invalid subscription ID retrieval: {}", invalidId);
     }
 
-    @Test(groups = { "subscription", "negative", "regression" })
+    @Test(groups = { "subscription", "negative", "regression" },priority =13)
     public void TC_15_negative_Create_Subscription_Invalid_Customer() {
         logger.info("Testing create subscription with invalid customer");
         String priceId = TestContext.getPriceId();
@@ -422,7 +426,7 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Correctly rejected subscription creation for nonexistent customer");
     }
 
-    @Test(groups = { "subscription", "negative", "regression" })
+    @Test(groups = { "subscription", "negative", "regression" },priority =14)
     public void TC_16_negative_Create_Subscription_Invalid_Price() {
         logger.info("Testing create subscription with invalid price");
         String customerId = TestContext.getCustomerId();
@@ -439,13 +443,13 @@ public class SubscriptionTests extends BaseClass {
         logger.info("Attempting to create subscription with invalid price");
         Subscription.createSubscription(body)
                 .then()
-                .spec(ResponseSpec.request_failed())
+                .spec(ResponseSpec.bad_request())
                 .body("error.message", containsString("No such price"));
 
         logger.info("✅ Correctly rejected subscription creation for nonexistent price");
     }
 
-    @Test(groups = { "subscription", "negative", "regression" })
+    @Test(groups = { "subscription", "negative", "regression" },priority =15)
     public void TC_17_negative_Update_Nonexistent_Subscription() {
         logger.info("Testing update nonexistent subscription");
         Map<String, Object> body = new HashMap<>();
@@ -460,7 +464,7 @@ public class SubscriptionTests extends BaseClass {
         logger.info("✅ Correctly rejected subscription update for nonexistent subscription");
     }
 
-    @Test(groups = { "subscription", "negative", "regression" })
+    @Test(groups = { "subscription", "negative", "regression" },priority =18)
     public void TC_18_negative_Cancel_Already_Canceled_Subscription() {
         logger.info("Testing cancel already canceled subscription");
         String cancelledSubscriptionId = TestContext.getCancelledSubscriptionId();
@@ -487,8 +491,9 @@ public class SubscriptionTests extends BaseClass {
         logger.info("Attempting second cancellation of subscription ID: {}", cancelledSubscriptionId);
         Subscription.cancelSubscription(cancelledSubscriptionId)
                 .then()
-                .spec(ResponseSpec.OK())
-                .body("status", equalTo("canceled"));
+                .spec(ResponseSpec.not_found())
+                .body("error.code", equalTo("resource_missing"))
+                .body("error.type",equalTo("invalid_request_error"));
 
         logger.info("✅ Verified redundant cancel on already canceled subscription");
     }
@@ -497,7 +502,7 @@ public class SubscriptionTests extends BaseClass {
     // E2E FLOW TESTS
     // ═══════════════════════════════════════════════════════════════
 
-    @Test(groups = { "subscription", "regression", "subscription_e2e", "e2e" })
+    @Test(groups = { "subscription", "regression", "subscription_e2e", "e2e" },priority =19)
     public void TC_19_flow_E2E_Subscription_Lifecycle() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("🔄 Starting E2E Subscription Lifecycle Flow");

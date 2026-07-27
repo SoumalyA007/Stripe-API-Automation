@@ -4,11 +4,7 @@
     <test name="Connected Accounts">
 
         <classes>
-            <class name="tests.ConnectedAccountsTest">
-                <methods>
-                    <include name="TC_03_positive_Delete_ConnectAccount"/>
-                    <include name="TC_04_positive_Retrieve_ConnectAccount"/>
-                </methods>
+            <class name="tests.SubscriptionTests">
             </class>
         </classes>
 

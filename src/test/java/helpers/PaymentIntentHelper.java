@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import testbase.BaseClass;
 
-public class PaymentIntentHelper {
+public class PaymentIntentHelper extends BaseClass {
 
     public static String createFallbackPaymentIntent(boolean confirm) {
         String paymentMethodId = TestContext.getPaymentMethodId();
@@ -53,7 +53,7 @@ public class PaymentIntentHelper {
 
     public static String createBankTransferPaymentIntentForCancellableRefund() {
         // Step 1: Create a fresh customer (customer_balance requires a customer)
-        String customerId = CustomersHelper.createCustomer();
+        String customerId = CustomersHelper.createCustomer(p.getProperty("verified_email"));
 
         // Step 2: Create a PaymentIntent with customer_balance / bank_transfer
         Map<String, Object> piBody = new HashMap<>();

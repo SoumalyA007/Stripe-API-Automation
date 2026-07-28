@@ -16,6 +16,7 @@ import helpers.ConnectedAccountHelper;
 import helpers.PaymentIntentHelper;
 import helpers.PojoValidator;
 import helpers.TransfersHelper;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import helpers.TestContext;
 import models.response.TransferResponse;
@@ -38,25 +39,45 @@ public class TransferTests extends BaseClass {
 
         String paymentIntentId = TestContext.getPaymentIntentId();
 
-        // If no confirmed PI in context, create one now so we have a charge to
-        // reference
         if (paymentIntentId == null) {
-            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
             fallbackPaymentIntentIds.add(paymentIntentId);
+
             logger.info("No PaymentIntent in context – created fallback: {}", paymentIntentId);
         }
 
-        // Retrieve the charge ID and amount from the confirmed PaymentIntent.
-        // Using source_transaction means Stripe funds the transfer directly from
-        // that charge — no platform balance required, avoiding balance_insufficient.
-        io.restassured.path.json.JsonPath piJson = PaymentIntent.retrievePaymentIntent(paymentIntentId)
+        JsonPath pi = PaymentIntent.retrievePaymentIntent(paymentIntentId)
                 .then()
                 .spec(ResponseSpec.OK())
                 .extract()
                 .jsonPath();
 
-        int amountPaid = piJson.getInt("amount_received");
-        String chargeId = piJson.getString("latest_charge");
+        String chargeId = pi.getString("latest_charge");
+
+        JsonPath charge = PaymentIntent.retrieveCharge(chargeId)
+                .then()
+                .spec(ResponseSpec.OK())
+                .extract()
+                .jsonPath();
+
+        if (charge.getBoolean("refunded")) {
+
+            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
+            fallbackPaymentIntentIds.add(paymentIntentId);
+
+            logger.info("Existing PaymentIntent was refunded. Created new PaymentIntent: {}", paymentIntentId);
+
+            // IMPORTANT: Reload the NEW PaymentIntent
+            pi = PaymentIntent.retrievePaymentIntent(paymentIntentId)
+                    .then()
+                    .spec(ResponseSpec.OK())
+                    .extract()
+                    .jsonPath();
+
+            chargeId = pi.getString("latest_charge");
+        }
+
+        int amountPaid = pi.getInt("amount_received");
         logger.info("PaymentIntent {} → amount_received: {}, latest_charge: {}",
                 paymentIntentId, amountPaid, chargeId);
 
@@ -153,7 +174,7 @@ public class TransferTests extends BaseClass {
                 .then()
                 .spec(ResponseSpec.bad_request())
                 .body("error.type", equalTo("invalid_request_error"))
-                .body("error.message", containsString("No such account"));
+                .body("error.message", containsString("No such destination:"));
         logger.info("Successfully verified invalid destination error");
     }
 

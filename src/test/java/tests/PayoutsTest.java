@@ -282,7 +282,7 @@ public class PayoutsTest extends BaseClass {
         // Fund the platform's available balance first so the payout has sufficient
         // funds
         logger.info("Funding platform account available balance...");
-        PaymentIntentHelper.createFallbackPaymentIntent(true);
+        PaymentIntentHelper.createFallbackPaymentIntent(true,true);
         logger.info("Platform account balance successfully funded.");
 
         Map<String, Object> body = new HashMap<>();

@@ -231,7 +231,7 @@ public class SetupIntentTests extends BaseClass {
                 logger.info("Attempting to confirm already succeeded SetupIntent ID: {}", confirmedSetuoIntentId);
                 SetupIntent.confirmSetupIntent(confirmedSetuoIntentId, confirmBody)
                                 .then()
-                                .spec(ResponseSpec.request_failed())
+                                .spec(ResponseSpec.bad_request())
                                 .body("error.code", equalTo("setup_intent_unexpected_state"));
 
                 logger.info("✅ Correctly rejected re-confirmation of succeeded SetupIntent");

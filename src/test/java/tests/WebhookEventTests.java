@@ -35,7 +35,7 @@ public class WebhookEventTests extends BaseClass {
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("type", eventType);
-            queryParams.put("limit", 10);
+            queryParams.put("limit", 300);
             queryParams.put("created[gte]", createdAfterEpochSeconds - 2);
 
             Response response = Events.getEvents(queryParams);
@@ -72,14 +72,9 @@ public class WebhookEventTests extends BaseClass {
     public void TC_01_Verify_CustomerCreated_Event() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
-        String customerId = TestContext.getCustomerId();
-        if (customerId == null) {
-            customerId = CustomersHelper.createCustomer();
-            fallbackCustomerIds.add(customerId);
-            logger.info("Created new Customer ID --> {}", customerId);
-        } else {
-            logger.info("Fetched customer ID from context --> {}", customerId);
-        }
+        String customerId = CustomersHelper.createCustomer();
+        fallbackCustomerIds.add(customerId);
+        logger.info("Created new Customer ID --> {}", customerId);
 
         // Retrieve customer to get name/email for event body assertions
         Response customerResponse = Customer.getCustomer(customerId)
@@ -125,7 +120,7 @@ public class WebhookEventTests extends BaseClass {
                     .extract().jsonPath().getLong("created");
         } else {
             // ── Standalone / fallback path ────────────────────────────────────
-            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
             fallbackPaymentIntentIds.add(paymentIntentId);
             logger.info("No refund in context – created fresh PaymentIntent: {}", paymentIntentId);
 

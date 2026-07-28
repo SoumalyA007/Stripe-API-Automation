@@ -12,8 +12,12 @@ public class PaymentIntentHelper extends BaseClass {
 
     public static String createFallbackPaymentIntent(boolean confirm) {
         String paymentMethodId = TestContext.getPaymentMethodId();
+        String customerId = TestContext.getCustomerId();
+        if (customerId == null) {
+            customerId = CustomersHelper.createCustomer();
+        }
         if (paymentMethodId == null) {
-            paymentMethodId = PaymentMethodsHelper.createValidPaymentMethod(true);
+            paymentMethodId = PaymentMethodsHelper.createAndAttachValidPaymentMethod(customerId,confirm);
         }
 
         Map<String, Object> body = new HashMap<>();
@@ -21,11 +25,6 @@ public class PaymentIntentHelper extends BaseClass {
         body.put("amount", BaseClass.amount);
         body.put("currency", "usd");
         body.put("payment_method", paymentMethodId);
-
-        String customerId = TestContext.getCustomerId();
-        if (customerId == null) {
-            customerId = CustomersHelper.createCustomer();
-        }
         body.put("customer", customerId);
 
         if (confirm) {

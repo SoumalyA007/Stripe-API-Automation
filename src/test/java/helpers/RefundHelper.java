@@ -32,7 +32,7 @@ public class RefundHelper extends BaseClass {
     }
 
     public static String createCancelledRefund() {
-        String refundId = createFallbackRefund();
+        String refundId = createCancellableRefund();
         Refunds.cancelRefund(refundId);
         return refundId;
     }

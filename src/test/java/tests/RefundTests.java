@@ -35,7 +35,7 @@ public class RefundTests extends BaseClass {
                 String paymentIntentId = TestContext.getPaymentIntentId();
                 logger.info("Fetched PaymentIntentId from context -->\t" + paymentIntentId);
                 if (paymentIntentId == null) {
-                        paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                        paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
                         logger.info("Created new paymentIntentId -->\t" + paymentIntentId);
                         TestContext.setPaymentIntentId(paymentIntentId);
                 }
@@ -79,7 +79,7 @@ public class RefundTests extends BaseClass {
         @Test(groups = { "refund", "regression", "partialrefund_retrieve" })
         public void TC_02_positive_Partial_Refund() {
                 logger.info("Testing positive partial refund");
-                String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
                 logger.info("Created new paymentIntentId -->\t" + paymentIntentId);
                 // Fetch the real paid amount so the partial refund is always valid
                 int amountReceived = PaymentIntent.retrievePaymentIntent(paymentIntentId)
@@ -167,6 +167,9 @@ public class RefundTests extends BaseClass {
 
                 // Store for TC_15 double-cancel test so it doesn't need to create its own
                 TestContext.setCanceledRefundId(refundId);
+                TestContext.setRefundId(null);
+                TestContext.setPaymentIntentId(null);
+                TestContext.setPaymentMethodId(null);
                 logger.info("Stored canceled refund ID in context for TC_15: {}", refundId);
         }
 
@@ -206,7 +209,7 @@ public class RefundTests extends BaseClass {
         public void TC_06_CreateRefund_AmountExceedsCharged() {
                 logger.info("Testing create refund exceeding original charged amount");
                 if (negativeRefundPaymentIntetnId == null) {
-                        negativeRefundPaymentIntetnId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                        negativeRefundPaymentIntetnId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
                         logger.info("Created paymentIntentId for negative tests: {}", negativeRefundPaymentIntetnId);
                         createdPaymentIntentIds.add(negativeRefundPaymentIntetnId);
                 }
@@ -227,7 +230,7 @@ public class RefundTests extends BaseClass {
         public void TC_07_CreateRefund_ZeroAmount() {
                 logger.info("Testing create refund with zero amount");
                 if (negativeRefundPaymentIntetnId == null) {
-                        negativeRefundPaymentIntetnId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                        negativeRefundPaymentIntetnId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
                         logger.info("Created paymentIntentId for negative tests: {}", negativeRefundPaymentIntetnId);
                         createdPaymentIntentIds.add(negativeRefundPaymentIntetnId);
                 }
@@ -249,7 +252,7 @@ public class RefundTests extends BaseClass {
                 logger.info("Testing create refund with invalid reason: {} -> {}", testCaseName, reason);
                 // Fresh PI per iteration so the reason field is the only failure point
                 if (negativeRefundPaymentIntetnId == null) {
-                        negativeRefundPaymentIntetnId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                        negativeRefundPaymentIntetnId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
                         logger.info("Created paymentIntentId for negative tests: {}", negativeRefundPaymentIntetnId);
                         createdPaymentIntentIds.add(negativeRefundPaymentIntetnId);
                 }
@@ -394,7 +397,7 @@ public class RefundTests extends BaseClass {
         @Test(groups = { "idempotent_test" })
         public void TC_18_positive_Idempotent_CreateRefund() {
                 logger.info("Testing idempotent create refund");
-                String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
+                String paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
                 createdPaymentIntentIds.add(paymentIntentId);
                 logger.info("Created paymentIntentId for TC_18: {}", paymentIntentId);
 

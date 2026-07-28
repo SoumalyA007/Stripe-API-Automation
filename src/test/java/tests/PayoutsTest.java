@@ -88,8 +88,10 @@ public class PayoutsTest extends BaseClass {
             logger.info("Created fallback payout ID: {}", payoutId);
             fallbackPayoutIds.add(payoutId);
         }
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Stripe-Account", p.getProperty("merchant_account_id"));
 
-        Response resp = Payouts.retrievePayout(payoutId);
+        Response resp = Payouts.retrievePayout(payoutId, headers);
         resp.then()
                 .spec(ResponseSpec.OK())
                 .body("id", equalTo(payoutId));
@@ -110,7 +112,10 @@ public class PayoutsTest extends BaseClass {
             fallbackPayoutIds.add(payoutId);
         }
 
-        Payouts.cancelPayout(payoutId)
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Stripe-Account", p.getProperty("merchant_account_id"));
+
+        Payouts.cancelPayout(payoutId,headers)
                 .then()
                 .spec(ResponseSpec.OK())
                 .body("id", equalTo(payoutId))
@@ -282,7 +287,7 @@ public class PayoutsTest extends BaseClass {
         // Fund the platform's available balance first so the payout has sufficient
         // funds
         logger.info("Funding platform account available balance...");
-        PaymentIntentHelper.createFallbackPaymentIntent(true,true);
+        PaymentIntentHelper.createFallbackPaymentIntent(true);
         logger.info("Platform account balance successfully funded.");
 
         Map<String, Object> body = new HashMap<>();

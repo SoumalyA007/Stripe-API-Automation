@@ -108,8 +108,8 @@ public class WebhookEventTests extends BaseClass {
     public void TC_02_Verify_RefundCreated_Event() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 
-        String refundId = TestContext.getRefundId();
-        String paymentIntentId = TestContext.getPaymentIntentId();
+        String refundId = TestContext.getRefundId(); // null
+        String paymentIntentId = TestContext.getPaymentIntentId();//null
         long refundCreatedEpoch;
 
         if (refundId != null) {
@@ -120,7 +120,7 @@ public class WebhookEventTests extends BaseClass {
                     .extract().jsonPath().getLong("created");
         } else {
             // ── Standalone / fallback path ────────────────────────────────────
-            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
+            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
             fallbackPaymentIntentIds.add(paymentIntentId);
             logger.info("No refund in context – created fresh PaymentIntent: {}", paymentIntentId);
 

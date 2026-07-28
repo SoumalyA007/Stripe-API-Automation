@@ -69,6 +69,12 @@ public class BaseClass {
         Test testAnnotation = method.getAnnotation(Test.class);
         currentGroups = (testAnnotation != null) ? testAnnotation.groups() : new String[] {};
         logger.info("▶ Running: [{}] | Groups: {}", method.getName(), Arrays.toString(currentGroups));
+        logger.info(
+                "Thread={} | Class={} | Test={}",
+                Thread.currentThread().getName(),
+                this.getClass().getSimpleName(),
+                method.getName()
+        );
     }
 
     @BeforeMethod(onlyForGroups = "unit")

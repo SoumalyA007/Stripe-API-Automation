@@ -13,8 +13,12 @@ public class RadarHelper {
         Map<String, Object> body = new HashMap<>();
         body.put("amount", testbase.BaseClass.amount);
         body.put("currency", "usd");
-        body.put("payment_method", "tok_createEarlyFraudWarning");
+        body.put("payment_method", "pm_card_createIssuerFraudRecord");
         body.put("confirm", true);
+        body.put("confirm", true);
+        body.put("automatic_payment_methods[enabled]", true);
+        body.put("automatic_payment_methods[allow_redirects]", "never");
+
 
         return PaymentIntent.createPaymentIntent(body)
                 .then()

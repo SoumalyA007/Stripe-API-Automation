@@ -13,6 +13,7 @@ import endpoints.Radar;
 import helpers.RadarHelper;
 import helpers.PojoValidator;
 import helpers.TestContext;
+import io.restassured.response.Response;
 import models.response.RadarEarlyFraudWarningResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -38,7 +39,7 @@ public class RadarTest extends BaseClass {
             logger.info("Fetched early fraud warning ID from context --> {}", warningId);
         }
 
-        io.restassured.response.Response resp = Radar.retrieveEarlyFraudWarning(warningId);
+        Response resp = Radar.retrieveEarlyFraudWarning(warningId);
         resp.then()
                 .spec(ResponseSpec.OK())
                 .body("id", equalTo(warningId))

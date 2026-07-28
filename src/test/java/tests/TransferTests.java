@@ -40,7 +40,7 @@ public class TransferTests extends BaseClass {
         String paymentIntentId = TestContext.getPaymentIntentId();
 
         if (paymentIntentId == null) {
-            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
+            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
             fallbackPaymentIntentIds.add(paymentIntentId);
 
             logger.info("No PaymentIntent in context – created fallback: {}", paymentIntentId);
@@ -62,7 +62,7 @@ public class TransferTests extends BaseClass {
 
         if (charge.getBoolean("refunded")) {
 
-            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true,true);
+            paymentIntentId = PaymentIntentHelper.createFallbackPaymentIntent(true);
             fallbackPaymentIntentIds.add(paymentIntentId);
 
             logger.info("Existing PaymentIntent was refunded. Created new PaymentIntent: {}", paymentIntentId);
@@ -329,7 +329,7 @@ public class TransferTests extends BaseClass {
         Transfers.reverseTransfer(transferId, body)
                 .then()
                 .spec(ResponseSpec.bad_request())
-                .body("error.message", containsString("cannot be greater than"));
+                .body("error.message", containsString("We cannot reverse"));
         logger.info("Successfully verified amount exceeding original error");
     }
 

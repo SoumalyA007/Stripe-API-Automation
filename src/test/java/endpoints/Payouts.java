@@ -57,6 +57,16 @@ public class Payouts {
                 .get();
     }
 
+    public static Response retrievePayout(String payoutId,Map<String, String> headers) {
+        return given()
+                .spec(RequestSpec.setupv1())
+                .headers(headers)
+                .basePath("/v1/payouts/{payoutId}")
+                .pathParam("payoutId", payoutId)
+                .when()
+                .get();
+    }
+
     public static Response retrievePayoutWithCustomAuth(String token, String payoutId) {
         var request = given()
                 .baseUri(p.getProperty("baseURI"))
@@ -79,6 +89,16 @@ public class Payouts {
     public static Response cancelPayout(String payoutId) {
         return given()
                 .spec(RequestSpec.setupv1())
+                .basePath("/v1/payouts/{payoutId}/cancel")
+                .pathParam("payoutId", payoutId)
+                .when()
+                .post();
+    }
+
+    public static Response cancelPayout(String payoutId,Map<String, String> headers) {
+        return given()
+                .spec(RequestSpec.setupv1())
+                .headers(headers)
                 .basePath("/v1/payouts/{payoutId}/cancel")
                 .pathParam("payoutId", payoutId)
                 .when()

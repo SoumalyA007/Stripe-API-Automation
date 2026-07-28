@@ -6,6 +6,7 @@ import specification.ResponseSpec;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
 public class PaymentMethodsHelper {
@@ -73,6 +74,7 @@ public class PaymentMethodsHelper {
 
         if (saveToContext) {
             TestContext.setPaymentMethodId(paymentMethodId);
+            TestContext.setCustomerId(customerId);
         }
         Map<String, Object> body = new HashMap<>();
         body.put("customer", customerId);

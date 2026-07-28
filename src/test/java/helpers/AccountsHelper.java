@@ -99,11 +99,22 @@ public class AccountsHelper {
     public static CreateAccountRequestPayload accountWithDashboard(Dashboard dashboardType) {
         String email = faker.internet().emailAddress();
         String name = faker.name().firstName();
+
+        DefaultsResponsibilitiesFeesCollector feesCollector =
+                dashboardType == Dashboard.express
+                        ? DefaultsResponsibilitiesFeesCollector.application
+                        : DefaultsResponsibilitiesFeesCollector.stripe;
+
+        DefaultsResponsibilitiesLossesCollector lossesCollector =
+                dashboardType == Dashboard.express
+                        ? DefaultsResponsibilitiesLossesCollector.application
+                        : DefaultsResponsibilitiesLossesCollector.stripe;
+
         return CreateAccountDataFactory.createAccountRequestPayload(
                 email, name, "us", IdentityEntity.company,
                 true, true,
-                DefaultsResponsibilitiesFeesCollector.stripe,
-                DefaultsResponsibilitiesLossesCollector.stripe,
+                feesCollector,
+                lossesCollector,
                 dashboardType,
                 List.of(
                         Include.CONFIGURATION_CUSTOMER.getValue(),
@@ -144,18 +155,9 @@ public class AccountsHelper {
                                                                 .build())
                                                 .build())
                                 .build())
-                .defaults(
-                        Defaults.builder()
-                                .responsibilities(
-                                        Responsibilities.builder()
-                                                .fees_collector(DefaultsResponsibilitiesFeesCollector.stripe)
-                                                .losses_collector(DefaultsResponsibilitiesLossesCollector.stripe)
-                                                .build())
-                                .build())
                 .include(List.of(
                         Include.CONFIGURATION_CUSTOMER.getValue(),
-                        Include.IDENTITY.getValue(),
-                        Include.DEFAULTS.getValue()))
+                        Include.IDENTITY.getValue()))
                 .build();
     }
 

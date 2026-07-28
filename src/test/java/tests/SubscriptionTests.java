@@ -74,7 +74,7 @@ public class SubscriptionTests extends BaseClass {
 
     @Test(groups = { "subscription",
             "regression",
-            "crate_retrieve_delete_product" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true,priority =2)
+            "crate_retrieve_delete_product" }, ignoreMissingDependencies = true,priority =2)
     public void TC_02_positive_Retrieve_Product() {
         logger.info("Testing retrieve product");
         String productId = TestContext.getProductId();
@@ -137,7 +137,7 @@ public class SubscriptionTests extends BaseClass {
 
     @Test(groups = { "subscription",
             "regression",
-            "subscription_e2e" }, dependsOnMethods = "TC_01_positive_Create_Product", ignoreMissingDependencies = true,priority =3)
+            "subscription_e2e" }, ignoreMissingDependencies = true,priority =3)
     public void TC_05_positive_Create_Price() {
         logger.info("Testing positive create price");
         String productId = TestContext.getProductId();
@@ -203,7 +203,7 @@ public class SubscriptionTests extends BaseClass {
     }
 
     @Test(groups = { "subscription",
-            "regression" }, dependsOnMethods = "TC_05_positive_Create_Price", ignoreMissingDependencies = true,priority =5)
+            "regression" }, ignoreMissingDependencies = true,priority =5)
     public void TC_07_positive_Retrieve_Price() {
         logger.info("Testing retrieve price");
         String priceId = TestContext.getPriceId();
@@ -297,7 +297,7 @@ public class SubscriptionTests extends BaseClass {
 
     @Test(groups = { "subscription",
             "regression",
-            "subscription_e2e" }, dependsOnMethods = "TC_09_positive_Create_Subscription", ignoreMissingDependencies = true,priority =10)
+            "subscription_e2e" }, ignoreMissingDependencies = true,priority =10)
     public void TC_10_positive_Retrieve_Subscription() {
         logger.info("Testing retrieve subscription");
         String subId = TestContext.getSubscriptionId();

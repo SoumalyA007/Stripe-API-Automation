@@ -80,7 +80,7 @@ public class PaymentMethodTests extends BaseClass {
     // paymentmethod already not present
     @Test(groups = { "payment_method", "regression",
             "create_attach_retrieve_detach", "marketplace_e2e", "subscription_e2e",
-            "saved_card_e2e" }, dependsOnMethods = "tests.CustomerTests.TC_01_CreateCustomer_ValidData", ignoreMissingDependencies = true)
+            "saved_card_e2e" }, ignoreMissingDependencies = true)
     public void TC_03_Attach_Payment_Method() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
         logger.info("Testing attach payment method");
@@ -144,7 +144,7 @@ public class PaymentMethodTests extends BaseClass {
     // Retrieving payment method from context and creating one if not present
     @Test(groups = { "payment_method",
             "regression",
-            "sanity" }, dependsOnMethods = "TC_01_Create_Valid_Payment_Method", ignoreMissingDependencies = true)
+            "sanity" }, ignoreMissingDependencies = true)
     public void TC_05_Retrieve_Payment_Method() {
         logger.info("Testing retrieve valid payment method");
         String paymentMethodId = TestContext.getPaymentMethodId();
@@ -182,7 +182,7 @@ public class PaymentMethodTests extends BaseClass {
 
     // Get a method by using customer id and payment method id
     @Test(groups = { "payment_method", "regression",
-            "create_attach_retrieve_detach" }, dependsOnMethods = "TC_01_Create_Valid_Payment_Method", ignoreMissingDependencies = true)
+            "create_attach_retrieve_detach" }, ignoreMissingDependencies = true)
     public void TC_07_Retrieve_Valid_Payment_Method_By_Customer() {
         logger.info("Testing retrieve valid payment method by customer");
         String paymentMethodId = TestContext.getPaymentMethodId();
@@ -235,7 +235,7 @@ public class PaymentMethodTests extends BaseClass {
 
     // detach the payment method by using payment method id and customer id
     @Test(groups = { "payment_method", "regression",
-            "create_attach_retrieve_detach" }, dependsOnMethods = "TC_03_Attach_Payment_Method", ignoreMissingDependencies = true)
+            "create_attach_retrieve_detach" }, ignoreMissingDependencies = true)
     public void TC_09_Detach_Payment_Method() {
         logger.info("Testing detach payment method");
         String customerId = TestContext.getCustomerId();

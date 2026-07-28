@@ -1,29 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="Regression Test Suite" verbose="2" parallel="classes" thread-count="4">
+<suite name="Regression Test Suite" verbose="2" parallel="tests" thread-count="4">
     <listeners>
         <listener class-name="listeners.SuiteCleanupListener"/>
     </listeners>
-    <test name="All Regression Tests" group-by-instances="true">
-        <groups>
-            <run>
-                <include name="regression"/>
-            </run>
-        </groups>
+
+    <!-- Group 1: Customer API -->
+    <test name="Customer Tests">
+        <groups><run><include name="regression"/></run></groups>
         <classes>
             <class name="tests.CustomerTests"/>
+        </classes>
+    </test>
+
+    <!-- Group 2: Accounts API (v2) -->
+    <test name="Account Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.AccountTests"/>
+        </classes>
+    </test>
+
+    <!-- Group 3: Connected Accounts API -->
+    <test name="Connected Account Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.ConnectedAccountsTest"/>
+        </classes>
+    </test>
+
+    <!-- Group 4: Payment Methods -->
+    <test name="Payment Method Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.PaymentMethodTests"/>
+        </classes>
+    </test>
+
+    <!-- Group 5: Payment Intents -->
+    <test name="Payment Intent Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.PaymentIntentTests"/>
+        </classes>
+    </test>
+
+    <!-- Group 6: Refunds -->
+    <test name="Refund Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.RefundTests"/>
+        </classes>
+    </test>
+
+    <!-- Group 7: Webhooks -->
+    <test name="Webhook Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.WebhookEventTests"/>
+        </classes>
+    </test>
+
+    <!-- Group 8: Setup Intents -->
+    <test name="Setup Intent Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.SetupIntentTests"/>
+        </classes>
+    </test>
+
+    <!-- Group 9: Subscriptions -->
+    <test name="Subscription Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.SubscriptionTests"/>
+        </classes>
+    </test>
+
+    <!-- Group 10: Transfers -->
+    <test name="Transfer Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.TransferTests"/>
+        </classes>
+    </test>
+
+    <!-- Group 11: Payouts -->
+    <test name="Payout Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.PayoutsTest"/>
+        </classes>
+    </test>
+
+    <!-- Group 12: Invoices -->
+    <test name="Invoice Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.InvoicesTest"/>
+        </classes>
+    </test>
+
+    <!-- Group 13: Radar -->
+    <test name="Radar Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.RadarTest"/>
+        </classes>
+    </test>
+
+    <!-- Group 14: Disputes -->
+    <test name="Dispute Tests">
+        <groups><run><include name="regression"/></run></groups>
+        <classes>
             <class name="tests.DisputesTest"/>
         </classes>
     </test>

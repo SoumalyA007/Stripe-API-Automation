@@ -134,7 +134,7 @@ public class InvoicesTest extends BaseClass {
     // ***************PAY INVOICE – POSITIVE*******************\\
 
     @Test(groups = { "invoice", "regression",
-            "create_finalize_pay_invoice" }, dependsOnMethods = "TC_02_Finalize_Invoice")
+            "create_finalize_pay_invoice" })
     public void TC_03_Pay_Invoice() {
         logger.info("Test running under groups: {}", Arrays.toString(currentGroups));
 

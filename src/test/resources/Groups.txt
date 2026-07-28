@@ -1,1 +1,102 @@
-abcgi
+[ERROR] Failures: 
+[ERROR]   AccountTests.TC_09_CreateAccount_EmptyEmail:210 1 expectation failed.
+Expected status code <400> but was <200>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   AccountTests.TC_12_CreateAccount_EmptyDisplayName:257 1 expectation failed.
+Expected status code <400> but was <200>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   AccountTests.TC_14_CreateAccount_SpecialCharsDisplayName:297 1 expectation failed.
+Expected status code <400> but was <200>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   CustomerTests.TC_09_CreateCustomer_SpecialCharacters:250 1 expectation failed.
+Expected status code <400> but was <200>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   CustomerTests.TC_10_CreateCustomer_EmptyValues:272 1 expectation failed.
+Expected status code <400> but was <200>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   PaymentIntentTests.TC_04_negative_Cancel_Succeeded_Payment_Intent:159 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   PaymentIntentTests.TC_05_negative_Cancel_Already_Canceled_Payment_Intent:182 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   PaymentIntentTests.TC_06_positive_Confirm_Payment_Intent:216 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   PaymentIntentTests.TC_10_negative_Confirm_Succeeded_Payment_Intent:348 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   PayoutsTest.TC_03_Cancel_Payout:120 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   RefundTests.TC_01_positive_Full_Refund:38 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   RefundTests.TC_02_Retrieve_Refund:119 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   RefundTests.TC_02_positive_Partial_Refund:82 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   RefundTests.TC_06_CreateRefund_AmountExceedsCharged:212 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   RefundTests.TC_07_CreateRefund_ZeroAmount:233 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   RefundTests.TC_08_CreateRefund_InvalidReason:255 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   RefundTests.TC_08_CreateRefund_InvalidReason:255 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   RefundTests.TC_08_CreateRefund_InvalidReason:255 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   RefundTests.TC_08_CreateRefund_InvalidReason:255 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_01_positive_Create_Setup_Intent:56 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_04_positive_Confirm_Setup_Intent:130 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_06_negative_Confirm_Already_Succeeded_Setup_Intent:213 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_08_positive_Retrieve_Setup_Intent:294 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_10_positive_Update_Setup_Intent_Metadata:336 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_10_positive_Update_Setup_Intent_Metadata:336 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_10_positive_Update_Setup_Intent_Metadata:336 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_12_positive_Cancel_Setup_Intent:381 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_12_positive_Cancel_Setup_Intent:381 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_12_positive_Cancel_Setup_Intent:381 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_13_negative_Cancel_Already_Canceled_Setup_Intent:402 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_14_negative_Cancel_Succeeded_Setup_Intent:431 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_15_flow_Saved_Card_Future_OffSession_Payment:511 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   SetupIntentTests.TC_17_positive_List_Setup_Intents:633 1 expectation failed.
+Expected status code <200> but was <400>.                                                                                                                                                                
+                                                                                                                                                                                                         
+[ERROR]   WebhookEventTests.TC_02_Verify_RefundCreated_Event:123 1 expectation failed.
+Expected status code <200> but was <400>. 

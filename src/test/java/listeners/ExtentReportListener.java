@@ -36,7 +36,7 @@ public class ExtentReportListener implements ITestListener {
     
 
     @Override
-    public void onStart(ITestContext context) {
+    public synchronized void onStart(ITestContext context) {
         if (extent == null) {
             String reportsDir = System.getProperty("user.dir") + "/reports";
             String timestamp = LocalDateTime.now().format(TIMESTAMP_FMT);
@@ -127,8 +127,6 @@ public class ExtentReportListener implements ITestListener {
     public void onFinish(ITestContext context) {
         if (extent != null) {
             extent.flush();
-            // Reset so the next suite run initialises a fresh report
-            extent = null;
         }
     }
 

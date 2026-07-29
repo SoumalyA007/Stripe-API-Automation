@@ -57,14 +57,12 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                // -Dsurefire.suiteXmlFiles overrides the default testng.xml
-                // defined in pom.xml so you can pick any suite from the dropdown.
-                sh """
-                    mvn clean test \
-                        -Dsurefire.suiteXmlFiles=${params.SUITE} \
-                        --no-transfer-progress
-                """
-            }
+                    sh """
+                        mvn clean test \
+                            -Dsurefire.suiteXmlFiles=${params.SUITE} \
+                            --no-transfer-progress
+                    """
+                }
             post {
                 always {
                     // Publish TestNG HTML & XML results

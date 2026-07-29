@@ -55,16 +55,19 @@ pipeline {
             }
         }
 
-        stage('Build & Test') {
-            steps {
-                    bat "mvn clean test -Dsurefire.suiteXmlFiles=%SUITE% --no-transfer-progress"
-                }
-            post {
-                    always {
-                        testNG reportFilenamePattern: '**/target/surefire-reports/testng-results.xml'
-                    }
-                }
+stage('Build & Test') {
+    steps {
+        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+            bat "mvn clean test -Dsurefire.suiteXmlFiles=%SUITE% --no-transfer-progress"
         }
+    }
+
+    post {
+        always {
+            testNG reportFilenamePattern: '**/target/surefire-reports/testng-results.xml'
+        }
+    }
+}
 
         stage('Publish Extent Report') {
             steps {

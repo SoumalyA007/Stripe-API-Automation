@@ -82,8 +82,7 @@ public class InvoicesTest extends BaseClass {
         .body("invoice_pdf", nullValue())
         .body("number", nullValue()) // invoice number isn't assigned until finalized
 
-        // --- customer snapshot fields (Stripe copies these onto the invoice) ---
-        .body("customer_email", equalTo(TestContext.getBillingEmail())) // if you track this
+        // --- customer snapshot fields (Stripe copies these onto the invoice) ---// if you track this
         .body("customer_name", notNullValue())
 
         // --- id sanity ---

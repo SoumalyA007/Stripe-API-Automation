@@ -40,8 +40,7 @@ public class ExtentReportListener implements ITestListener {
         if (extent == null) {
             String reportsDir = System.getProperty("user.dir") + "/reports";
             String timestamp = LocalDateTime.now().format(TIMESTAMP_FMT);
-            String reportPath = reportsDir + "/ExtentReport_" + timestamp + ".html";
-
+            String reportPath = reportsDir + "/ExtentReport.html";
             // ── Archive any previous HTML reports before creating the new one ──
             archiveOldReports(reportsDir, timestamp);
 

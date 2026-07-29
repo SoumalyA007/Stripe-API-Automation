@@ -52,7 +52,7 @@ public class PaymentIntentHelper extends BaseClass {
 
     public static String createBankTransferPaymentIntentForCancellableRefund() {
         // Step 1: Create a fresh customer (customer_balance requires a customer)
-        String customerId = CustomersHelper.createCustomer(p.getProperty("verified_email"));
+        String customerId = CustomersHelper.createCustomer(verified_email);
 
         // Step 2: Create a PaymentIntent with customer_balance / bank_transfer
         Map<String, Object> piBody = new HashMap<>();

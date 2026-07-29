@@ -3,8 +3,8 @@ pipeline {
 
     // ── Tool versions configured in Manage Jenkins → Global Tool Configuration ──
     tools {
-        maven 'Maven_3'   // name you gave Maven in Jenkins Global Tools
-        jdk   'JDK_21'    // name you gave the JDK in Jenkins Global Tools
+        maven 'My Maven'   // name you gave Maven in Jenkins Global Tools
+        jdk   'My Java'    // name you gave the JDK in Jenkins Global Tools
     }
 
     // ── All Stripe secrets live in Jenkins Credentials Store ──────────────────
@@ -18,6 +18,7 @@ pipeline {
         // Secrets are bound from Jenkins Credentials – never hard-coded
         STRIPE_AUTH_KEY            = credentials('STRIPE_AUTH_KEY')
         STRIPE_MERCHANT_ACCOUNT_ID = credentials('STRIPE_MERCHANT_ACCOUNT_ID')
+        VERIFIED_EMAIL             ='devil.burdwan@gmail.com'
     }
 
     parameters {

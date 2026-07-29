@@ -23,12 +23,14 @@ public class BaseClass {
     public Logger logger = LogManager.getLogger(this.getClass());
     public static Faker faker = new Faker();
     public static int amount;
+    public static String verified_email;
 
     static {
         try {
             FileReader fr = new FileReader("src/test/resources/config.properties");
             p.load(fr);
             amount = Integer.parseInt(p.getProperty("amount", "2000"));
+            verified_email = p.getProperty("verified_email", "devil.burdwan@gmail.com");
         } catch (FileNotFoundException e) {
             // ── CI / Jenkins path ─────────────────────────────────────────────
             // config.properties is gitignored and won't exist on CI agents.
@@ -37,6 +39,7 @@ public class BaseClass {
             String authKey = System.getenv("STRIPE_AUTH_KEY");
             String amountEnv = System.getenv("STRIPE_AMOUNT");
             String merchantId = System.getenv("STRIPE_MERCHANT_ACCOUNT_ID");
+            verified_email = System.getenv("VERIFIED_EMAIL");
 
             if (authKey == null || authKey.isBlank()) {
                 throw new RuntimeException(

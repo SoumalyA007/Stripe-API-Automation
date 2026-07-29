@@ -57,18 +57,13 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                    sh """
-                        mvn clean test \
-                            -Dsurefire.suiteXmlFiles=${params.SUITE} \
-                            --no-transfer-progress
-                    """
+                    bat "mvn clean test -Dsurefire.suiteXmlFiles=%SUITE% --no-transfer-progress"
                 }
             post {
-                always {
-                    // Publish TestNG HTML & XML results
-                    testNG reportFilenamePattern: '**/target/surefire-reports/testng-results.xml'
+                    always {
+                        testNG reportFilenamePattern: '**/target/surefire-reports/testng-results.xml'
+                    }
                 }
-            }
         }
 
         stage('Publish Extent Report') {
